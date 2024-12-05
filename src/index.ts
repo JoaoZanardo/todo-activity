@@ -1,3 +1,4 @@
+/* eslint-disable func-call-spacing */
 /* eslint-disable no-undef */
 import Express from 'express'
 
@@ -16,13 +17,13 @@ process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) =>
 process.on('uncaughtException', (error) => {
   console.log(`App exiting due to an uncaught exception ${error}`)
   process.exit(ExitStatus.Failure)
-});
+})
+
+const app = Express()
+export const server = new Server(app);
 
 (async () => {
   try {
-    const app = Express()
-    const server = new Server(app)
-
     await server.init()
 
     server.start()
