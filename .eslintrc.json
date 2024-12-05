@@ -1,0 +1,60 @@
+{
+    "env": {
+      "browser": true,
+      "es2021": true,
+      "jest": true
+    },
+    "extends": [
+      "standard"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+      "ecmaVersion": 12,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "@typescript-eslint",
+      "unused-imports",
+      "simple-import-sort"
+    ],
+    "rules": {
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "no-case-declarations": "warn",
+      "no-unused-vars": [0],
+      "@typescript-eslint/no-unused-vars": [1],
+      "no-use-before-define": "off",
+      "@typescript-eslint/no-use-before-define": "off",
+      "no-nested-ternary": "off",
+      "no-unneeded-ternary": "off",
+      "multiline-ternary": "off",
+      "indent": ["warn", 2, { "SwitchCase": 1 }],
+      "unused-imports/no-unused-imports": "error",
+      "unused-imports/no-unused-vars": "error",
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
+      "@typescript-eslint/naming-convention": "off",
+      "no-labels": "error",
+      "eqeqeq": "error",
+      "import/first": "error",
+      "import/newline-after-import": "error",
+      "import/no-duplicates": "error",
+      "@typescript-eslint/restrict-template-expressions": "off",
+      "@typescript-eslint/no-invalid-void-type": "off",
+      "no-tabs": ["error", { "allowIndentationTabs": true }],
+      "@typescript-eslint/array-type": [
+        "error",
+        {
+          "default": "generic"
+        }
+      ],
+      "import/export": [
+        "off"
+      ],
+      "@typescript-eslint/no-redeclare": [
+        "off"
+      ]
+    },
+    "globals": {}
+  }
+  

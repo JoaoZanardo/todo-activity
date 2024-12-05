@@ -1,0 +1,25 @@
+{
+    "[javascript]": {
+      "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.fixAll": "explicit"
+      },
+    },
+    "[typescript]": {
+      "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.fixAll": "explicit"
+      },
+      "typescript.preferences.importModuleSpecifier": "non-relative"
+    },
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "editor.fontFamily": "Fira Code",
+    "editor.fontLigatures": true,
+    "[javascript][typescript]": {
+      "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.fixAll": "explicit"
+      }
+    }
+  }
+  
