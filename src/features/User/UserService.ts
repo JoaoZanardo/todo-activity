@@ -131,8 +131,6 @@ export class UserService {
       })
     }
 
-    // await this.setForeignProperties(user)
-
     return user
   }
 

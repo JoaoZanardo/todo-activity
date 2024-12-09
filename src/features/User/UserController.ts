@@ -114,13 +114,15 @@ class UserController extends Controller {
         const {
           email,
           password,
-          name
+          name,
+          accessGroupId
         } = request.body
 
         this.rules.validate(
           { name },
           { email },
-          { password }
+          { password },
+          { accessGroupId }
         )
 
         const userModel = new UserModel({
@@ -132,6 +134,7 @@ class UserController extends Controller {
             date: DateUtils.getCurrent(),
             userId: user._id!
           }],
+          accessGroupId,
           name
         })
 

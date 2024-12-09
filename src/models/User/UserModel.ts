@@ -2,8 +2,12 @@ import { Types } from 'mongoose'
 
 import { IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
+import ObjectId from '../../utils/ObjectId'
+import { IAccessGroup } from '../AccessGroup/AccessGroupModel'
 
-export interface IListUsersFilters extends IListModelsFilters { }
+export interface IListUsersFilters extends IListModelsFilters {
+  accessGroupId?: Types.ObjectId
+}
 
 export interface IUpdateUserProps extends IUpdateModelProps<IUser> {}
 
@@ -29,26 +33,32 @@ export interface IFindUserByEmailProps {
 
 export interface IUser extends IModel {
   admin?: Types.ObjectId
+  accessGroup?: IAccessGroup
 
   name: string
   email: string
   password: string
+  accessGroupId: Types.ObjectId
 }
 
 export class UserModel extends Model<IUser> {
   private _admin?: IUser['admin']
+  private _accessGroup?: IUser['accessGroup']
 
   private _name: IUser['name']
   private _email: IUser['email']
   private _password: IUser['password']
+  private _accessGroupId: IUser['accessGroupId']
 
   constructor (user: IUser) {
     super(user)
 
     this._admin = user.admin
+    this._accessGroup = user.accessGroup
     this._name = user.name
     this._email = user.email
     this._password = user.password
+    this._accessGroupId = user.accessGroupId
   }
 
   get object (): IUser {
@@ -62,25 +72,31 @@ export class UserModel extends Model<IUser> {
       admin: this._admin,
       name: this._name,
       email: this._email,
-      password: this._password
+      password: this._password,
+      accessGroupId: this._accessGroupId
     }
   }
 
-  get show () {
-    return this.object
+  get show (): IUser {
+    return {
+      ...this.object,
+      accessGroup: this._accessGroup
+    }
   }
 
   static listFilters (
     {
       search,
       limit,
-      page
+      page,
+      accessGroupId
     }: Partial<IListUsersFilters>
   ): IListUsersFilters {
     const filters = {
       deletionDate: undefined
     } as IListUsersFilters
 
+    if (accessGroupId) Object.assign(filters, { accessGroupId: ObjectId(accessGroupId) })
     if (search) {
       Object.assign(filters, {
         $or: [

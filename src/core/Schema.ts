@@ -8,7 +8,8 @@ export const coreSchema = {
   },
   tenantId: {
     type: mongoose.Types.ObjectId,
-    required: true
+    required: true,
+    ref: 'Tenant'
   },
   createdAt: Date,
   deletionDate: Date
