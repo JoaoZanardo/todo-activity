@@ -1,4 +1,4 @@
-import { Aggregate, FilterQuery } from 'mongoose'
+import { Aggregate } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
@@ -11,16 +11,24 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     id,
     tenantId
   }: IFindModelByIdProps): Promise<UserModel | null> {
-    const match: FilterQuery<IUser> = {
-      _id: id,
-      tenantId,
-      deletionDate: null
-    }
+    const pipeline = [
+      { $match: { _id: id, tenantId, deletionDate: null } },
+      {
+        $lookup: {
+          from: 'accessgroups',
+          localField: 'accessGroupId',
+          foreignField: '_id',
+          as: 'accessGroup'
+        }
+      },
+      { $unwind: '$accessGroup' }
+    ]
 
-    const document = await this.mongoDB.findOne(match).lean()
-    if (!document) return null
+    const result = await this.mongoDB.aggregate(pipeline).exec()
 
-    return new UserModel(document)
+    if (!result.length) return null
+
+    return new UserModel(result[0])
   }
 
   async findByEmail ({

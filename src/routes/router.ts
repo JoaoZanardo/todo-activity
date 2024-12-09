@@ -14,13 +14,13 @@ router.use((req, res, next) => {
   next()
 })
 
-router.use('/unauth/tenants', TenantController)
-
-router.use(tenantAuthMiddleware)
-
 router.get('/', async (request: Request, response: Response) => {
   response.json({ foo: 'bar' })
 })
+
+router.use('/unauth/tenants', TenantController)
+
+router.use(tenantAuthMiddleware)
 
 router.use('/auth', auth)
 router.use('/unauth', unauth)

@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express'
 import { UserServiceImp } from '../features/User/UserController'
 import Jwt from '../libraries/Jwt'
 import CustomResponse from '../utils/CustomResponse'
+import ObjectId from '../utils/ObjectId'
 
 export const userAuthMiddleware = async (request: Request, response: Response, next: NextFunction) => {
   try {
@@ -17,7 +18,7 @@ export const userAuthMiddleware = async (request: Request, response: Response, n
     const { userId } = Jwt.decode(token)
 
     const user = await UserServiceImp.findById({
-      id: userId,
+      id: ObjectId(userId),
       tenantId
     })
 
