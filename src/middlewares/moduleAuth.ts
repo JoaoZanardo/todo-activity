@@ -7,15 +7,18 @@ export const moduleAuthMiddleware = (moduleName: string) => {
     try {
       const { user } = request
 
-      if (user.admin) next()
+      if (!user.admin) {
+        console.log(user.admin, !user.admin)
+        const module = user.accessGroup!.modules.find(module => module.name === moduleName)
 
-      const module = user.accessGroup!.modules.find(module => module.name === moduleName)
+        console.log({ module })
 
-      console.log({ module })
+        if (!module) throw CustomResponse.FORBIDDEN('Acesso negado!')
 
-      if (!module) throw CustomResponse.FORBIDDEN('Acesso negado!')
-
-      next()
+        next()
+      } else {
+        next()
+      }
     } catch (error) {
       next(error)
     }

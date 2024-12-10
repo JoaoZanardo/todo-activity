@@ -21,7 +21,12 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
           as: 'accessGroup'
         }
       },
-      { $unwind: '$accessGroup' }
+      {
+        $unwind: {
+          path: '$accessGroup',
+          preserveNullAndEmptyArrays: true
+        }
+      }
     ]
 
     const result = await this.mongoDB.aggregate(pipeline).exec()

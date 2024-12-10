@@ -5,6 +5,7 @@ import { IUser } from '../../models/User/UserModel'
 declare global {
   namespace Express {
     interface Request {
+      userId: Types.ObjectId
       user: IUser
       tenantId: Types.ObjectId
     }

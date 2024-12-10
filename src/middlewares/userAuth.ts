@@ -25,6 +25,7 @@ export const userAuthMiddleware = async (request: Request, response: Response, n
     if (!user.active) throw CustomResponse.FORBIDDEN('Acesso negado!')
 
     request.user = user.show
+    request.userId = user._id!
 
     next()
   } catch (error) {

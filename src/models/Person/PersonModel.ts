@@ -1,26 +1,21 @@
-import { ClientSession, Types } from 'mongoose'
+import { Types } from 'mongoose'
 
-import { IListModelsFilters, IModel, ModelAction } from '../../core/interfaces/Model'
+import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
+import ObjectId from '../../utils/ObjectId'
 
-export interface IListPersonsFilters extends IListModelsFilters { }
-
-export interface IUpdatePersonProps {
-  responsibleId?: Types.ObjectId
-  session?: ClientSession
-
-  id: Types.ObjectId
-  data: Partial<IPerson>
+export interface IListPersonsFilters extends IListModelsFilters {
+  personTypeId?: Types.ObjectId
 }
 
-export enum PersonType {
-  resident = 'resident',
-  serviceProvider = 'serviceProvider',
-  visitor = 'visitor',
-  vip = 'vip',
-  tenant = 'tenant',
-  delivery = 'delivery'
+export interface IUpdatePersonProps extends IUpdateModelProps<IPerson> { }
+
+export interface IDeletePersonProps extends IDeleteModelProps { }
+
+export interface IFindPersonByDocumentProps {
+  tenantId: Types.ObjectId
+  document: string
 }
 
 export interface IPerson extends IModel {
@@ -29,9 +24,9 @@ export interface IPerson extends IModel {
   contractInitDate?: Date
   contractEndDate?: Date
 
+  personTypeId: Types.ObjectId
   name: string
   document: string
-  type: PersonType
   phone: string
   address: {
     streetName: string
@@ -45,9 +40,9 @@ export class PersonModel extends Model<IPerson> {
   private _contractInitDate?: IPerson['contractInitDate']
   private _contractEndDate?: IPerson['contractEndDate']
 
+  private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
   private _document: IPerson['document']
-  private _type: IPerson['type']
   private _phone: IPerson['phone']
   private _address: IPerson['address']
 
@@ -55,16 +50,16 @@ export class PersonModel extends Model<IPerson> {
     super(person)
 
     this._email = person.email
+    this._email = person.email
     this._observation = person.observation
     this._contractInitDate = person.contractInitDate
     this._contractEndDate = person.contractEndDate
 
+    this._personTypeId = person.personTypeId
     this._name = person.name
     this._document = person.document
-    this._type = person.type
     this._phone = person.phone
     this._address = person.address
-    this._email = person.email
     this.actions = person.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
@@ -85,40 +80,45 @@ export class PersonModel extends Model<IPerson> {
       contractEndDate: this._contractEndDate,
       name: this._name,
       document: this._document,
-      type: this._type,
       phone: this._phone,
-      address: this._address
+      address: this._address,
+      personTypeId: this._personTypeId
     }
-  }
-
-  get email (): IPerson['email'] {
-    return this._email
-  }
-
-  get type (): IPerson['type'] {
-    return this._type
   }
 
   get show () {
     return this.object
   }
 
+  get name (): IPerson['name'] {
+    return this._name
+  }
+
+  get document (): IPerson['document'] {
+    return this._document
+  }
+
   static listFilters (
     {
       search,
       limit,
-      page
+      page,
+      personTypeId
     }: Partial<IListPersonsFilters>
   ): IListPersonsFilters {
     const filters = {
       deletionDate: undefined
     } as IListPersonsFilters
 
+    if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
     if (search) {
       Object.assign(filters, {
         $or: [
           { name: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } }
+          { email: { $regex: search, $options: 'i' } },
+          { document: { $regex: search, $options: 'i' } },
+          { 'address.streetName': { $regex: search, $options: 'i' } },
+          { 'address.streetNumber': { $regex: search, $options: 'i' } }
         ]
       })
     }

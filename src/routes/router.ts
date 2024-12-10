@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express'
 
 import TenantController from '../features/Tenant/TenantController'
-import { customResponseMiddleware } from '../middlewares/customReponse'
+import { customResponseMiddleware } from '../middlewares/customResponse'
 import { errorMiddleware } from '../middlewares/error'
 import { tenantAuthMiddleware } from '../middlewares/tenantAuth'
 import auth from './auth'
