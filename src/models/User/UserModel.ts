@@ -32,23 +32,23 @@ export interface IFindUserByEmailProps {
 }
 
 export interface IUser extends IModel {
-  admin?: Types.ObjectId
+  admin?: boolean
   accessGroup?: IAccessGroup
+  accessGroupId?: Types.ObjectId
 
   name: string
   email: string
   password: string
-  accessGroupId: Types.ObjectId
 }
 
 export class UserModel extends Model<IUser> {
   private _admin?: IUser['admin']
   private _accessGroup?: IUser['accessGroup']
+  private _accessGroupId?: IUser['accessGroupId']
 
   private _name: IUser['name']
   private _email: IUser['email']
   private _password: IUser['password']
-  private _accessGroupId: IUser['accessGroupId']
 
   constructor (user: IUser) {
     super(user)

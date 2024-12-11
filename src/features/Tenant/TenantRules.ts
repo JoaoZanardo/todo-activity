@@ -10,5 +10,15 @@ export class TenantRules extends Rules {
       validator: (value: string) => is.objectId(value),
       message: 'Código de licença inválido!'
     })
+
+    this.validator.addRule('color', {
+      validator: (value: string) => is.string(value),
+      message: 'Cor inválida. Informe uma cor válida!'
+    })
+
+    this.validator.addRule('image', {
+      validator: (value: string) => is.string(value),
+      message: 'Imagem inválida. Informe uma imagem inválida!'
+    })
   }
 }
