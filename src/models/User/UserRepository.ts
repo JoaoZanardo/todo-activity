@@ -1,4 +1,4 @@
-import { Aggregate } from 'mongoose'
+import { Aggregate, PipelineStage } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
@@ -11,7 +11,7 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     id,
     tenantId
   }: IFindModelByIdProps): Promise<UserModel | null> {
-    const pipeline = [
+    const pipeline: Array<PipelineStage> = [
       { $match: { _id: id, tenantId, deletionDate: null } },
       {
         $lookup: {
@@ -21,7 +21,17 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
           as: 'accessGroup'
         }
       },
-      { $unwind: '$accessGroup' }
+      {
+        $unwind: {
+          path: '$accessGroup',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          password: 0
+        }
+      }
     ]
 
     const result = await this.mongoDB.aggregate(pipeline).exec()

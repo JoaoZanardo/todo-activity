@@ -10,19 +10,30 @@ export interface ITenantMongoDB extends Model<ITenant> { }
 class TenantSchema extends Schema<ITenantDocument> {
   constructor () {
     const tenant = new mongoose.Schema({
+      actions: Array,
+      active: {
+        type: Boolean,
+        default: true
+      },
+      createdAt: Date,
+      deletionDate: Date,
       image: String,
       color: String,
+      modules: Array,
+      usersNumber: Number,
+      peopleNumber: Number,
+      freeTrial: {
+        type: Boolean,
+        default: true
+      },
       name: {
         type: String,
         required: true
       },
-      modules: {
+      email: {
         type: String,
         required: true
-      },
-      usersNumber: Number,
-      freeTrial: Boolean,
-      createdAt: Date
+      }
     })
 
     super(tenant)

@@ -1,4 +1,4 @@
-import mongoose, { AggregatePaginateModel, Document } from 'mongoose'
+import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
 import Bcrypt from '../../libraries/Bcrypt'
@@ -12,9 +12,8 @@ class UserSchema extends Schema<IUserDocument> {
   constructor () {
     const user = new mongoose.Schema({
       accessGroupId: {
-        type: String,
-        ref: 'AccessGroup',
-        required: true
+        type: Types.ObjectId,
+        ref: 'AccessGroup'
       },
       ...coreSchema,
       admin: {
