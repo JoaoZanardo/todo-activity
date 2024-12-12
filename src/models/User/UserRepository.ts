@@ -1,4 +1,4 @@
-import { Aggregate, PipelineStage } from 'mongoose'
+import { Aggregate, ClientSession, PipelineStage } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
@@ -55,10 +55,14 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     return new UserModel(document)
   }
 
-  async create (user: UserModel): Promise<UserModel> {
-    const document = await this.mongoDB.create(user.object)
+  async create (user: UserModel, session?: ClientSession): Promise<UserModel> {
+    const userObject = user.object
 
-    return new UserModel(document)
+    const document = session
+      ? await this.mongoDB.create([userObject], { session })
+      : await this.mongoDB.create(userObject)
+
+    return new UserModel(document instanceof Array ? document[0] : document)
   }
 
   async update ({

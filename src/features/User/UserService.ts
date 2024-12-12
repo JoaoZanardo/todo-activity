@@ -1,3 +1,5 @@
+import { ClientSession } from 'mongoose'
+
 import { IDeleteModelProps, IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IFindUserByEmailProps, IListUsersFilters, IUpdateUserProps, UserModel } from '../../models/User/UserModel'
 import { UserRepositoryImp } from '../../models/User/UserMongoDB'
@@ -16,7 +18,7 @@ export class UserService {
     return await this.userRepositoryImp.list(filters)
   }
 
-  async create (user: UserModel): Promise<UserModel> {
+  async create (user: UserModel, session?: ClientSession): Promise<UserModel> {
     const {
       email,
       tenantId
@@ -41,7 +43,7 @@ export class UserService {
     //   }
     // })
 
-    const createdUser = await this.userRepositoryImp.create(user)
+    const createdUser = await this.userRepositoryImp.create(user, session)
 
     return createdUser
   }

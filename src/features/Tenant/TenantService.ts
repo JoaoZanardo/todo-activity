@@ -1,4 +1,4 @@
-import { Types } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
 import { ModelAction } from '../../core/interfaces/Model'
 import { TenantModel } from '../../models/Tenant/TenantModel'
@@ -23,15 +23,15 @@ export class TenantService {
     return tenant
   }
 
-  async create (tenant: TenantModel): Promise<TenantModel> {
-    const createdTenant = await this.tenantRepositoryImp.create(tenant)
+  async create (tenant: TenantModel, session: ClientSession): Promise<TenantModel> {
+    const createdTenant = await this.tenantRepositoryImp.create(tenant, session)
 
-    this.sendEmailWithTenantInfo(createdTenant)
+    await this.sendEmailWithTenantInfo(createdTenant, session)
 
     return createdTenant
   }
 
-  async sendEmailWithTenantInfo (tenant: TenantModel): Promise<void> {
+  async sendEmailWithTenantInfo (tenant: TenantModel, session: ClientSession): Promise<void> {
     const password = 'Access@2024'
 
     const userModel = new UserModel({
@@ -46,7 +46,7 @@ export class TenantService {
       admin: true
     })
 
-    const user = await UserServiceImp.create(userModel)
+    const user = await UserServiceImp.create(userModel, session)
 
     await MailerServer.sendEmail({
       receiver: tenant.object.email,

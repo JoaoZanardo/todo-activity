@@ -2,7 +2,6 @@ import requestCheck from 'request-check'
 
 import CustomResponse from '../utils/CustomResponse'
 import is from '../utils/is'
-import { nameValidator } from '../utils/nameValidator'
 import ObjectId from '../utils/ObjectId'
 
 export default class Rules {
@@ -17,14 +16,19 @@ export default class Rules {
       message: 'Ativo inválido. Informe um ativo válido!'
     })
 
-    this.validator.addRule('name', {
-      validator: (value: string) => nameValidator(value),
-      message: 'Nome inválido. Informe um name válido!'
-    })
-
     this.validator.addRule('accessGroupId', {
       validator: (value: string) => ObjectId(value),
       message: 'Identificador de grupo de acesso inválido. Informe um identificador válido!'
+    })
+
+    this.validator.addRule('personTypeId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de tipo de pessoa inválido. Informe um identificador válido!'
+    })
+
+    this.validator.addRule('personId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de essoa inválido. Informe um identificador válido!'
     })
   }
 

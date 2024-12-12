@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express'
 
+import database from '../../config/database'
 import { Controller } from '../../core/Controller'
 import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
@@ -35,6 +36,9 @@ class TenantController extends Controller {
     })
 
     this.router.post('/', async (request: Request, response: Response, next: NextFunction) => {
+      const session = await database.startSession()
+      session.startTransaction()
+
       try {
         const {
           name,
@@ -62,12 +66,17 @@ class TenantController extends Controller {
           }]
         })
 
-        const tenant = await TenantServiceImp.create(tenantModel)
+        const tenant = await TenantServiceImp.create(tenantModel, session)
+
+        await session.commitTransaction()
+        session.endSession()
 
         response.CREATED('Tenente cadastrado com sucesso!', {
           tenant: tenant.object
         })
       } catch (error) {
+        session.endSession()
+
         next(error)
       }
     })

@@ -1,7 +1,7 @@
-import mongoose, { AggregatePaginateModel, Document } from 'mongoose'
+import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
-import { IPerson, PersonType } from './PersonModel'
+import { IPerson } from './PersonModel'
 
 export interface IPersonDocument extends Document, Omit<IPerson, '_id'> { }
 
@@ -16,6 +16,10 @@ class PersonSchema extends Schema<IPersonDocument> {
       contractInitDate: Date,
       contractEndDate: Date,
 
+      personTypeId: {
+        type: Types.ObjectId,
+        required: true
+      },
       name: {
         type: String,
         required: true
@@ -26,7 +30,6 @@ class PersonSchema extends Schema<IPersonDocument> {
       },
       type: {
         type: String,
-        enum: PersonType,
         required: true
       },
       phone: {

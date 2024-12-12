@@ -1,9 +1,9 @@
 import { Aggregate, FilterQuery } from 'mongoose'
 
-import { IFindModelByIdProps } from '../../core/interfaces/Model'
+import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { IListPersonsFilters, IPerson, PersonModel } from './PersonModel'
+import { IFindPersonByDocumentProps, IListPersonsFilters, IPerson, PersonModel } from './PersonModel'
 import { IPersonMongoDB } from './PersonSchema'
 
 export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
@@ -22,6 +22,38 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
     if (!document) return null
 
     return new PersonModel(document)
+  }
+
+  async findByName ({
+    name,
+    tenantId
+  }: IFindModelByNameProps): Promise<PersonModel | null> {
+    const match: FilterQuery<IPerson> = {
+      name,
+      tenantId,
+      deletionDate: null
+    }
+
+    const document = await this.mongoDB.findOne(match).lean()
+    if (!document) return null
+
+    return new PersonModel(document)
+  }
+
+  async findByDocument ({
+    document,
+    tenantId
+  }: IFindPersonByDocumentProps): Promise<PersonModel | null> {
+    const match: FilterQuery<IPerson> = {
+      document,
+      tenantId,
+      deletionDate: null
+    }
+
+    const doc = await this.mongoDB.findOne(match).lean()
+    if (!doc) return null
+
+    return new PersonModel(doc)
   }
 
   async create (person: PersonModel): Promise<PersonModel> {
@@ -48,6 +80,15 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
   async list ({ limit, page, ...filters }: IListPersonsFilters): Promise<IAggregatePaginate<IPerson>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
+      {
+        $lookup: {
+          from: 'persontypes',
+          localField: 'personTypeId',
+          foreignField: '_id',
+          as: 'personType'
+        }
+      },
+      { $unwind: '$personType' },
       { $sort: { _id: -1 } }
     ])
 

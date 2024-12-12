@@ -8,17 +8,19 @@ export const permissionAuthMiddleware = (permissionName: Permission) => {
     try {
       const { user } = request
 
-      if (user.admin) next()
+      if (!user.admin) {
+        const module = user.accessGroup!.modules.find(module => {
+          const exists = module.permissions.find(permission => permission === permissionName)
 
-      const module = user.accessGroup!.modules.find(module => {
-        const exists = module.permissions.find(permission => permission === permissionName)
+          return exists
+        })
 
-        return exists
-      })
+        if (!module) throw CustomResponse.FORBIDDEN('Acesso negado!')
 
-      if (!module) throw CustomResponse.FORBIDDEN('Acesso negado!')
-
-      next()
+        next()
+      } else {
+        next()
+      }
     } catch (error) {
       next(error)
     }
