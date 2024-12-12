@@ -1,6 +1,7 @@
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
+import ObjectId from '../../utils/ObjectId'
 
 export interface IListPersonTypesFilters extends IListModelsFilters { }
 
@@ -75,13 +76,15 @@ export class PersonTypeModel extends Model<IPersonType> {
     {
       search,
       limit,
-      page
+      page,
+      tenantId
     }: Partial<IListPersonTypesFilters>
   ): IListPersonTypesFilters {
     const filters = {
       deletionDate: undefined
     } as IListPersonTypesFilters
 
+    if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (search) {
       Object.assign(filters, {
         $or: [

@@ -3,6 +3,7 @@ import { Types } from 'mongoose'
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
+import ObjectId from '../../utils/ObjectId'
 
 export interface IListPersonTypeFormsFilters extends IListModelsFilters { }
 
@@ -81,13 +82,15 @@ export class PersonTypeFormModel extends Model<IPersonTypeForm> {
     {
       search,
       limit,
-      page
+      page,
+      tenantId
     }: Partial<IListPersonTypeFormsFilters>
   ): IListPersonTypeFormsFilters {
     const filters = {
       deletionDate: undefined
     } as IListPersonTypeFormsFilters
 
+    if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (search) {
       Object.assign(filters, {
         $or: []

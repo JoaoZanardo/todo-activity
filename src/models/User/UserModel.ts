@@ -89,13 +89,15 @@ export class UserModel extends Model<IUser> {
       search,
       limit,
       page,
-      accessGroupId
+      accessGroupId,
+      tenantId
     }: Partial<IListUsersFilters>
   ): IListUsersFilters {
     const filters = {
       deletionDate: undefined
     } as IListUsersFilters
 
+    if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (accessGroupId) Object.assign(filters, { accessGroupId: ObjectId(accessGroupId) })
     if (search) {
       Object.assign(filters, {

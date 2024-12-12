@@ -103,13 +103,15 @@ export class PersonModel extends Model<IPerson> {
       search,
       limit,
       page,
-      personTypeId
+      personTypeId,
+      tenantId
     }: Partial<IListPersonsFilters>
   ): IListPersonsFilters {
     const filters = {
       deletionDate: undefined
     } as IListPersonsFilters
 
+    if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
     if (search) {
       Object.assign(filters, {

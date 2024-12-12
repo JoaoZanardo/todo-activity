@@ -3,6 +3,7 @@ import { Types } from 'mongoose'
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { format } from '../../utils/format'
+import ObjectId from '../../utils/ObjectId'
 
 export interface IFindAllAccessGroupsProps {
   tenantId: Types.ObjectId
@@ -93,6 +94,7 @@ export class AccessGroupModel extends Model<IAccessGroup> {
       deletionDate: undefined
     } as IListAccessGroupsFilters
 
+    if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (active) Object.assign(filters, { active: format.boolean(active) })
     if (search) {
       Object.assign(filters, {
