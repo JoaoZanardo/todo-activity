@@ -38,6 +38,15 @@ export class TenantRepository extends Repository<ITenantMongoDB, TenantModel> {
     return new TenantModel(document)
   }
 
+  async findByEmail (email: string): Promise<TenantModel | null> {
+    const document = await this.mongoDB.findOne({
+      email
+    })
+    if (!document) return null
+
+    return new TenantModel(document)
+  }
+
   async findAll (): Promise<Array<TenantModel>> {
     const documents = await this.mongoDB.find()
 

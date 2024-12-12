@@ -2,6 +2,13 @@ import { Types } from 'mongoose'
 
 import { IModel, IModelAction } from '../../core/interfaces/Model'
 import { DateUtils } from '../../utils/Date'
+import { UserModel } from '../User/UserModel'
+
+export interface ICreatedTenatTemplateProps {
+  user: UserModel
+  tenant: TenantModel
+  password: string
+}
 
 export interface ITenant {
   _id?: Types.ObjectId

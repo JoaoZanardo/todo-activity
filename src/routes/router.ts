@@ -18,7 +18,7 @@ router.get('/', async (request: Request, response: Response) => {
   response.json({ foo: 'bar' })
 })
 
-router.use('/unauth/tenants', TenantController)
+router.use('/tenants', TenantController)
 
 router.use(tenantAuthMiddleware)
 
