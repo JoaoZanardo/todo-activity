@@ -1,6 +1,6 @@
 /* eslint-disable unused-imports/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Types } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IUpdateProps } from '../../core/interfaces/Repository'
@@ -46,10 +46,12 @@ export class TenantRepository extends Repository<ITenantMongoDB, TenantModel> {
     return models
   }
 
-  async create (tenant: TenantModel): Promise<TenantModel> {
-    const document = await this.mongoDB.create(tenant.object)
+  async create (tenant: TenantModel, session: ClientSession): Promise<TenantModel> {
+    const document = await this.mongoDB.create([tenant.object], {
+      session
+    })
 
-    return new TenantModel(document)
+    return new TenantModel(document[0])
   }
 
   async update (update: IUpdateProps): Promise<boolean> {
