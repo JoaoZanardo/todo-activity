@@ -55,15 +55,14 @@ export class TenantService {
       admin: true
     })
 
-    const user = await UserServiceImp.create(userModel, session)
+    await UserServiceImp.create(userModel, session)
 
     await MailerServer.sendEmail({
       receiver: tenant.object.email,
       subject: 'Conta teste cadastrada com sucesso!',
       html: createdTenatTemplate({
         password,
-        tenant,
-        user
+        tenant
       })
     })
   }

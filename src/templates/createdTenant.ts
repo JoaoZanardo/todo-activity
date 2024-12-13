@@ -2,8 +2,7 @@ import { ICreatedTenatTemplateProps } from '../models/Tenant/TenantModel'
 
 export const createdTenatTemplate = ({
   password,
-  tenant,
-  user
+  tenant
 }: ICreatedTenatTemplateProps): string => {
   return `
        <html>
@@ -67,11 +66,11 @@ export const createdTenatTemplate = ({
         <body>
           <div class="container">
             <h1>Conta Teste Cadastrada com Sucesso!</h1>
-            <p>Olá, ${user.object.email},</p>
+            <p>Olá, ${tenant.name},</p>
             <p>Sua conta teste foi cadastrada com sucesso! Agora, você pode acessar o sistema utilizando o código de licença abaixo:</p>
             <div class="info-box">
               <p><b>Código de Licença:</b> ${tenant._id}</p>
-              <p><b>Email:</b> ${user.object.email}</p>
+              <p><b>Email:</b> ${tenant.email}</p>
               <p><b>Senha:</b> ${password}</p>
             </div>
             <p>Para acessar o sistema, clique no botão abaixo:</p>

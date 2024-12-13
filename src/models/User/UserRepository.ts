@@ -83,6 +83,20 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
   async list ({ limit, page, ...filters }: IListUsersFilters): Promise<IAggregatePaginate<IUser>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
+      {
+        $lookup: {
+          from: 'accessgroups',
+          localField: 'accessGroupId',
+          foreignField: '_id',
+          as: 'accessGroup'
+        }
+      },
+      {
+        $unwind: {
+          path: '$accessGroup',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       { $sort: { _id: -1 } }
     ])
 
