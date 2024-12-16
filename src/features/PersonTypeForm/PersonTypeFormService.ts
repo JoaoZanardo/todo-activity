@@ -30,6 +30,20 @@ export class PersonTypeFormService {
     return personTypeForm
   }
 
+  async findByPersonTypeId ({
+    personTypeId,
+    tenantId
+  }: IFindPersonTypeFormByPersonTypeIdProps): Promise<PersonTypeFormModel> {
+    const personTypeForm = await this.personTypeFormRepositoryImp.findByPersonTypeId({
+      personTypeId,
+      tenantId
+    })
+
+    if (!personTypeForm) throw CustomResponse.NOT_FOUND('Formulário de tipo de pessoa não cadastrado!')
+
+    return personTypeForm
+  }
+
   async create (personTypeForm: PersonTypeFormModel): Promise<PersonTypeFormModel> {
     await this.validateDuplicatedForm(personTypeForm)
 

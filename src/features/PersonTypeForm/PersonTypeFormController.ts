@@ -44,6 +44,32 @@ class PersonTypeFormController extends Controller {
         }
       })
 
+    this.router.get(
+      '/:personTypeId',
+      permissionAuthMiddleware(Permission.read),
+      async (request: Request, response: Response, next: NextFunction) => {
+        try {
+          const { tenantId } = request
+
+          const { personTypeId } = request.params
+
+          this.rules.validate(
+            { personTypeId }
+          )
+
+          const personTypeForm = await PersonTypeFormServiceImp.findByPersonTypeId({
+            personTypeId: ObjectId(personTypeId),
+            tenantId
+          })
+
+          response.OK('Formulário de tipo de pessoa encontrado com sucesso!', {
+            personTypeForm: personTypeForm.show
+          })
+        } catch (error) {
+          next(error)
+        }
+      })
+
     this.router.post(
       '/',
       permissionAuthMiddleware(Permission.create),
