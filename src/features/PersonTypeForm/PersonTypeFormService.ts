@@ -1,3 +1,5 @@
+import { ClientSession } from 'mongoose'
+
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { IDeletePersonTypeFormProps, IFindPersonTypeFormByPersonTypeIdProps, IListPersonTypeFormsFilters, IPersonTypeForm, IUpdatePersonTypeFormProps, PersonTypeFormModel } from '../../models/PersonTypeForm/PersonTypeFormModel'
@@ -44,10 +46,10 @@ export class PersonTypeFormService {
     return personTypeForm
   }
 
-  async create (personTypeForm: PersonTypeFormModel): Promise<PersonTypeFormModel> {
+  async create (personTypeForm: PersonTypeFormModel, session: ClientSession): Promise<PersonTypeFormModel> {
     await this.validateDuplicatedForm(personTypeForm)
 
-    return await this.personTypeFormRepositoryImp.create(personTypeForm)
+    return await this.personTypeFormRepositoryImp.create(personTypeForm, session)
   }
 
   async update ({
