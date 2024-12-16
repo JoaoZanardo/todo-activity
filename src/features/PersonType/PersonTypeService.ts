@@ -53,7 +53,7 @@ export class PersonTypeService {
 
     await PersonTypeFormServiceImp.create(personTypeForModel, session)
 
-    return personType
+    return createdPersonType
   }
 
   async update ({
