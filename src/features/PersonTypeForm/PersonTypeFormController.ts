@@ -45,7 +45,7 @@ class PersonTypeFormController extends Controller {
       })
 
     this.router.get(
-      '/:personTypeId',
+      '/personType/:personTypeId',
       permissionAuthMiddleware(Permission.read),
       async (request: Request, response: Response, next: NextFunction) => {
         try {
