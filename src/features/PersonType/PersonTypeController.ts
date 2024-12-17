@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express'
 
+import database from '../../config/database'
 import { Controller } from '../../core/Controller'
 import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
@@ -87,6 +88,9 @@ class PersonTypeController extends Controller {
       '/',
       permissionAuthMiddleware(Permission.create),
       async (request: Request, response: Response, next: NextFunction) => {
+        const session = await database.startSession()
+        session.startTransaction()
+
         try {
           const { tenantId, userId } = request
 
@@ -117,12 +121,17 @@ class PersonTypeController extends Controller {
             appAccess
           })
 
-          const personType = await PersonTypeServiceImp.create(personTypeModel)
+          const personType = await PersonTypeServiceImp.create(personTypeModel, session)
+
+          await session.commitTransaction()
+          session.endSession()
 
           response.OK('Tipo de pessoa cadastrado com sucesso!', {
             personType: personType.show
           })
         } catch (error) {
+          session.endSession()
+
           next(error)
         }
       })

@@ -1,13 +1,10 @@
 import { NextFunction, Request, Response, Router } from 'express'
 
 import { Controller } from '../../core/Controller'
-import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
 import { permissionAuthMiddleware } from '../../middlewares/permissionAuth'
 import { Permission } from '../../models/AccessGroup/AccessGroupModel'
-import { PersonTypeFormModel } from '../../models/PersonTypeForm/PersonTypeFormModel'
 import { PersonTypeFormRepositoryImp } from '../../models/PersonTypeForm/PersonTypeFormMongoDB'
-import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
 import { PersonTypeFormRules } from './PersonTypeFormRules'
 import { PersonTypeFormService } from './PersonTypeFormService'
@@ -44,37 +41,25 @@ class PersonTypeFormController extends Controller {
         }
       })
 
-    this.router.post(
-      '/',
-      permissionAuthMiddleware(Permission.create),
+    this.router.get(
+      '/personType/:personTypeId',
+      permissionAuthMiddleware(Permission.read),
       async (request: Request, response: Response, next: NextFunction) => {
         try {
-          const { tenantId, userId } = request
+          const { tenantId } = request
 
-          const {
-            fields,
-            personTypeId
-          } = request.body
+          const { personTypeId } = request.params
 
           this.rules.validate(
-            { fields },
             { personTypeId }
           )
 
-          const personTypeFormModel = new PersonTypeFormModel({
-            tenantId,
-            actions: [{
-              action: ModelAction.create,
-              date: DateUtils.getCurrent(),
-              userId
-            }],
-            fields,
-            personTypeId
+          const personTypeForm = await PersonTypeFormServiceImp.findByPersonTypeId({
+            personTypeId: ObjectId(personTypeId),
+            tenantId
           })
 
-          const personTypeForm = await PersonTypeFormServiceImp.create(personTypeFormModel)
-
-          response.OK('Formulário de tipo de pessoa cadastrado com sucesso!', {
+          response.OK('Formulário de tipo de pessoa encontrado com sucesso!', {
             personTypeForm: personTypeForm.show
           })
         } catch (error) {

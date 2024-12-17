@@ -1,11 +1,15 @@
+import { ClientSession } from 'mongoose'
+
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { PersonModel } from '../../models/Person/PersonModel'
 import { IDeletePersonTypeProps, IListPersonTypesFilters, IPersonType, IUpdatePersonTypeProps, PersonTypeModel } from '../../models/PersonType/PersonTypeModel'
 import { PersonTypeRepositoryImp } from '../../models/PersonType/PersonTypeMongoDB'
+import { PersonTypeFormModel } from '../../models/PersonTypeForm/PersonTypeFormModel'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { PersonServiceImp } from '../Person/PersonController'
+import { PersonTypeFormServiceImp } from '../PersonTypeForm/PersonTypeFormController'
 
 export class PersonTypeService {
   constructor (
@@ -42,10 +46,24 @@ export class PersonTypeService {
     return personType
   }
 
-  async create (personType: PersonTypeModel): Promise<PersonTypeModel> {
+  async create (personType: PersonTypeModel, session: ClientSession): Promise<PersonTypeModel> {
     await this.validateDuplicatedName(personType)
 
-    return await this.personTypeRepositoryImp.create(personType)
+    const createdPersonType = await this.personTypeRepositoryImp.create(personType, session)
+
+    const personTypeForModel = new PersonTypeFormModel({
+      fields: [],
+      personTypeId: createdPersonType._id!,
+      tenantId: createdPersonType.tenantId,
+      actions: [{
+        action: ModelAction.create,
+        date: DateUtils.getCurrent()
+      }]
+    })
+
+    await PersonTypeFormServiceImp.create(personTypeForModel, session)
+
+    return createdPersonType
   }
 
   async update ({
