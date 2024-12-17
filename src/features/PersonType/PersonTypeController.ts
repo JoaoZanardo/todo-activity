@@ -59,7 +59,7 @@ class PersonTypeController extends Controller {
     })
 
     this.router.get(
-      '/:personTypeId',
+      '/one/:personTypeId',
       permissionAuthMiddleware(Permission.read),
       async (request: Request, response: Response, next: NextFunction) => {
         try {
