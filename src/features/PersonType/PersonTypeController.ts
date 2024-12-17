@@ -40,6 +40,23 @@ class PersonTypeController extends Controller {
         }
       })
 
+    this.router.get('/select', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request
+
+        const personTypes = await PersonTypeServiceImp.findAll({
+          tenantId,
+          select: ['_id', 'name', 'description']
+        })
+
+        response.OK('Tipos de pessoas encontrados com sucesso!', {
+          personTypes
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
+
     this.router.get(
       '/:personTypeId',
       permissionAuthMiddleware(Permission.read),

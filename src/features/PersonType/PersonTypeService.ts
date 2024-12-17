@@ -1,4 +1,4 @@
-import { IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
+import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { PersonModel } from '../../models/Person/PersonModel'
 import { IDeletePersonTypeProps, IListPersonTypesFilters, IPersonType, IUpdatePersonTypeProps, PersonTypeModel } from '../../models/PersonType/PersonTypeModel'
@@ -16,6 +16,16 @@ export class PersonTypeService {
 
   async list (filters: IListPersonTypesFilters): Promise<IAggregatePaginate<IPersonType>> {
     return await this.personTypeRepositoryImp.list(filters)
+  }
+
+  async findAll ({
+    tenantId,
+    select
+  }: IFindAllModelsProps): Promise<Array<Partial<PersonTypeModel>>> {
+    return await this.personTypeRepositoryImp.findAll({
+      tenantId,
+      select
+    })
   }
 
   async findById ({

@@ -14,6 +14,11 @@ interface IFindModelByIdProps {
   tenantId: Types.ObjectId
 }
 
+interface IFindAllModelsProps {
+  tenantId: Types.ObjectId
+  select?: Array<string>
+}
+
 interface IUpdateModelProps<T> {
   responsibleId?: Types.ObjectId
 
@@ -57,6 +62,7 @@ interface IModel {
 
 export type {
   IDeleteModelProps,
+  IFindAllModelsProps,
   IFindModelByIdProps,
   IFindModelByNameProps,
   IListModelsFilters,
