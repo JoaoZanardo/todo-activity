@@ -15,6 +15,11 @@ class PersonSchema extends Schema<IPersonDocument> {
       observation: String,
       contractInitDate: Date,
       contractEndDate: Date,
+      phone: String,
+      address: {
+        streetName: String,
+        streetNumber: Number
+      },
 
       personTypeId: {
         type: Types.ObjectId,
@@ -31,14 +36,6 @@ class PersonSchema extends Schema<IPersonDocument> {
       type: {
         type: String,
         required: true
-      },
-      phone: {
-        type: String,
-        required: true
-      },
-      address: {
-        streetName: String,
-        streetNumber: Number
       }
     })
 

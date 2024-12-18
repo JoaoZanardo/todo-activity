@@ -23,15 +23,15 @@ export interface IPerson extends IModel {
   observation?: string
   contractInitDate?: Date
   contractEndDate?: Date
+  phone?: string
+  address?: {
+    streetName: string
+    streetNumber: number
+  }
 
   personTypeId: Types.ObjectId
   name: string
   document: string
-  phone: string
-  address: {
-    streetName: string
-    streetNumber: number
-  }
 }
 
 export class PersonModel extends Model<IPerson> {
@@ -39,12 +39,12 @@ export class PersonModel extends Model<IPerson> {
   private _observation?: IPerson['observation']
   private _contractInitDate?: IPerson['contractInitDate']
   private _contractEndDate?: IPerson['contractEndDate']
+  private _phone?: IPerson['phone']
+  private _address?: IPerson['address']
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
   private _document: IPerson['document']
-  private _phone: IPerson['phone']
-  private _address: IPerson['address']
 
   constructor (person: IPerson) {
     super(person)
