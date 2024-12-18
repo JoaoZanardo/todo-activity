@@ -66,6 +66,7 @@ class PersonController extends Controller {
             { email, isRequiredField: false },
             { observation, isRequiredField: false },
             { name },
+            { personTypeId },
             { document },
             { phone },
             { address }
