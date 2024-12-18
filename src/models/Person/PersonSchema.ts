@@ -32,10 +32,6 @@ class PersonSchema extends Schema<IPersonDocument> {
       document: {
         type: String,
         required: true
-      },
-      type: {
-        type: String,
-        required: true
       }
     })
 
