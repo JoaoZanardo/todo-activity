@@ -47,8 +47,6 @@ class PersonController extends Controller {
         try {
           const { tenantId, userId } = request
 
-          const { personTypeId } = request.params
-
           const {
             address,
             contractEndDate,
@@ -57,7 +55,8 @@ class PersonController extends Controller {
             email,
             name,
             observation,
-            phone
+            phone,
+            personTypeId
           } = request.body
 
           this.rules.validate(
