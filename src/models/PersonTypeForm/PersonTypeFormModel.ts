@@ -35,6 +35,7 @@ interface IField {
   key: string
   type: InputType
   options?: Array<ISelectOption>
+  required?: boolean
 }
 
 export interface IPersonTypeForm extends IModel {
