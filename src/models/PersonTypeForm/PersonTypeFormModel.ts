@@ -28,7 +28,8 @@ export enum InputType {
 export const InputTypeValues = Object.values(InputType)
 
 interface ISelectOption {
-  key: string
+  label: string
+  value: string
 }
 
 interface IField {

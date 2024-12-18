@@ -23,7 +23,7 @@ class PersonTypeFormSchema extends Schema<IPersonTypeFormDocument> {
               type: String,
               enum: InputType
             },
-            options: Array,
+            options: Array<String>,
             required: Boolean
           })
         ],
