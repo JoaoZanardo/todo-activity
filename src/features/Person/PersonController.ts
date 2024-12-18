@@ -30,10 +30,10 @@ class PersonController extends Controller {
             ...request.query
           })
 
-          const persons = await PersonServiceImp.list(filters)
+          const people = await PersonServiceImp.list(filters)
 
           response.OK('Pessoas encontradas com sucesso!', {
-            persons
+            people
           })
         } catch (error) {
           next(error)
