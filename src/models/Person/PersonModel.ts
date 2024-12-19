@@ -155,6 +155,7 @@ export class PersonModel extends Model<IPerson> {
           { passport: { $regex: search, $options: 'i' } },
           { cnpj: { $regex: search, $options: 'i' } },
           { register: { $regex: search, $options: 'i' } },
+          { 'cnh.value': { $regex: search, $options: 'i' } },
           { 'address.streetName': { $regex: search, $options: 'i' } },
           { 'address.streetNumber': { $regex: search, $options: 'i' } }
         ]
