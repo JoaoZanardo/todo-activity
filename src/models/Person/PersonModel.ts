@@ -28,8 +28,10 @@ export interface IPerson extends IModel {
     streetName: string
     streetNumber: number
   }
-  cnh?: string
-  cnhExpirationDate?: Date
+  cnh?: {
+    value: string
+    expirationDate: Date
+  }
   workScheduleId?: string
   responsibleId?: string
   cnpj?: string
@@ -50,7 +52,6 @@ export class PersonModel extends Model<IPerson> {
   private _phone?: IPerson['phone']
   private _address?: IPerson['address']
   private _cnh?: IPerson['cnh']
-  private _cnhExpirationDate?: IPerson['cnhExpirationDate']
   private _workScheduleId?: IPerson['workScheduleId']
   private _responsibleId?: IPerson['responsibleId']
   private _cnpj?: IPerson['cnpj']
@@ -71,7 +72,6 @@ export class PersonModel extends Model<IPerson> {
     this._contractInitDate = person.contractInitDate
     this._contractEndDate = person.contractEndDate
     this._cnh = person.cnh
-    this._cnhExpirationDate = person.cnhExpirationDate
     this._workScheduleId = person.workScheduleId
     this._responsibleId = person.responsibleId
     this._cnpj = person.cnpj
@@ -79,14 +79,6 @@ export class PersonModel extends Model<IPerson> {
     this._role = person.role
     this._rg = person.rg
     this._passport = person.passport
-    this._cnh = person.cnh
-    this._cnhExpirationDate = person.cnhExpirationDate
-    this._workScheduleId = person.workScheduleId
-    this._responsibleId = person.responsibleId
-    this._cnpj = person.cnpj
-    this._register = person.register
-    this._role = person.role
-    this._rg = person.rg
 
     this._personTypeId = person.personTypeId
     this._name = person.name
@@ -113,7 +105,14 @@ export class PersonModel extends Model<IPerson> {
       name: this._name,
       phone: this._phone,
       address: this._address,
-      personTypeId: this._personTypeId
+      personTypeId: this._personTypeId,
+      cnh: this._cnh,
+      workScheduleId: this._workScheduleId,
+      responsibleId: this._responsibleId,
+      cnpj: this._cnpj,
+      register: this._register,
+      role: this._role,
+      rg: this._rg
     }
   }
 
@@ -145,7 +144,12 @@ export class PersonModel extends Model<IPerson> {
         $or: [
           { name: { $regex: search, $options: 'i' } },
           { email: { $regex: search, $options: 'i' } },
-          { document: { $regex: search, $options: 'i' } },
+          { cpf: { $regex: search, $options: 'i' } },
+          { cnh: { $regex: search, $options: 'i' } },
+          { rg: { $regex: search, $options: 'i' } },
+          { passport: { $regex: search, $options: 'i' } },
+          { cnpj: { $regex: search, $options: 'i' } },
+          { register: { $regex: search, $options: 'i' } },
           { 'address.streetName': { $regex: search, $options: 'i' } },
           { 'address.streetNumber': { $regex: search, $options: 'i' } }
         ]
