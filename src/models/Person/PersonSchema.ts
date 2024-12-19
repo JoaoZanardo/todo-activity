@@ -20,6 +20,15 @@ class PersonSchema extends Schema<IPersonDocument> {
         streetName: String,
         streetNumber: Number
       },
+      cnh: String,
+      cnhExpirationDate: Date,
+      workScheduleId: String,
+      responsibleId: String,
+      cnpj: String,
+      register: String,
+      role: String,
+      rg: String,
+      passport: String,
 
       personTypeId: {
         type: Types.ObjectId,

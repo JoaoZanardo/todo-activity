@@ -28,6 +28,15 @@ export interface IPerson extends IModel {
     streetName: string
     streetNumber: number
   }
+  cnh?: string
+  cnhExpirationDate?: Date
+  workScheduleId?: string
+  responsibleId?: string
+  cnpj?: string
+  register?: string
+  role?: string
+  rg?: string
+  passport?: string
 
   personTypeId: Types.ObjectId
   name: string
@@ -41,6 +50,15 @@ export class PersonModel extends Model<IPerson> {
   private _contractEndDate?: IPerson['contractEndDate']
   private _phone?: IPerson['phone']
   private _address?: IPerson['address']
+  private _cnh?: IPerson['cnh']
+  private _cnhExpirationDate?: IPerson['cnhExpirationDate']
+  private _workScheduleId?: IPerson['workScheduleId']
+  private _responsibleId?: IPerson['responsibleId']
+  private _cnpj?: IPerson['cnpj']
+  private _register?: IPerson['register']
+  private _role?: IPerson['role']
+  private _rg?: IPerson['rg']
+  private _passport?: IPerson['passport']
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
@@ -54,6 +72,15 @@ export class PersonModel extends Model<IPerson> {
     this._observation = person.observation
     this._contractInitDate = person.contractInitDate
     this._contractEndDate = person.contractEndDate
+    this._cnh = person.cnh
+    this._cnhExpirationDate = person.cnhExpirationDate
+    this._workScheduleId = person.workScheduleId
+    this._responsibleId = person.responsibleId
+    this._cnpj = person.cnpj
+    this._register = person.register
+    this._role = person.role
+    this._rg = person.rg
+    this._passport = person.passport
 
     this._personTypeId = person.personTypeId
     this._name = person.name

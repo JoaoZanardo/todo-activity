@@ -56,7 +56,17 @@ class PersonController extends Controller {
             name,
             observation,
             phone,
-            personTypeId
+            personTypeId,
+            cnh,
+            cnhExpirationDate,
+            workScheduleId,
+            responsibleId,
+            cnpj,
+            register,
+            role,
+            rg,
+            passport
+
           } = request.body
 
           this.rules.validate(
@@ -68,7 +78,16 @@ class PersonController extends Controller {
             { personTypeId },
             { document },
             { phone },
-            { address }
+            { address },
+            { cnh },
+            { cnhExpirationDate },
+            { workScheduleId },
+            { responsibleId },
+            { cnpj },
+            { register },
+            { role },
+            { rg },
+            { passport }
           )
 
           const personModel = new PersonModel({
@@ -86,7 +105,16 @@ class PersonController extends Controller {
             email,
             name,
             observation,
-            phone
+            phone,
+            cnh,
+            cnhExpirationDate,
+            workScheduleId,
+            responsibleId,
+            cnpj,
+            register,
+            role,
+            rg,
+            passport
           })
 
           const person = await PersonServiceImp.create(personModel)
@@ -117,7 +145,16 @@ class PersonController extends Controller {
             name,
             observation,
             phone,
-            active
+            active,
+            cnh,
+            cnhExpirationDate,
+            workScheduleId,
+            responsibleId,
+            cnpj,
+            register,
+            role,
+            rg,
+            passport
           } = request.body
 
           this.rules.validate(
@@ -130,6 +167,15 @@ class PersonController extends Controller {
             { observation, isRequiredField: false },
             { phone, isRequiredField: false },
             { active, isRequiredField: false },
+            { cnh, isRequiredField: false },
+            { cnhExpirationDate, isRequiredField: false },
+            { workScheduleId, isRequiredField: false },
+            { responsibleId, isRequiredField: false },
+            { cnpj, isRequiredField: false },
+            { register, isRequiredField: false },
+            { role, isRequiredField: false },
+            { rg, isRequiredField: false },
+            { passport, isRequiredField: false },
             { personId }
           )
 
@@ -145,7 +191,16 @@ class PersonController extends Controller {
               name,
               observation,
               phone,
-              active
+              active,
+              cnh,
+              cnhExpirationDate,
+              workScheduleId,
+              responsibleId,
+              cnpj,
+              register,
+              role,
+              rg,
+              passport
             },
             responsibleId: userId
           })
