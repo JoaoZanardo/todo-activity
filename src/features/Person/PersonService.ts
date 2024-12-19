@@ -1,5 +1,5 @@
 import { IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
-import { IDeletePersonProps, IFindPersonByDocumentProps, IListPersonsFilters, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
+import { IDeletePersonProps, IListPersonsFilters, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
 import { PersonRepositoryImp } from '../../models/Person/PersonMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
@@ -31,8 +31,7 @@ export class PersonService {
 
   async create (person: PersonModel): Promise<PersonModel> {
     await Promise.all([
-      this.validateDuplicatedName(person),
-      this.validateDuplicatedDocument(person)
+      this.validateDuplicatedName(person)
     ])
 
     return await this.personRepositoryImp.create(person)
@@ -49,18 +48,11 @@ export class PersonService {
       tenantId
     })
 
-    const { name, document } = data
+    const { name } = data
 
     if (name && name !== person.name) {
       await this.validateDuplicatedName({
         name,
-        tenantId
-      })
-    }
-
-    if (document && document !== person.document) {
-      await this.validateDuplicatedDocument({
-        document,
         tenantId
       })
     }
@@ -129,18 +121,6 @@ export class PersonService {
   }: IFindModelByNameProps): Promise<void> {
     const person = await this.personRepositoryImp.findByName({
       name,
-      tenantId
-    })
-
-    if (person) throw CustomResponse.CONFLICT('Pessoa já cadastrada!')
-  }
-
-  private async validateDuplicatedDocument ({
-    document,
-    tenantId
-  }: IFindPersonByDocumentProps): Promise<void> {
-    const person = await this.personRepositoryImp.findByDocument({
-      document,
       tenantId
     })
 

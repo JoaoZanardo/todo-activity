@@ -40,7 +40,6 @@ export interface IPerson extends IModel {
 
   personTypeId: Types.ObjectId
   name: string
-  document: string
 }
 
 export class PersonModel extends Model<IPerson> {
@@ -62,7 +61,6 @@ export class PersonModel extends Model<IPerson> {
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
-  private _document: IPerson['document']
 
   constructor (person: IPerson) {
     super(person)
@@ -81,10 +79,17 @@ export class PersonModel extends Model<IPerson> {
     this._role = person.role
     this._rg = person.rg
     this._passport = person.passport
+    this._cnh = person.cnh
+    this._cnhExpirationDate = person.cnhExpirationDate
+    this._workScheduleId = person.workScheduleId
+    this._responsibleId = person.responsibleId
+    this._cnpj = person.cnpj
+    this._register = person.register
+    this._role = person.role
+    this._rg = person.rg
 
     this._personTypeId = person.personTypeId
     this._name = person.name
-    this._document = person.document
     this._phone = person.phone
     this._address = person.address
     this.actions = person.actions || [{
@@ -106,7 +111,6 @@ export class PersonModel extends Model<IPerson> {
       contractInitDate: this._contractInitDate,
       contractEndDate: this._contractEndDate,
       name: this._name,
-      document: this._document,
       phone: this._phone,
       address: this._address,
       personTypeId: this._personTypeId
@@ -119,10 +123,6 @@ export class PersonModel extends Model<IPerson> {
 
   get name (): IPerson['name'] {
     return this._name
-  }
-
-  get document (): IPerson['document'] {
-    return this._document
   }
 
   static listFilters (
