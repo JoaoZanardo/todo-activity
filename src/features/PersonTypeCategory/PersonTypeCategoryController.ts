@@ -41,12 +41,19 @@ class PersonTypeCategoryController extends Controller {
         }
       })
 
-    this.router.get('/select', async (request: Request, response: Response, next: NextFunction) => {
+    this.router.get('/select/:personTypeId', async (request: Request, response: Response, next: NextFunction) => {
       try {
         const { tenantId } = request
 
-        const personTypeCategories = await PersonTypeCategoryServiceImp.findAll({
+        const { personTypeId } = request.params
+
+        this.rules.validate(
+          { personTypeId }
+        )
+
+        const personTypeCategories = await PersonTypeCategoryServiceImp.findAllByPersonTypeId({
           tenantId,
+          personTypeId: ObjectId(personTypeId),
           select: ['_id', 'name', 'description']
         })
 

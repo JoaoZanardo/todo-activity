@@ -1,9 +1,9 @@
 import { Aggregate, ClientSession, FilterQuery } from 'mongoose'
 
-import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
+import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { IListPersonTypeCategorysFilters, IPersonTypeCategory, PersonTypeCategoryModel } from './PersonTypeCategoryModel'
+import { IFindAllCategoriesByPersonTypeIdProps, IListPersonTypeCategorysFilters, IPersonTypeCategory, PersonTypeCategoryModel } from './PersonTypeCategoryModel'
 import { IPersonTypeCategoryMongoDB } from './PersonTypeCategorySchema'
 
 export class PersonTypeCategoryRepository extends Repository<IPersonTypeCategoryMongoDB, PersonTypeCategoryModel> {
@@ -39,10 +39,10 @@ export class PersonTypeCategoryRepository extends Repository<IPersonTypeCategory
     return new PersonTypeCategoryModel(document)
   }
 
-  async findAll ({
+  async findAllByPersonTypeId ({
     tenantId,
     select
-  }: IFindAllModelsProps): Promise<Array<Partial<PersonTypeCategoryModel>>> {
+  }: IFindAllCategoriesByPersonTypeIdProps): Promise<Array<Partial<PersonTypeCategoryModel>>> {
     return await this.mongoDB.find({
       tenantId,
       deletionDate: null

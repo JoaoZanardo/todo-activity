@@ -1,6 +1,7 @@
 import { Types } from 'mongoose'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
+import { IFindAllProps } from '../../core/interfaces/Repository'
 import Model from '../../core/Model'
 import { ExpiringTime } from '../../models/PersonType/PersonTypeModel'
 import { DateUtils } from '../../utils/Date'
@@ -13,6 +14,10 @@ export interface IListPersonTypeCategorysFilters extends IListModelsFilters {
 export interface IUpdatePersonTypeCategoryProps extends IUpdateModelProps<IPersonTypeCategory> {}
 
 export interface IDeletePersonTypeCategoryProps extends IDeleteModelProps {}
+
+export interface IFindAllCategoriesByPersonTypeIdProps extends IFindAllProps {
+  personTypeId: Types.ObjectId
+}
 
 export interface IPersonTypeCategory extends IModel {
   description?: string

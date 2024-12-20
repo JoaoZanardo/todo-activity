@@ -1,8 +1,8 @@
 import { ClientSession } from 'mongoose'
 
-import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
+import { IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { IDeletePersonTypeCategoryProps, IListPersonTypeCategorysFilters, IPersonTypeCategory, IUpdatePersonTypeCategoryProps, PersonTypeCategoryModel } from '../../models/PersonTypeCategory/PersonTypeCategoryModel'
+import { IDeletePersonTypeCategoryProps, IFindAllCategoriesByPersonTypeIdProps, IListPersonTypeCategorysFilters, IPersonTypeCategory, IUpdatePersonTypeCategoryProps, PersonTypeCategoryModel } from '../../models/PersonTypeCategory/PersonTypeCategoryModel'
 import { PersonTypeCategoryRepositoryImp } from '../../models/PersonTypeCategory/PersonTypeCategoryMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
@@ -18,13 +18,15 @@ export class PersonTypeCategoryService {
     return await this.personTypeCategoryRepositoryImp.list(filters)
   }
 
-  async findAll ({
+  async findAllByPersonTypeId ({
     tenantId,
-    select
-  }: IFindAllModelsProps): Promise<Array<Partial<PersonTypeCategoryModel>>> {
-    return await this.personTypeCategoryRepositoryImp.findAll({
+    select,
+    personTypeId
+  }: IFindAllCategoriesByPersonTypeIdProps): Promise<Array<Partial<PersonTypeCategoryModel>>> {
+    return await this.personTypeCategoryRepositoryImp.findAllByPersonTypeId({
       tenantId,
-      select
+      select,
+      personTypeId
     })
   }
 
