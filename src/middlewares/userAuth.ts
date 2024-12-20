@@ -9,7 +9,12 @@ export const userAuthMiddleware = async (request: Request, response: Response, n
   try {
     const { tenantId } = request
 
+    console.log('tenantId: ', tenantId)
+
     const authorization = request.headers.authorization
+
+    console.log('authorization: ', authorization)
+
     if (!authorization) throw CustomResponse.UNAUTHORIZED('Acesso negado!')
 
     const [schema, token] = authorization.split(' ')
