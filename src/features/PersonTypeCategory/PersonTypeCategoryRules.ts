@@ -16,11 +16,6 @@ export class PersonTypeCategoryRules extends Rules {
       message: 'Descrição inválida. Informe uma descrição válida!'
     })
 
-    this.validator.addRule('expiringTime', {
-      validator: (value: string) => is.date(value),
-      message: 'Data de expiração inálida. Informe uma data válida!'
-    })
-
     this.validator.addRule('appAccess', {
       validator: (value: string) => is.boolean(value),
       message: 'Acesso ao App inválido!'

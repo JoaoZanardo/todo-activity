@@ -45,8 +45,6 @@ class PersonTypeCategoryController extends Controller {
       try {
         const { tenantId } = request
 
-        console.log()
-
         const personTypeCategories = await PersonTypeCategoryServiceImp.findAll({
           tenantId,
           select: ['_id', 'name', 'description']
