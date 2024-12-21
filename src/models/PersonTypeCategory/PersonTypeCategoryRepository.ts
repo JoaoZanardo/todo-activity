@@ -41,10 +41,12 @@ export class PersonTypeCategoryRepository extends Repository<IPersonTypeCategory
 
   async findAllByPersonTypeId ({
     tenantId,
-    select
+    select,
+    personTypeId
   }: IFindAllCategoriesByPersonTypeIdProps): Promise<Array<Partial<PersonTypeCategoryModel>>> {
     return await this.mongoDB.find({
       tenantId,
+      personTypeId,
       deletionDate: null
     }, select)
   }

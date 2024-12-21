@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { Request, Response, Router } from 'express'
 
 import AccessGroupController from '../features/AccessGroup/AccessGroupController'
 import PersonController from '../features/Person/PersonController'
@@ -14,6 +14,14 @@ class AuthRouter {
 
   route (): Router {
     this.authRouter.use(userAuthMiddleware)
+
+    this.authRouter.use('/profile', (request: Request, response: Response) => {
+      const { user } = request
+
+      response.OK('Usuário encontrado com sucesso!', {
+        user
+      })
+    })
 
     this.authRouter.use('/access-groups', moduleAuthMiddleware('A-02'), AccessGroupController)
     this.authRouter.use('/users', moduleAuthMiddleware('D-01'), UserController)
