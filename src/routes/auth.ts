@@ -30,7 +30,7 @@ class AuthRouter {
     this.authRouter.use('/person-type-categories', moduleAuthMiddleware('B-02'), PersonTypeCategoryController)
     this.authRouter.use('/person-type-forms', moduleAuthMiddleware('B-02'), PersonTypeFormController)
     this.authRouter.use('/people', moduleAuthMiddleware('B-01'), PersonController)
-    this.authRouter.use('/work-schedules', moduleAuthMiddleware('B-02'), WorkScheduleController)
+    this.authRouter.use('/work-schedules', moduleAuthMiddleware('B-04'), WorkScheduleController)
 
     return this.authRouter
   }
