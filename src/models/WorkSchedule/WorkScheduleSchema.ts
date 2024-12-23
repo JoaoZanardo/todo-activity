@@ -22,11 +22,11 @@ class WorkScheduleSchema extends Schema<IWorkScheduleDocument> {
         required: true
       },
       startTime: {
-        type: String,
+        type: Array<String>,
         required: true
       },
       endTime: {
-        type: String,
+        type: Array<String>,
         required: true
       }
     })
