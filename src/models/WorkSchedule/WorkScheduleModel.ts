@@ -33,8 +33,8 @@ export interface IWorkSchedule extends IModel {
 
   name: string
   days: Array<Day>
-  startTime: string
-  endTime: string
+  startTime: Array<string>
+  endTime: Array<string>
 }
 
 export class WorkScheduleModel extends Model<IWorkSchedule> {
