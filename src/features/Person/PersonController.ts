@@ -75,7 +75,7 @@ class PersonController extends Controller {
             { observation, isRequiredField: false },
             { name },
             { personTypeId },
-            { phone },
+            { phone, isRequiredField: false },
             { address, isRequiredField: false },
             { cnh, isRequiredField: false },
             { cnhExpirationDate, isRequiredField: false },
