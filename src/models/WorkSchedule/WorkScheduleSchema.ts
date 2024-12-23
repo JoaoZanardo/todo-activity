@@ -18,7 +18,7 @@ class WorkScheduleSchema extends Schema<IWorkScheduleDocument> {
         required: true
       },
       days: {
-        type: String,
+        type: Array<String>,
         required: true
       },
       startTime: {
