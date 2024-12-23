@@ -17,7 +17,7 @@ export class PersonTypeRules extends Rules {
     })
 
     this.validator.addRule('expiringTime', {
-      validator: (value: string) => is.date(value),
+      validator: (value: string) => is.object(value),
       message: 'Data de expiração inálida. Informe uma data válida!'
     })
 
