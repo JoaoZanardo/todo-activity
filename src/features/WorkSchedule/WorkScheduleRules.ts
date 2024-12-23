@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-constructor */
 import Rules from '../../core/Rules'
-import { Day, DayValues } from '../../models/WorkSchedule/WorkScheduleModel'
+import { Day } from '../../models/WorkSchedule/WorkScheduleModel'
 import is from '../../utils/is'
 
 export class WorkScheduleRules extends Rules {
@@ -8,7 +8,7 @@ export class WorkScheduleRules extends Rules {
     super()
 
     this.validator.addRule('days', {
-      validator: (value: Day) => DayValues.includes(value),
+      validator: (value: Day) => is.array(value),
       message: 'Dia inválido. Informe um dia válido!'
     })
 

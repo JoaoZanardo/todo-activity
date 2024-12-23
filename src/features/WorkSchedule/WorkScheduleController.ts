@@ -40,6 +40,22 @@ class WorkScheduleController extends Controller {
         }
       })
 
+    this.router.get('/select', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request
+
+        const personTypes = await WorkScheduleServiceImp.findAll({
+          tenantId
+        })
+
+        response.OK('Jornadas encontrados com sucesso!', {
+          personTypes
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
+
     this.router.post(
       '/',
       permissionAuthMiddleware(Permission.create),

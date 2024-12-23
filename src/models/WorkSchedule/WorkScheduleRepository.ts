@@ -1,6 +1,6 @@
 import { Aggregate, FilterQuery } from 'mongoose'
 
-import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
+import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { DateUtils } from '../../utils/Date'
@@ -79,6 +79,15 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
     const document = await this.mongoDB.create(WorkSchedule.object)
 
     return new WorkScheduleModel(document)
+  }
+
+  async findAll ({
+    tenantId
+  }: IFindAllModelsProps): Promise<Array<Partial<IWorkSchedule>>> {
+    return await this.mongoDB.find({
+      tenantId,
+      deletionDate: null
+    })
   }
 
   async update ({
