@@ -108,15 +108,6 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
   async list ({ limit, page, ...filters }: IListWorkSchedulesFilters): Promise<IAggregatePaginate<IWorkSchedule>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
-      {
-        $lookup: {
-          from: 'WorkScheduletypes',
-          localField: 'WorkScheduleTypeId',
-          foreignField: '_id',
-          as: 'WorkScheduleType'
-        }
-      },
-      { $unwind: '$WorkScheduleType' },
       { $sort: { _id: -1 } }
     ])
 

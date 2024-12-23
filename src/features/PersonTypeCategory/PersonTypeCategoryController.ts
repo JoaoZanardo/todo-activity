@@ -110,7 +110,7 @@ class PersonTypeCategoryController extends Controller {
           await session.commitTransaction()
           session.endSession()
 
-          response.OK('Categoria de tipo de pessoa cadastrada com sucesso!', {
+          response.CREATED('Categoria de tipo de pessoa cadastrada com sucesso!', {
             personTypeCategory: personTypeCategory.show
           })
         } catch (error) {

@@ -128,7 +128,7 @@ class PersonTypeController extends Controller {
           await session.commitTransaction()
           session.endSession()
 
-          response.OK('Tipo de pessoa cadastrado com sucesso!', {
+          response.CREATED('Tipo de pessoa cadastrado com sucesso!', {
             personType: personType.show
           })
         } catch (error) {

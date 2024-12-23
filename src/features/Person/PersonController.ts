@@ -117,7 +117,7 @@ class PersonController extends Controller {
 
           const person = await PersonServiceImp.create(personModel)
 
-          response.OK('Pessoa cadastrada com sucesso!', {
+          response.CREATED('Pessoa cadastrada com sucesso!', {
             person: person.show
           })
         } catch (error) {
