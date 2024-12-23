@@ -5,6 +5,7 @@ import { IncomingMessage, Server as HTTPServer, ServerResponse } from 'http'
 import morgan from 'morgan'
 
 import env from './config/env'
+import executeJobs from './jobs'
 import router from './routes/router'
 
 export class Server {
@@ -18,6 +19,8 @@ export class Server {
   }
 
   async init (): Promise<void> {
+    executeJobs()
+
     this.setupApp()
     this.setupRoutes()
   }

@@ -32,7 +32,7 @@ export interface IPerson extends IModel {
     value: string
     expirationDate: Date
   }
-  workScheduleId?: string
+  workScheduleId?: Types.ObjectId
   responsibleId?: string
   cnpj?: string
   register?: string

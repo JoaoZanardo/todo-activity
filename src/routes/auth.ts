@@ -6,6 +6,7 @@ import PersonTypeController from '../features/PersonType/PersonTypeController'
 import PersonTypeCategoryController from '../features/PersonTypeCategory/PersonTypeCategoryController'
 import PersonTypeFormController from '../features/PersonTypeForm/PersonTypeFormController'
 import UserController from '../features/User/UserController'
+import WorkScheduleController from '../features/WorkSchedule/WorkScheduleController'
 import { moduleAuthMiddleware } from '../middlewares/moduleAuth'
 import { userAuthMiddleware } from '../middlewares/userAuth'
 
@@ -29,6 +30,7 @@ class AuthRouter {
     this.authRouter.use('/person-type-categories', moduleAuthMiddleware('B-02'), PersonTypeCategoryController)
     this.authRouter.use('/person-type-forms', moduleAuthMiddleware('B-02'), PersonTypeFormController)
     this.authRouter.use('/people', moduleAuthMiddleware('B-01'), PersonController)
+    this.authRouter.use('/work-schedules', moduleAuthMiddleware('B-02'), WorkScheduleController)
 
     return this.authRouter
   }
