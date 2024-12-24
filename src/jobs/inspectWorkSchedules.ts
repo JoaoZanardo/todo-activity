@@ -5,7 +5,7 @@ export const inspectWorkSchedules = async () => {
 
   try {
     const inWorkSchedules = await WorkScheduleRepositoryImp.findAllInOfSchedule()
-    const outWorkSchedules = await WorkScheduleRepositoryImp.findAllInOfSchedule()
+    const outWorkSchedules = await WorkScheduleRepositoryImp.findAllOutOfSchedule()
 
     console.log({ inWorkSchedules, outWorkSchedules })
 
