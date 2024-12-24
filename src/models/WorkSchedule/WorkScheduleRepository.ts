@@ -50,8 +50,8 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
 
     console.log({
       days: { $in: currentDay },
-      startTime: { $gt: currentTime },
-      endTime: { $lt: currentTime },
+      startTime: { $lt: currentTime },
+      endTime: { $gt: currentTime },
       deletionDate: null
     })
 
@@ -71,7 +71,7 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
     const currentDay = now.toLocaleString('en-US', { weekday: 'long' })
 
     const documents = await this.mongoDB.find({
-      days: { $in: currentDay },
+      days: { $in: [currentDay] },
       startTime: { $gt: currentTime },
       endTime: { $gt: currentTime },
       deletionDate: null
