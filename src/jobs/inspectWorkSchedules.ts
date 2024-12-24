@@ -4,11 +4,12 @@ export const inspectWorkSchedules = async () => {
   console.log('inspectWorkSchedules')
 
   try {
-    const workSchedules = await WorkScheduleRepositoryImp.findAllInOfSchedule()
+    const inWorkSchedules = await WorkScheduleRepositoryImp.findAllInOfSchedule()
+    const outWorkSchedules = await WorkScheduleRepositoryImp.findAllInOfSchedule()
 
-    console.log({ workSchedules })
+    console.log({ inWorkSchedules, outWorkSchedules })
 
-    if (workSchedules.length) {
+    if (inWorkSchedules.length) {
       // Liberar acesso
     }
   } catch (error) {
