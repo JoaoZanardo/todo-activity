@@ -72,10 +72,8 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
 
     const documents = await this.mongoDB.find({
       days: { $in: currentDay },
-      $or: [
-        { startTime: { $gt: currentTime }, endTime: { $gte: currentTime } },
-        { startTime: { $lt: currentTime }, endTime: { $lt: currentTime } }
-      ],
+      startTime: { $gt: currentTime },
+      endTime: { $gt: currentTime },
       deletionDate: null
     })
 
