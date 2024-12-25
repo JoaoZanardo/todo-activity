@@ -3,6 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
+import { DateUtils } from '../../utils/Date'
 import { IListWorkSchedulesFilters, IWorkSchedule, WorkScheduleModel } from './WorkScheduleModel'
 import { IWorkScheduleMongoDB } from './WorkScheduleSchema'
 
@@ -41,7 +42,7 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
   }
 
   async findAllInOfSchedule (): Promise<Array<WorkScheduleModel>> {
-    const now = new Date()
+    const now = DateUtils.getCurrent()
     const currentTime = now.toTimeString().slice(0, 5)
     const currentDay = now.toLocaleString('en-US', { weekday: 'long' })
 
@@ -59,7 +60,7 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
   }
 
   async findAllOutOfSchedule (): Promise<Array<WorkScheduleModel>> {
-    const now = new Date()
+    const now = DateUtils.getCurrent()
     const currentTime = now.toTimeString().slice(0, 5)
     const currentDay = now.toLocaleString('en-US', { weekday: 'long' })
 
