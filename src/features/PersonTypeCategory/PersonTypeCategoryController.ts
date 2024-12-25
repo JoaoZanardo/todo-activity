@@ -54,7 +54,7 @@ class PersonTypeCategoryController extends Controller {
         const personTypeCategories = await PersonTypeCategoryServiceImp.findAllByPersonTypeId({
           tenantId,
           personTypeId: ObjectId(personTypeId),
-          select: ['_id', 'name', 'description']
+          select: ['_id', 'name', 'description', 'expiringTime']
         })
 
         response.OK('Categorias de tipo de pessoa encontradas com sucesso!', {
