@@ -1,8 +1,7 @@
 import { Types } from 'mongoose'
 
-import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
+import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
-import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
 
 export interface IListWorkSchedulesFilters extends IListModelsFilters { }
@@ -54,10 +53,6 @@ export class WorkScheduleModel extends Model<IWorkSchedule> {
     this._days = workSchedule.days
     this._startTime = workSchedule.startTime
     this._endTime = workSchedule.endTime
-    this.actions = workSchedule.actions || [{
-      action: ModelAction.create,
-      date: DateUtils.getCurrent()
-    }]
   }
 
   get object (): IWorkSchedule {

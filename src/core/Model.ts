@@ -1,5 +1,5 @@
 import { DateUtils } from '../utils/Date'
-import { IModel } from './interfaces/Model'
+import { IModel, ModelAction } from './interfaces/Model'
 
 export default abstract class Model<T> {
   public _id?: IModel['_id']
@@ -13,7 +13,10 @@ export default abstract class Model<T> {
     this._id = model._id
     this.tenantId = model.tenantId
     this.active = model.active
-    this.actions = model.actions || []
+    this.actions = model.actions || [{
+      action: ModelAction.create,
+      date: DateUtils.getCurrent()
+    }]
     this.createdAt = model.createdAt || DateUtils.getCurrent()
     this.deletionDate = model.deletionDate
   }
