@@ -45,6 +45,8 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
     const currentTime = now.toTimeString().slice(0, 5)
     const currentDay = now.toLocaleString('en-US', { weekday: 'long' })
 
+    console.log({ currentDay, currentTime })
+
     const documents = await this.mongoDB.find({
       days: { $in: [currentDay] },
       startTime: { $lt: currentTime },
