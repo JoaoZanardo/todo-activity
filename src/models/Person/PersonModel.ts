@@ -40,6 +40,7 @@ export interface IPerson extends IModel {
   rg?: string
   passport?: string
   cpf?: string
+  picture?: string
 
   personTypeId: Types.ObjectId
   name: string
@@ -61,6 +62,7 @@ export class PersonModel extends Model<IPerson> {
   private _rg?: IPerson['rg']
   private _passport?: IPerson['passport']
   private _cpf?: IPerson['cpf']
+  private _picture?: IPerson['picture']
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
@@ -82,6 +84,7 @@ export class PersonModel extends Model<IPerson> {
     this._rg = person.rg
     this._passport = person.passport
     this._cpf = person.cpf
+    this._picture = person.picture
 
     this._personTypeId = person.personTypeId
     this._name = person.name
@@ -117,7 +120,8 @@ export class PersonModel extends Model<IPerson> {
       role: this._role,
       rg: this._rg,
       passport: this._passport,
-      cpf: this._cpf
+      cpf: this._cpf,
+      picture: this._picture
     }
   }
 

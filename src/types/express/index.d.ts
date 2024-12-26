@@ -8,6 +8,7 @@ declare global {
       userId: Types.ObjectId
       user: IUser
       tenantId: Types.ObjectId
+      filePath?: string
     }
 
     interface Response {
