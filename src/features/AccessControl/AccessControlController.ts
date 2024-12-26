@@ -47,7 +47,7 @@ class AccessControlController extends Controller {
           const { tenantId, userId } = request
 
           const {
-            accessRealese,
+            accessRelease,
             personId,
             personTypeId,
             type,
@@ -60,7 +60,7 @@ class AccessControlController extends Controller {
             { personTypeCategoryId, isRequiredField: false },
             { responsibleId, isRequiredField: false },
             { observation, isRequiredField: false },
-            { accessRealese },
+            { accessRelease },
             { personId },
             { personTypeId },
             { type }
@@ -76,7 +76,7 @@ class AccessControlController extends Controller {
               date: DateUtils.getCurrent(),
               userId
             }],
-            accessRealese,
+            accessRelease,
             personId,
             personTypeId,
             type

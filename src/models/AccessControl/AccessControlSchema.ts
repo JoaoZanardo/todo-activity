@@ -28,7 +28,7 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
         type: Types.ObjectId,
         required: true
       },
-      accessRealese: {
+      accessRelease: {
         type: String,
         enum: AccessRelease,
         required: true

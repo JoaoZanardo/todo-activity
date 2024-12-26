@@ -34,7 +34,7 @@ export interface IAccessControl extends IModel {
   type: AccessControlType
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
-  accessRealese: AccessRelease
+  accessRelease: AccessRelease
 }
 
 export class AccessControlModel extends Model<IAccessControl> {
@@ -45,7 +45,7 @@ export class AccessControlModel extends Model<IAccessControl> {
   private _type: IAccessControl['type']
   private _personId: IAccessControl['personId']
   private _personTypeId: IAccessControl['personTypeId']
-  private _accessRealese: IAccessControl['accessRealese']
+  private _accessRelease: IAccessControl['accessRelease']
 
   constructor (accessControl: IAccessControl) {
     super(accessControl)
@@ -57,7 +57,7 @@ export class AccessControlModel extends Model<IAccessControl> {
     this._type = accessControl.type
     this._personId = accessControl.personId
     this._personTypeId = accessControl.personTypeId
-    this._accessRealese = accessControl.accessRealese
+    this._accessRelease = accessControl.accessRelease
     this.actions = accessControl.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
@@ -79,7 +79,7 @@ export class AccessControlModel extends Model<IAccessControl> {
       type: this._type,
       personId: this._personId,
       personTypeId: this._personTypeId,
-      accessRealese: this._accessRealese
+      accessRelease: this._accessRelease
     }
   }
 
