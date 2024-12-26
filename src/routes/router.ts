@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express'
 
+import AccessControlController from '../features/AccessControl/AccessControlController'
 import TenantController from '../features/Tenant/TenantController'
 import { customResponseMiddleware } from '../middlewares/customResponse'
 import { errorMiddleware } from '../middlewares/error'
@@ -17,6 +18,8 @@ router.use((req, res, next) => {
 router.get('/', async (request: Request, response: Response) => {
   response.json({ foo: 'bar' })
 })
+
+router.use('/access-controls', AccessControlController)
 
 router.use('/tenants', TenantController)
 

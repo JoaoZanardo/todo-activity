@@ -3,10 +3,8 @@ import { NextFunction, Request, Response, Router } from 'express'
 import { Controller } from '../../core/Controller'
 import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
-import { permissionAuthMiddleware } from '../../middlewares/permissionAuth'
 import { AccessControlModel } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
-import { Permission } from '../../models/AccessGroup/AccessGroupModel'
 import { DateUtils } from '../../utils/Date'
 import { AccessControlRules } from './AccessControlRules'
 import { AccessControlService } from './AccessControlService'
@@ -19,7 +17,7 @@ class AccessControlController extends Controller {
   handle (): Router {
     this.router.get(
       '/',
-      permissionAuthMiddleware(Permission.read),
+      // permissionAuthMiddleware(Permission.read),
       async (request: Request, response: Response, next: NextFunction) => {
         try {
           const { tenantId } = request
@@ -41,7 +39,7 @@ class AccessControlController extends Controller {
 
     this.router.post(
       '/',
-      permissionAuthMiddleware(Permission.create),
+      // permissionAuthMiddleware(Permission.create),
       async (request: Request, response: Response, next: NextFunction) => {
         try {
           const { tenantId, userId } = request

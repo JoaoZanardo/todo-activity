@@ -105,8 +105,6 @@ export class AccessControlModel extends Model<IAccessControl> {
     if (search) {
       Object.assign(filters, {
         $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { description: { $regex: search, $options: 'i' } }
         ]
       })
     }
