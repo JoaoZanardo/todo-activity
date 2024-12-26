@@ -64,6 +64,14 @@ export class AccessControlRepository extends Repository<IAccessControlMongoDB, A
           as: 'person'
         }
       },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'responsibleId',
+          foreignField: '_id',
+          as: 'responsible'
+        }
+      },
       // {
       //   $lookup: {
       //     from: 'persontypecategories',
@@ -78,6 +86,12 @@ export class AccessControlRepository extends Repository<IAccessControlMongoDB, A
       //     preserveNullAndEmptyArrays: true
       //   }
       // },
+      {
+        $unwind: {
+          path: '$responsible',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       {
         $unwind: '$personType'
       },

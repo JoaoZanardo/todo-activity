@@ -8,7 +8,10 @@ import ObjectId from '../../utils/ObjectId'
 export interface IListAccessControlsFilters extends IListModelsFilters {
   personId?: Types.ObjectId
   personTypeId?: Types.ObjectId
-  personCategoryId?: Types.ObjectId
+  personTypeCategoryId?: Types.ObjectId
+  type?: AccessControlType
+  accessRelease?: AccessRelease
+  responsibleId?: Types.ObjectId
 }
 
 export interface IUpdateAccessControlProps extends IUpdateModelProps<IAccessControl> { }
@@ -93,18 +96,29 @@ export class AccessControlModel extends Model<IAccessControl> {
       limit,
       page,
       tenantId,
-      personTypeId
+      personTypeId,
+      personId,
+      personTypeCategoryId,
+      type,
+      accessRelease,
+      responsibleId
     }: Partial<IListAccessControlsFilters>
   ): IListAccessControlsFilters {
     const filters = {
       deletionDate: undefined
     } as IListAccessControlsFilters
 
+    if (personId) Object.assign(filters, { personId: ObjectId(personId) })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
+    if (personTypeCategoryId) Object.assign(filters, { personTypeCategoryId: ObjectId(personTypeCategoryId) })
+    if (responsibleId) Object.assign(filters, { responsibleId: ObjectId(responsibleId) })
+    if (type) Object.assign(filters, { type })
+    if (accessRelease) Object.assign(filters, { accessRelease })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (search) {
       Object.assign(filters, {
         $or: [
+          { observation: { $regex: search, $options: 'i' } }
         ]
       })
     }
