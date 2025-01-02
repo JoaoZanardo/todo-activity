@@ -49,6 +49,7 @@ export interface IPerson extends IModel {
   passport?: string
   cpf?: string
   picture?: string
+  personTypeCategoryId?: string
 
   personTypeId: Types.ObjectId
   name: string
@@ -71,6 +72,7 @@ export class PersonModel extends Model<IPerson> {
   private _passport?: IPerson['passport']
   private _cpf?: IPerson['cpf']
   private _picture?: IPerson['picture']
+  private _personTypeCategoryId?: IPerson['personTypeCategoryId']
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
@@ -129,7 +131,8 @@ export class PersonModel extends Model<IPerson> {
       rg: this._rg,
       passport: this._passport,
       cpf: this._cpf,
-      picture: this._picture
+      picture: this._picture,
+      personTypeCategoryId: this._personTypeCategoryId
     }
   }
 
@@ -162,14 +165,14 @@ export class PersonModel extends Model<IPerson> {
       deletionDate: undefined
     } as IListPersonsFilters
 
-    if (cnh) Object.assign(filters, { 'cnh.value': { $regex: search, $options: 'i' } })
-    if (cpf) Object.assign(filters, { cpf: { $regex: search, $options: 'i' } })
-    if (cnpj) Object.assign(filters, { cnpj: { $regex: search, $options: 'i' } })
-    if (rg) Object.assign(filters, { rg: { $regex: search, $options: 'i' } })
-    if (passport) Object.assign(filters, { passport: { $regex: search, $options: 'i' } })
-    if (register) Object.assign(filters, { register: { $regex: search, $options: 'i' } })
-    if (name) Object.assign(filters, { name: { $regex: search, $options: 'i' } })
-    if (email) Object.assign(filters, { email: { $regex: search, $options: 'i' } })
+    if (cnh) Object.assign(filters, { 'cnh.value': { $regex: cnh, $options: 'i' } })
+    if (cpf) Object.assign(filters, { cpf: { $regex: cpf, $options: 'i' } })
+    if (cnpj) Object.assign(filters, { cnpj: { $regex: cnpj, $options: 'i' } })
+    if (rg) Object.assign(filters, { rg: { $regex: rg, $options: 'i' } })
+    if (passport) Object.assign(filters, { passport: { $regex: passport, $options: 'i' } })
+    if (register) Object.assign(filters, { register: { $regex: register, $options: 'i' } })
+    if (name) Object.assign(filters, { name: { $regex: name, $options: 'i' } })
+    if (email) Object.assign(filters, { email: { $regex: email, $options: 'i' } })
 
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })

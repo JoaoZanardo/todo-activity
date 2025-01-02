@@ -78,17 +78,19 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
   }
 
   async list ({ limit, page, ...filters }: IListPersonsFilters): Promise<IAggregatePaginate<IPerson>> {
+    console.log({ filters })
+
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
-      {
-        $lookup: {
-          from: 'persontypes',
-          localField: 'personTypeId',
-          foreignField: '_id',
-          as: 'personType'
-        }
-      },
-      { $unwind: '$personType' },
+      // {
+      //   $lookup: {
+      //     from: 'persontypes',
+      //     localField: 'personTypeId',
+      //     foreignField: '_id',
+      //     as: 'personType'
+      //   }
+      // },
+      // { $unwind: '$personType' },
       { $sort: { _id: -1 } }
     ])
 

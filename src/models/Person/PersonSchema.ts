@@ -30,6 +30,7 @@ class PersonSchema extends Schema<IPersonDocument> {
       passport: String,
       cpf: String,
       picture: String,
+      personTypeCategoryId: Types.ObjectId,
 
       personTypeId: {
         type: Types.ObjectId,
