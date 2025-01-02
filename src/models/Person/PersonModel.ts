@@ -162,7 +162,7 @@ export class PersonModel extends Model<IPerson> {
       deletionDate: undefined
     } as IListPersonsFilters
 
-    if (cnh) Object.assign(filters, { cnh: { $regex: search, $options: 'i' } })
+    if (cnh) Object.assign(filters, { 'cnh.value': { $regex: search, $options: 'i' } })
     if (cpf) Object.assign(filters, { cpf: { $regex: search, $options: 'i' } })
     if (cnpj) Object.assign(filters, { cnpj: { $regex: search, $options: 'i' } })
     if (rg) Object.assign(filters, { rg: { $regex: search, $options: 'i' } })
