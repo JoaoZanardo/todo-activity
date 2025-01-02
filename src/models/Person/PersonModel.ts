@@ -7,6 +7,14 @@ import ObjectId from '../../utils/ObjectId'
 
 export interface IListPersonsFilters extends IListModelsFilters {
   personTypeId?: Types.ObjectId
+  name?: string
+  email?: string
+  cpf?: string
+  cnh?: string
+  rg?: string
+  passport?: string
+  cnpj?: string
+  register?: string
 }
 
 export interface IUpdatePersonProps extends IUpdateModelProps<IPerson> { }
@@ -139,12 +147,29 @@ export class PersonModel extends Model<IPerson> {
       limit,
       page,
       personTypeId,
-      tenantId
+      tenantId,
+      cnh,
+      cnpj,
+      email,
+      name,
+      passport,
+      register,
+      rg,
+      cpf
     }: Partial<IListPersonsFilters>
   ): IListPersonsFilters {
     const filters = {
       deletionDate: undefined
     } as IListPersonsFilters
+
+    if (cnh) Object.assign(filters, { cnh: { $regex: search, $options: 'i' } })
+    if (cpf) Object.assign(filters, { cpf: { $regex: search, $options: 'i' } })
+    if (cnpj) Object.assign(filters, { cnpj: { $regex: search, $options: 'i' } })
+    if (rg) Object.assign(filters, { rg: { $regex: search, $options: 'i' } })
+    if (passport) Object.assign(filters, { passport: { $regex: search, $options: 'i' } })
+    if (register) Object.assign(filters, { register: { $regex: search, $options: 'i' } })
+    if (name) Object.assign(filters, { name: { $regex: search, $options: 'i' } })
+    if (email) Object.assign(filters, { email: { $regex: search, $options: 'i' } })
 
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
