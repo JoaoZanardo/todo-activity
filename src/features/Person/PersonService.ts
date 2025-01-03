@@ -30,9 +30,9 @@ export class PersonService {
   }
 
   async create (person: PersonModel): Promise<PersonModel> {
-    await Promise.all([
-      this.validateDuplicatedName(person)
-    ])
+    // await Promise.all([
+    //   this.validateDuplicatedName(person)
+    // ])
 
     return await this.personRepositoryImp.create(person)
   }
