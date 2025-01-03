@@ -43,6 +43,7 @@ class PersonController extends Controller {
     this.router.post(
       '/',
       permissionAuthMiddleware(Permission.create),
+
       async (request: Request, response: Response, next: NextFunction) => {
         try {
           const { tenantId, userId } = request

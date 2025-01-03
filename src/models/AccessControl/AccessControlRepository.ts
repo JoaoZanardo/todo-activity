@@ -72,20 +72,20 @@ export class AccessControlRepository extends Repository<IAccessControlMongoDB, A
           as: 'responsible'
         }
       },
-      // {
-      //   $lookup: {
-      //     from: 'persontypecategories',
-      //     localField: 'personTypeCategoryId',
-      //     foreignField: '_id',
-      //     as: 'personTypeCategory'
-      //   }
-      // },
-      // {
-      //   $unwind: {
-      //     path: '$personTypeCategory',
-      //     preserveNullAndEmptyArrays: true
-      //   }
-      // },
+      {
+        $lookup: {
+          from: 'persontypecategories',
+          localField: 'personTypeCategoryId',
+          foreignField: '_id',
+          as: 'personTypeCategory'
+        }
+      },
+      {
+        $unwind: {
+          path: '$personTypeCategory',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       {
         $unwind: {
           path: '$responsible',

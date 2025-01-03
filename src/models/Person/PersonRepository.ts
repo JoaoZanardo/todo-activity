@@ -82,15 +82,29 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
 
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
-      // {
-      //   $lookup: {
-      //     from: 'persontypes',
-      //     localField: 'personTypeId',
-      //     foreignField: '_id',
-      //     as: 'personType'
-      //   }
-      // },
-      // { $unwind: '$personType' },
+      {
+        $lookup: {
+          from: 'persontypes',
+          localField: 'personTypeId',
+          foreignField: '_id',
+          as: 'personType'
+        }
+      },
+      {
+        $lookup: {
+          from: 'persontypecategories',
+          localField: 'personTypeCategoryId',
+          foreignField: '_id',
+          as: 'personTypeCategory'
+        }
+      },
+      { $unwind: '$personType' },
+      {
+        $unwind: {
+          path: '$personTypeCategory',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       { $sort: { _id: -1 } }
     ])
 
