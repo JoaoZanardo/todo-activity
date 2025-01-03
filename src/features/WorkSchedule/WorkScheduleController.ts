@@ -44,12 +44,12 @@ class WorkScheduleController extends Controller {
       try {
         const { tenantId } = request
 
-        const personTypes = await WorkScheduleServiceImp.findAll({
+        const workSchedules = await WorkScheduleServiceImp.findAll({
           tenantId
         })
 
         response.OK('Jornadas encontrados com sucesso!', {
-          personTypes
+          workSchedules
         })
       } catch (error) {
         next(error)
