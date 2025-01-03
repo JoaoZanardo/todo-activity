@@ -48,14 +48,14 @@ export class PersonService {
       tenantId
     })
 
-    const { name } = data
+    // const { name } = data
 
-    if (name && name !== person.name) {
-      await this.validateDuplicatedName({
-        name,
-        tenantId
-      })
-    }
+    // if (name && name !== person.name) {
+    //   await this.validateDuplicatedName({
+    //     name,
+    //     tenantId
+    //   })
+    // }
 
     const updated = await this.personRepositoryImp.update({
       id,
