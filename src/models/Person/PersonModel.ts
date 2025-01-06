@@ -95,6 +95,7 @@ export class PersonModel extends Model<IPerson> {
     this._passport = person.passport
     this._cpf = person.cpf
     this._picture = person.picture
+    this._personTypeCategoryId = person.personTypeCategoryId
 
     this._personTypeId = person.personTypeId
     this._name = person.name

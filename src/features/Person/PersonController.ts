@@ -122,8 +122,6 @@ class PersonController extends Controller {
             personTypeCategoryId
           })
 
-          console.log({ personTypeCategoryId })
-
           const person = await PersonServiceImp.create(personModel)
 
           response.CREATED('Pessoa cadastrada com sucesso!', {
