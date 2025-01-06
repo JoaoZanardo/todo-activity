@@ -1,8 +1,8 @@
 import { ClientSession, Types } from 'mongoose'
-import { PersonTypeModel, TimeUnit } from 'src/models/PersonType/PersonTypeModel'
-import { PersonTypeRepositoryImp } from 'src/models/PersonType/PersonTypeMongoDB'
 
 import { ModelAction } from '../../core/interfaces/Model'
+import { PersonTypeModel, TimeUnit } from '../../models/PersonType/PersonTypeModel'
+import { PersonTypeRepositoryImp } from '../../models/PersonType/PersonTypeMongoDB'
 import { TenantModel } from '../../models/Tenant/TenantModel'
 import { TenantRepositoryImp } from '../../models/Tenant/TenantMongoDB'
 import { UserModel } from '../../models/User/UserModel'
