@@ -39,7 +39,10 @@ export class WorkScheduleService {
 
   async create (workSchedule: WorkScheduleModel): Promise<WorkScheduleModel> {
     await Promise.all([
-      this.validateDuplicatedName(workSchedule)
+      this.validateDuplicatedName({
+        name: workSchedule.name,
+        tenantId: workSchedule.tenantId
+      })
     ])
 
     return await this.workScheduleRepositoryImp.create(workSchedule)

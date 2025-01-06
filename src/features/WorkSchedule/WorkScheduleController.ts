@@ -32,7 +32,7 @@ class WorkScheduleController extends Controller {
 
           const workSchedules = await WorkScheduleServiceImp.list(filters)
 
-          response.OK('Jornads de trabalho encontradas com sucesso!', {
+          response.OK('Jornadas de trabalho encontradas com sucesso!', {
             workSchedules
           })
         } catch (error) {

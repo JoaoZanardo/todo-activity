@@ -1,4 +1,6 @@
 import { ClientSession, Types } from 'mongoose'
+import { PersonTypeModel, TimeUnit } from 'src/models/PersonType/PersonTypeModel'
+import { PersonTypeRepositoryImp } from 'src/models/PersonType/PersonTypeMongoDB'
 
 import { ModelAction } from '../../core/interfaces/Model'
 import { TenantModel } from '../../models/Tenant/TenantModel'
@@ -28,6 +30,8 @@ export class TenantService {
     await this.validateDuplicatedEmail(tenant.email)
 
     const createdTenant = await this.tenantRepositoryImp.create(tenant, session)
+
+    await this.createDefaultPersonTypes(createdTenant._id!, session)
 
     await this.sendEmailWithTenantInfo(createdTenant, session)
 
@@ -65,5 +69,27 @@ export class TenantService {
         tenant
       })
     })
+  }
+
+  private async createDefaultPersonTypes (tenantId: Types.ObjectId, session: ClientSession): Promise<void> {
+    const residentPersonType = new PersonTypeModel({
+      name: 'Morador',
+      tenantId,
+      appAccess: true
+    })
+
+    const visitorPersonType = new PersonTypeModel({
+      name: 'Visitante',
+      tenantId,
+      expiringTime: {
+        value: 1,
+        unit: TimeUnit.day
+      }
+    })
+
+    await Promise.all([
+      PersonTypeRepositoryImp.create(residentPersonType, session),
+      PersonTypeRepositoryImp.create(visitorPersonType, session)
+    ])
   }
 }
