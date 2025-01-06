@@ -57,7 +57,11 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
   }
 
   async create (person: PersonModel): Promise<PersonModel> {
+    console.log({ personTypeCategoryIdRepo: person.object.personTypeCategoryId })
+
     const document = await this.mongoDB.create(person.object)
+
+    console.log({ document })
 
     return new PersonModel(document)
   }
