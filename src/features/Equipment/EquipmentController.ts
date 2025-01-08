@@ -92,16 +92,14 @@ class EquipmentController extends Controller {
 
           const {
             serialNumber,
-            type,
-            brand,
+            description,
             pattern,
             ip
           } = request.body
 
           this.rules.validate(
             { serialNumber, isRequiredField: false },
-            { type },
-            { brand },
+            { description },
             { pattern },
             { ip }
           )
@@ -114,8 +112,7 @@ class EquipmentController extends Controller {
               userId
             }],
             serialNumber,
-            type,
-            brand,
+            description,
             pattern,
             ip
           })
@@ -141,16 +138,14 @@ class EquipmentController extends Controller {
 
           const {
             serialNumber,
-            type,
-            brand,
             pattern,
+            description,
             ip
           } = request.body
 
           this.rules.validate(
             { serialNumber, isRequiredField: false },
-            { type, isRequiredField: false },
-            { brand, isRequiredField: false },
+            { description, isRequiredField: false },
             { pattern, isRequiredField: false },
             { ip, isRequiredField: false }
           )
@@ -160,8 +155,7 @@ class EquipmentController extends Controller {
             tenantId,
             data: {
               serialNumber,
-              type,
-              brand,
+              description,
               pattern,
               ip
             },

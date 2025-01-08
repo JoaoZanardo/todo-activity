@@ -13,19 +13,15 @@ class EquipmentSchema extends Schema<IEquipmentDocument> {
       ...coreSchema,
       serialNumber: String,
 
-      type: {
-        type: String,
-        required: true
-      },
-      brand: {
-        type: String,
-        required: true
-      },
       pattern: {
-        type: String,
+        type: Object,
         required: true
       },
       ip: {
+        type: String,
+        required: true
+      },
+      description: {
         type: String,
         required: true
       }

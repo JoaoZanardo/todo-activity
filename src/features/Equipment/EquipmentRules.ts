@@ -11,23 +11,18 @@ export class EquipmentRules extends Rules {
       message: 'Número de série inválido. Informe um número válido!'
     })
 
-    this.validator.addRule('type', {
-      validator: (value: string) => is.string(value),
-      message: 'Tipo inválido. Informe um tipo válido!'
-    })
-
     this.validator.addRule('ip', {
       validator: (value: string) => is.string(value),
       message: 'Ip inálido. Informe uma ip válido!'
     })
 
-    this.validator.addRule('brand', {
+    this.validator.addRule('description', {
       validator: (value: string) => is.string(value),
-      message: 'Marca inválida!'
+      message: 'Descrição inválida, informe uma descrição válida!'
     })
 
     this.validator.addRule('pattern', {
-      validator: (value: string) => is.string(value),
+      validator: (value: string) => is.object(value),
       message: 'Modelo inválido. Informe um modelo válido'
     })
   }

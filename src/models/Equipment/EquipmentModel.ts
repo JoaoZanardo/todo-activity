@@ -16,32 +16,37 @@ export interface IFindEquipmentByIpProps {
   tenantId: Types.ObjectId
 }
 
+export interface IEquipmentPattern {
+  code: string
+  type: string
+  brand: string
+  name: string
+  firmwares: Array<string>
+}
+
 export interface IEquipment extends IModel {
   serialNumber?: string
 
-  type: string
-  brand: string
-  pattern: string
+  pattern: IEquipmentPattern
   ip: string
+  description: string
 }
 
 export class EquipmentModel extends Model<IEquipment> {
   private _serialNumber?: IEquipment['serialNumber']
 
-  private _type: IEquipment['type']
-  private _brand: IEquipment['brand']
   private _pattern: IEquipment['pattern']
   private _ip: IEquipment['ip']
+  private _description: IEquipment['description']
 
   constructor (equipment: IEquipment) {
     super(equipment)
 
     this._serialNumber = equipment.serialNumber
 
-    this._type = equipment.type
-    this._brand = equipment.brand
     this._pattern = equipment.pattern
     this._ip = equipment.ip
+    this._description = equipment.description
   }
 
   get ip (): IEquipment['ip'] {
@@ -56,11 +61,10 @@ export class EquipmentModel extends Model<IEquipment> {
       active: this.active,
       createdAt: this.createdAt,
       deletionDate: this.deletionDate,
-      type: this._type,
-      brand: this._brand,
       pattern: this._pattern,
       serialNumber: this._serialNumber,
-      ip: this._ip
+      ip: this._ip,
+      description: this._description
     }
   }
 
