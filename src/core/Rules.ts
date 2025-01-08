@@ -28,7 +28,12 @@ export default class Rules {
 
     this.validator.addRule('personId', {
       validator: (value: string) => is.objectId(value),
-      message: 'Identificador de essoa inválido. Informe um identificador válido!'
+      message: 'Identificador de pessoa inválido. Informe um identificador válido!'
+    })
+
+    this.validator.addRule('equipmentId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de equipment inválido. Informe um identificador válido!'
     })
   }
 

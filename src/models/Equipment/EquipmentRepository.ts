@@ -1,0 +1,89 @@
+import { Aggregate, FilterQuery } from 'mongoose'
+
+import { IFindModelByIdProps } from '../../core/interfaces/Model'
+import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
+import { Repository } from '../../core/Repository'
+import { EquipmentModel, IEquipment, IFindEquipmentByIpProps, IListEquipmentsFilters } from './EquipmentModel'
+import { IEquipmentMongoDB } from './EquipmentSchema'
+
+export class EquipmentRepository extends Repository<IEquipmentMongoDB, EquipmentModel> {
+  async findById ({
+    id,
+    tenantId
+  }: IFindModelByIdProps): Promise<EquipmentModel | null> {
+    const match: FilterQuery<IEquipment> = {
+      _id: id,
+      tenantId,
+      deletionDate: null
+    }
+
+    const document = await this.mongoDB.findOne(match).lean()
+    if (!document) return null
+
+    return new EquipmentModel(document)
+  }
+
+  async findByIp ({
+    ip,
+    tenantId
+  }: IFindEquipmentByIpProps): Promise<EquipmentModel | null> {
+    const match: FilterQuery<IEquipment> = {
+      ip,
+      tenantId,
+      deletionDate: null
+    }
+
+    const document = await this.mongoDB.findOne(match).lean()
+    if (!document) return null
+
+    return new EquipmentModel(document)
+  }
+
+  async list ({ limit, page, ...filters }: IListEquipmentsFilters): Promise<IAggregatePaginate<IEquipment>> {
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      { $match: filters },
+      { $sort: { _id: -1 } }
+    ])
+
+    return await this.mongoDB.aggregatePaginate(
+      aggregationStages,
+      {
+        limit,
+        page
+      })
+  }
+
+  async findAll ({
+    tenantId,
+    select
+  }: IFindAllProps): Promise<Array<Partial<IEquipment>>> {
+    const documents = await this.mongoDB.find({
+      tenantId,
+      active: true,
+      deletionDate: null
+    }, select)
+
+    return documents
+  }
+
+  async create (equipment: EquipmentModel): Promise < EquipmentModel > {
+    const document = await this.mongoDB.create(equipment.object)
+
+    return new EquipmentModel(document)
+  }
+
+  async update ({
+    id,
+    tenantId,
+    data
+  }: IUpdateProps): Promise < boolean > {
+    const updated = await this.mongoDB.updateOne({
+      _id: id,
+      tenantId
+    }, {
+      $set: data
+    })
+
+    return !!updated.modifiedCount
+  }
+}

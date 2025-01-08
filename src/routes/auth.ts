@@ -3,6 +3,7 @@ import { NextFunction, Request, Response, Router } from 'express'
 import multer from '../config/multer'
 import AccessControlController from '../features/AccessControl/AccessControlController'
 import AccessGroupController from '../features/AccessGroup/AccessGroupController'
+import EquipmentController from '../features/Equipment/EquipmentController'
 import PersonController from '../features/Person/PersonController'
 import PersonTypeController from '../features/PersonType/PersonTypeController'
 import PersonTypeCategoryController from '../features/PersonTypeCategory/PersonTypeCategoryController'
@@ -48,6 +49,7 @@ class AuthRouter {
     this.authRouter.use('/people', moduleAuthMiddleware('B-01'), PersonController)
     this.authRouter.use('/work-schedules', moduleAuthMiddleware('B-04'), WorkScheduleController)
     this.authRouter.use('/access-controls', moduleAuthMiddleware('A-02'), AccessControlController)
+    this.authRouter.use('/equipments', moduleAuthMiddleware('C-01'), EquipmentController)
 
     return this.authRouter
   }

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express'
 
+import database from '../../config/database'
 import { Controller } from '../../core/Controller'
 import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
@@ -41,6 +42,9 @@ class AccessControlController extends Controller {
       '/',
       // permissionAuthMiddleware(Permission.create),
       async (request: Request, response: Response, next: NextFunction) => {
+        const session = await database.startSession()
+        session.startTransaction()
+
         try {
           const { tenantId, userId } = request
 
@@ -51,7 +55,8 @@ class AccessControlController extends Controller {
             type,
             observation,
             personTypeCategoryId,
-            responsibleId
+            responsibleId,
+            equipmentId
           } = request.body
 
           this.rules.validate(
@@ -61,6 +66,7 @@ class AccessControlController extends Controller {
             { accessRelease },
             { personId },
             { personTypeId },
+            { equipmentId },
             { type }
           )
 
@@ -77,15 +83,21 @@ class AccessControlController extends Controller {
             accessRelease,
             personId,
             personTypeId,
-            type
+            type,
+            equipmentId
           })
 
           const accessControl = await AccessControlServiceImp.create(accessControlModel)
+
+          await session.commitTransaction()
+          session.endSession()
 
           response.CREATED('Controle de acesso cadastrado com sucesso!', {
             accessControl: accessControl.show
           })
         } catch (error) {
+          session.endSession()
+
           next(error)
         }
       })
