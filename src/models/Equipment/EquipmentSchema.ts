@@ -9,12 +9,16 @@ export interface IEquipmentMongoDB extends AggregatePaginateModel<IEquipment> { 
 
 class EquipmentSchema extends Schema<IEquipmentDocument> {
   constructor () {
-    const Equipment = new mongoose.Schema({
+    const equipment = new mongoose.Schema({
       ...coreSchema,
       serialNumber: String,
 
       pattern: {
         type: Object,
+        required: true
+      },
+      name: {
+        type: String,
         required: true
       },
       ip: {
@@ -24,7 +28,7 @@ class EquipmentSchema extends Schema<IEquipmentDocument> {
       description: String
     })
 
-    super(Equipment)
+    super(equipment)
   }
 }
 

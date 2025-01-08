@@ -25,5 +25,10 @@ export class EquipmentRules extends Rules {
       validator: (value: string) => is.object(value),
       message: 'Modelo inválido. Informe um modelo válido'
     })
+
+    this.validator.addRule('name', {
+      validator: (value: string) => is.string(value),
+      message: 'Nome inválido. Informe um nome válido'
+    })
   }
 }

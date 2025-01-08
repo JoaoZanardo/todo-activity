@@ -30,10 +30,10 @@ class EquipmentController extends Controller {
             ...request.query
           })
 
-          const equipment = await EquipmentServiceImp.list(filters)
+          const equipments = await EquipmentServiceImp.list(filters)
 
           response.OK('Equipamentos encontrados com sucesso!', {
-            equipment
+            equipments
           })
         } catch (error) {
           next(error)
@@ -44,13 +44,13 @@ class EquipmentController extends Controller {
       try {
         const { tenantId } = request
 
-        const equipment = await EquipmentServiceImp.findAll({
+        const equipments = await EquipmentServiceImp.findAll({
           tenantId,
-          select: ['_id', 'ip', 'type']
+          select: ['_id', 'name', 'pattern']
         })
 
         response.OK('Equipamentos encontrados com sucesso!', {
-          equipment
+          equipments
         })
       } catch (error) {
         next(error)
@@ -94,13 +94,15 @@ class EquipmentController extends Controller {
             serialNumber,
             description,
             pattern,
-            ip
+            ip,
+            name
           } = request.body
 
           this.rules.validate(
             { serialNumber, isRequiredField: false },
             { description, isRequiredField: false },
             { pattern },
+            { name },
             { ip }
           )
 
@@ -114,7 +116,8 @@ class EquipmentController extends Controller {
             serialNumber,
             description,
             pattern,
-            ip
+            ip,
+            name
           })
 
           const equipment = await EquipmentServiceImp.create(equipmentModel)
@@ -140,14 +143,16 @@ class EquipmentController extends Controller {
             serialNumber,
             pattern,
             description,
-            ip
+            ip,
+            name
           } = request.body
 
           this.rules.validate(
             { serialNumber, isRequiredField: false },
             { description, isRequiredField: false },
             { pattern, isRequiredField: false },
-            { ip, isRequiredField: false }
+            { ip, isRequiredField: false },
+            { name, isRequiredField: false }
           )
 
           await EquipmentServiceImp.update({
@@ -157,7 +162,8 @@ class EquipmentController extends Controller {
               serialNumber,
               description,
               pattern,
-              ip
+              ip,
+              name
             },
             responsibleId: userId
           })

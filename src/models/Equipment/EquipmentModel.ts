@@ -28,6 +28,7 @@ export interface IEquipment extends IModel {
   serialNumber?: string
   description?: string
 
+  name: string
   pattern: IEquipmentPattern
   ip: string
 }
@@ -36,6 +37,7 @@ export class EquipmentModel extends Model<IEquipment> {
   private _serialNumber?: IEquipment['serialNumber']
   private _description?: IEquipment['description']
 
+  private _name: IEquipment['name']
   private _pattern: IEquipment['pattern']
   private _ip: IEquipment['ip']
 
@@ -43,8 +45,9 @@ export class EquipmentModel extends Model<IEquipment> {
     super(equipment)
 
     this._serialNumber = equipment.serialNumber
-
     this._description = equipment.description
+
+    this._name = equipment.name
     this._pattern = equipment.pattern
     this._ip = equipment.ip
   }
@@ -64,7 +67,8 @@ export class EquipmentModel extends Model<IEquipment> {
       pattern: this._pattern,
       serialNumber: this._serialNumber,
       ip: this._ip,
-      description: this._description
+      description: this._description,
+      name: this._name
     }
   }
 
