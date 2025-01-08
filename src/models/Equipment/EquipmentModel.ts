@@ -26,27 +26,27 @@ export interface IEquipmentPattern {
 
 export interface IEquipment extends IModel {
   serialNumber?: string
+  description?: string
 
   pattern: IEquipmentPattern
   ip: string
-  description: string
 }
 
 export class EquipmentModel extends Model<IEquipment> {
   private _serialNumber?: IEquipment['serialNumber']
+  private _description?: IEquipment['description']
 
   private _pattern: IEquipment['pattern']
   private _ip: IEquipment['ip']
-  private _description: IEquipment['description']
 
   constructor (equipment: IEquipment) {
     super(equipment)
 
     this._serialNumber = equipment.serialNumber
 
+    this._description = equipment.description
     this._pattern = equipment.pattern
     this._ip = equipment.ip
-    this._description = equipment.description
   }
 
   get ip (): IEquipment['ip'] {

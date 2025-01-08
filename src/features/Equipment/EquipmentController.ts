@@ -99,7 +99,7 @@ class EquipmentController extends Controller {
 
           this.rules.validate(
             { serialNumber, isRequiredField: false },
-            { description },
+            { description, isRequiredField: false },
             { pattern },
             { ip }
           )

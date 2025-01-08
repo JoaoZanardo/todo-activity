@@ -21,10 +21,7 @@ class EquipmentSchema extends Schema<IEquipmentDocument> {
         type: String,
         required: true
       },
-      description: {
-        type: String,
-        required: true
-      }
+      description: String
     })
 
     super(Equipment)
