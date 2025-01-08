@@ -32,6 +32,10 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
         type: String,
         enum: AccessRelease,
         required: true
+      },
+      equipmentId: {
+        type: Types.ObjectId,
+        required: true
       }
     })
 

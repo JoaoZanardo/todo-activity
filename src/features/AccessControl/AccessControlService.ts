@@ -1,7 +1,11 @@
+import { EquipmentServiceImp } from 'src/features/Equipment/EquipmentController'
+import { PersonServiceImp } from 'src/features/Person/PersonController'
+
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AccessControlModel, IAccessControl, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
+import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 
 export class AccessControlService {
@@ -29,6 +33,28 @@ export class AccessControlService {
   }
 
   async create (accessControl: AccessControlModel): Promise<AccessControlModel> {
-    return await this.accessControlRepositoryImp.create(accessControl)
+    const createdAccessControl = await this.accessControlRepositoryImp.create(accessControl)
+
+    const person = await PersonServiceImp.findById({
+      id: createdAccessControl.personId,
+      tenantId: createdAccessControl.tenantId
+    })
+
+    // Storage the equipment ip into Access Controll
+
+    const equipment = await EquipmentServiceImp.findById({
+      id: accessControl.equipmentId,
+      tenantId: accessControl.tenantId
+    })
+
+    await EquipmentServer.AddAccess({
+      equipmentIp: equipment.ip,
+      personCode: person._id!,
+      personId: person._id!,
+      personName: person.name,
+      personPictureUrl: person.object.picture!
+    })
+
+    return createdAccessControl
   }
 }
