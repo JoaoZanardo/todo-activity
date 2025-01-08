@@ -1,12 +1,11 @@
-import { EquipmentServiceImp } from 'src/features/Equipment/EquipmentController'
-import { PersonServiceImp } from 'src/features/Person/PersonController'
-
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AccessControlModel, IAccessControl, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
+import { EquipmentServiceImp } from '../Equipment/EquipmentController'
+import { PersonServiceImp } from '../Person/PersonController'
 
 export class AccessControlService {
   constructor (
