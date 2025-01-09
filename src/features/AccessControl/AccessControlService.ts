@@ -2,10 +2,7 @@ import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AccessControlModel, IAccessControl, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
-import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
-import { EquipmentServiceImp } from '../Equipment/EquipmentController'
-import { PersonServiceImp } from '../Person/PersonController'
 
 export class AccessControlService {
   constructor (
@@ -34,25 +31,25 @@ export class AccessControlService {
   async create (accessControl: AccessControlModel): Promise<AccessControlModel> {
     const createdAccessControl = await this.accessControlRepositoryImp.create(accessControl)
 
-    const person = await PersonServiceImp.findById({
-      id: createdAccessControl.personId,
-      tenantId: createdAccessControl.tenantId
-    })
+    // const person = await PersonServiceImp.findById({
+    //   id: createdAccessControl.personId,
+    //   tenantId: createdAccessControl.tenantId
+    // })
 
     // Storage the equipment ip into Access Controll
 
-    const equipment = await EquipmentServiceImp.findById({
-      id: accessControl.equipmentId,
-      tenantId: accessControl.tenantId
-    })
+    // const equipment = await EquipmentServiceImp.findById({
+    //   id: accessControl.equipmentId,
+    //   tenantId: accessControl.tenantId
+    // })
 
-    await EquipmentServer.AddAccess({
-      equipmentIp: equipment.ip,
-      personCode: person._id!,
-      personId: person._id!,
-      personName: person.name,
-      personPictureUrl: person.object.picture!
-    })
+    // await EquipmentServer.AddAccess({
+    //   equipmentIp: equipment.ip,
+    //   personCode: person._id!,
+    //   personId: person._id!,
+    //   personName: person.name,
+    //   personPictureUrl: person.object.picture!
+    // })
 
     return createdAccessControl
   }

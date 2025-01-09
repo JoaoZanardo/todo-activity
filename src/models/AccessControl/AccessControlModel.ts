@@ -38,7 +38,6 @@ export interface IAccessControl extends IModel {
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
   accessRelease: AccessRelease
-  equipmentId: Types.ObjectId
 }
 
 export class AccessControlModel extends Model<IAccessControl> {
@@ -50,7 +49,6 @@ export class AccessControlModel extends Model<IAccessControl> {
   private _personId: IAccessControl['personId']
   private _personTypeId: IAccessControl['personTypeId']
   private _accessRelease: IAccessControl['accessRelease']
-  private _equipmentId: IAccessControl['equipmentId']
 
   constructor (accessControl: IAccessControl) {
     super(accessControl)
@@ -63,7 +61,6 @@ export class AccessControlModel extends Model<IAccessControl> {
     this._personId = accessControl.personId
     this._personTypeId = accessControl.personTypeId
     this._accessRelease = accessControl.accessRelease
-    this._equipmentId = accessControl.equipmentId
     this.actions = accessControl.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
@@ -72,10 +69,6 @@ export class AccessControlModel extends Model<IAccessControl> {
 
   get personId (): IAccessControl['personId'] {
     return this._personId
-  }
-
-  get equipmentId (): IAccessControl['equipmentId'] {
-    return this._equipmentId
   }
 
   get object (): IAccessControl {
@@ -93,8 +86,7 @@ export class AccessControlModel extends Model<IAccessControl> {
       type: this._type,
       personId: this._personId,
       personTypeId: this._personTypeId,
-      accessRelease: this._accessRelease,
-      equipmentId: this._equipmentId
+      accessRelease: this._accessRelease
     }
   }
 

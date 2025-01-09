@@ -1,4 +1,4 @@
-import mongoose, { AggregatePaginateModel, Document } from 'mongoose'
+import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
 import { IArea } from './AreaModel'
@@ -11,21 +11,19 @@ class AreaSchema extends Schema<IAreaDocument> {
   constructor () {
     const area = new mongoose.Schema({
       ...coreSchema,
-      serialNumber: String,
+      accessAreasIds: Array<Types.ObjectId>,
+      subAreasIds: Array<Types.ObjectId>,
+      analysis: Boolean,
+      description: String,
 
-      pattern: {
-        type: Object,
-        required: true
-      },
       name: {
         type: String,
         required: true
       },
-      ip: {
+      type: {
         type: String,
         required: true
-      },
-      description: String
+      }
     })
 
     super(area)
