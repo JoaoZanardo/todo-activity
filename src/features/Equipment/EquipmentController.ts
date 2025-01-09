@@ -144,7 +144,8 @@ class EquipmentController extends Controller {
             pattern,
             description,
             ip,
-            name
+            name,
+            active
           } = request.body
 
           this.rules.validate(
@@ -152,7 +153,8 @@ class EquipmentController extends Controller {
             { description, isRequiredField: false },
             { pattern, isRequiredField: false },
             { ip, isRequiredField: false },
-            { name, isRequiredField: false }
+            { name, isRequiredField: false },
+            { active, isRequiredField: false }
           )
 
           await EquipmentServiceImp.update({
@@ -163,7 +165,8 @@ class EquipmentController extends Controller {
               description,
               pattern,
               ip,
-              name
+              name,
+              active
             },
             responsibleId: userId
           })
