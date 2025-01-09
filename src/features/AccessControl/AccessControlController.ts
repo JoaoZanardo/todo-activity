@@ -55,8 +55,7 @@ class AccessControlController extends Controller {
             type,
             observation,
             personTypeCategoryId,
-            responsibleId,
-            equipmentId
+            responsibleId
           } = request.body
 
           this.rules.validate(
@@ -66,7 +65,6 @@ class AccessControlController extends Controller {
             { accessRelease },
             { personId },
             { personTypeId },
-            { equipmentId },
             { type }
           )
 
@@ -83,8 +81,7 @@ class AccessControlController extends Controller {
             accessRelease,
             personId,
             personTypeId,
-            type,
-            equipmentId
+            type
           })
 
           const accessControl = await AccessControlServiceImp.create(accessControlModel)
