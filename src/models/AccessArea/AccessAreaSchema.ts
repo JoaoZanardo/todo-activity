@@ -11,11 +11,14 @@ class AccessAreaSchema extends Schema<IAccessAreaDocument> {
   constructor () {
     const accessArea = new mongoose.Schema({
       ...coreSchema,
-      accessPointsIds: Array<Types.ObjectId>,
       description: String,
 
       name: {
         type: String,
+        required: true
+      },
+      areaId: {
+        type: Types.ObjectId,
         required: true
       }
     })

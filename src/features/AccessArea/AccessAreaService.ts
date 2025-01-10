@@ -1,6 +1,6 @@
-import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
+import { IFindAllModelsProps, IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessAreaModel, IAccessArea, IListAccessAreasFilters, IUpdateAccessAreaProps } from '../../models/AccessArea/AccessAreaModel'
+import { AccessAreaModel, IAccessArea, IFindAccessAreaByNameProps, IListAccessAreasFilters, IUpdateAccessAreaProps } from '../../models/AccessArea/AccessAreaModel'
 import { AccessAreaRepositoryImp } from '../../models/AccessArea/AccessAreaMongoDB'
 import { IDeleteEquipmentProps } from '../../models/Equipment/EquipmentModel'
 import CustomResponse from '../../utils/CustomResponse'
@@ -62,7 +62,8 @@ export class AccessAreaService {
     if (name && name !== accessArea.name) {
       await this.validateDuplicatedName({
         name,
-        tenantId
+        tenantId,
+        areaId: accessArea.areaId
       })
     }
 
@@ -128,9 +129,11 @@ export class AccessAreaService {
 
   private async validateDuplicatedName ({
     name,
-    tenantId
-  }: IFindModelByNameProps): Promise<void> {
+    tenantId,
+    areaId
+  }: IFindAccessAreaByNameProps): Promise<void> {
     const exists = await this.accessAreaRepositoryImp.findByName({
+      areaId,
       name,
       tenantId
     })

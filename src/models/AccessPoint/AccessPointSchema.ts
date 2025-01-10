@@ -15,6 +15,8 @@ class AccessPointSchema extends Schema<IAccessPointDocument> {
         type: Boolean,
         default: false
       },
+      accessAreaId: Types.ObjectId,
+      areaId: Types.ObjectId,
 
       name: {
         type: String,

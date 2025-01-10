@@ -57,6 +57,20 @@ class AreaController extends Controller {
       }
     })
 
+    this.router.get('/main', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request
+
+        const areas = await AreaServiceImp.findMain(tenantId)
+
+        response.OK('Áreas encontradas com sucesso!', {
+          areas
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
+
     this.router.post(
       '/',
       permissionAuthMiddleware(Permission.create),
@@ -66,18 +80,16 @@ class AreaController extends Controller {
 
           const {
             type,
-            subAreasIds,
-            accessAreasIds,
             analysis,
             name,
-            description
+            description,
+            areaId
           } = request.body
 
           this.rules.validate(
-            { subAreasIds, isRequiredField: false },
-            { accessAreasIds, isRequiredField: false },
             { analysis, isRequiredField: false },
             { description, isRequiredField: false },
+            { areaId, isRequiredField: false },
             { name },
             { type }
           )
@@ -86,8 +98,7 @@ class AreaController extends Controller {
             name,
             description,
             type,
-            subAreasIds,
-            accessAreasIds,
+            areaId,
             analysis,
             tenantId,
             actions: [{
@@ -114,12 +125,11 @@ class AreaController extends Controller {
         try {
           const { tenantId, userId } = request
 
-          const { areaId } = request.params
+          const { areaId: updateAreaId } = request.params
 
           const {
             type,
-            subAreasIds,
-            accessAreasIds,
+            areaId,
             analysis,
             name,
             description,
@@ -127,22 +137,22 @@ class AreaController extends Controller {
           } = request.body
 
           this.rules.validate(
+            { areaId: updateAreaId },
             { type, isRequiredField: false },
-            { subAreasIds, isRequiredField: false },
-            { accessAreasIds, isRequiredField: false },
+            { areaId, isRequiredField: false },
             { analysis, isRequiredField: false },
             { name, isRequiredField: false },
             { description, isRequiredField: false },
-            { active, isRequiredField: false }
+            { active, isRequiredField: false },
+            { areaId, isRequiredField: false }
           )
 
           await AreaServiceImp.update({
-            id: ObjectId(areaId),
+            id: ObjectId(updateAreaId),
             tenantId,
             data: {
               type,
-              subAreasIds,
-              accessAreasIds,
+              areaId,
               analysis,
               name,
               description,

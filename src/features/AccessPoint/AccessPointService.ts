@@ -1,6 +1,6 @@
-import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
+import { IFindAllModelsProps, IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessPointModel, IAccessPoint, IListAccessPointsFilters, IUpdateAccessPointProps } from '../../models/AccessPoint/AccessPointModel'
+import { AccessPointModel, IAccessPoint, IFindAccessPointByNameProps, IListAccessPointsFilters, IUpdateAccessPointProps } from '../../models/AccessPoint/AccessPointModel'
 import { AccessPointRepositoryImp } from '../../models/AccessPoint/AccessPointMongoDB'
 import { IDeleteEquipmentProps } from '../../models/Equipment/EquipmentModel'
 import CustomResponse from '../../utils/CustomResponse'
@@ -62,7 +62,9 @@ export class AccessPointService {
     if (name && name !== accessPoint.name) {
       await this.validateDuplicatedName({
         name,
-        tenantId
+        tenantId,
+        accessAreaId: accessPoint.accessAreaId,
+        areaId: accessPoint.areaId
       })
     }
 
@@ -128,11 +130,15 @@ export class AccessPointService {
 
   private async validateDuplicatedName ({
     name,
-    tenantId
-  }: IFindModelByNameProps): Promise<void> {
+    tenantId,
+    accessAreaId,
+    areaId
+  }: IFindAccessPointByNameProps): Promise<void> {
     const exists = await this.accessPointRepositoryImp.findByName({
       name,
-      tenantId
+      tenantId,
+      accessAreaId,
+      areaId
     })
 
     if (exists) throw CustomResponse.CONFLICT('Nome de ponto de acesso já cadastrado!')

@@ -11,21 +11,28 @@ export interface IUpdateAreaProps extends IUpdateModelProps<IArea> { }
 
 export interface IDeleteAreaProps extends IDeleteModelProps { }
 
+export interface IFindAreaByNameProps {
+  areaId?: Types.ObjectId
+
+  name: string
+  tenantId: Types.ObjectId
+}
+
 export interface IArea extends IModel {
-  accessAreasIds?: Array<Types.ObjectId>
-  subAreasIds?: Array<Types.ObjectId>
+  areaId?: Types.ObjectId
   analysis?: boolean
   description?: string
+  main?: boolean
 
   name: string
   type: string
 }
 
 export class AreaModel extends Model<IArea> {
-  private _accessAreasIds?: IArea['accessAreasIds']
-  private _subAreasIds?: IArea['subAreasIds']
+  private _areaId?: IArea['areaId']
   private _analysis?: IArea['analysis']
   private _description?: IArea['description']
+  private _main?: IArea['main']
 
   private _name: IArea['name']
   private _type: IArea['type']
@@ -33,10 +40,10 @@ export class AreaModel extends Model<IArea> {
   constructor (area: IArea) {
     super(area)
 
-    this._accessAreasIds = area.accessAreasIds
-    this._subAreasIds = area.subAreasIds
+    this._areaId = area.areaId
     this._analysis = area.analysis
     this._description = area.description
+    this._main = area.main
 
     this._name = area.name
     this._type = area.type
@@ -44,6 +51,10 @@ export class AreaModel extends Model<IArea> {
 
   get name (): IArea['name'] {
     return this._name
+  }
+
+  get areaId (): IArea['areaId'] {
+    return this._areaId
   }
 
   get object (): IArea {
@@ -54,10 +65,10 @@ export class AreaModel extends Model<IArea> {
       active: this.active,
       createdAt: this.createdAt,
       deletionDate: this.deletionDate,
-      accessAreasIds: this._accessAreasIds,
-      subAreasIds: this._subAreasIds,
+      areaId: this._areaId,
       analysis: this._analysis,
       description: this._description,
+      main: this._main,
       name: this._name,
       type: this._type
     }

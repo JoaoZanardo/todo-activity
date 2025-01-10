@@ -11,13 +11,16 @@ class AreaSchema extends Schema<IAreaDocument> {
   constructor () {
     const area = new mongoose.Schema({
       ...coreSchema,
-      accessAreasIds: Array<Types.ObjectId>,
-      subAreasIds: Array<Types.ObjectId>,
+      areaId: Types.ObjectId,
       analysis: {
         type: Boolean,
         default: false
       },
       description: String,
+      main: {
+        type: Boolean,
+        default: false
+      },
 
       name: {
         type: String,

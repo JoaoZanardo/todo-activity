@@ -11,8 +11,18 @@ export interface IUpdateAccessPointProps extends IUpdateModelProps<IAccessPoint>
 
 export interface IDeleteAccessPointProps extends IDeleteModelProps { }
 
+export interface IFindAccessPointByNameProps {
+  areaId?: Types.ObjectId
+  accessAreaId?: Types.ObjectId
+
+  name: string
+  tenantId: Types.ObjectId
+}
+
 export interface IAccessPoint extends IModel {
   generalExit?: boolean
+  areaId?: Types.ObjectId
+  accessAreaId?: Types.ObjectId
 
   name: string
   accessType: string
@@ -22,6 +32,8 @@ export interface IAccessPoint extends IModel {
 
 export class AccessPointModel extends Model<IAccessPoint> {
   private _generalExit?: IAccessPoint['generalExit']
+  private _areaId?: IAccessPoint['areaId']
+  private _accessAreaId?: IAccessPoint['accessAreaId']
 
   private _name: IAccessPoint['name']
   private _accessType: IAccessPoint['accessType']
@@ -32,11 +44,21 @@ export class AccessPointModel extends Model<IAccessPoint> {
     super(accessPoint)
 
     this._generalExit = accessPoint.generalExit
+    this._areaId = accessPoint.areaId
+    this._accessAreaId = accessPoint.accessAreaId
 
     this._name = accessPoint.name
     this._accessType = accessPoint.accessType
     this._equipmentsIds = accessPoint.equipmentsIds
     this._personTypesIds = accessPoint.personTypesIds
+  }
+
+  get areaId (): IAccessPoint['areaId'] {
+    return this._areaId
+  }
+
+  get accessAreaId (): IAccessPoint['accessAreaId'] {
+    return this._accessAreaId
   }
 
   get object (): IAccessPoint {
@@ -51,7 +73,9 @@ export class AccessPointModel extends Model<IAccessPoint> {
       name: this._name,
       personTypesIds: this._personTypesIds,
       generalExit: this._generalExit,
-      accessType: this._accessType
+      accessType: this._accessType,
+      accessAreaId: this._accessAreaId,
+      areaId: this._areaId
     }
   }
 

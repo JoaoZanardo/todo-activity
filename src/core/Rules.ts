@@ -33,7 +33,22 @@ export default class Rules {
 
     this.validator.addRule('equipmentId', {
       validator: (value: string) => is.objectId(value),
-      message: 'Identificador de equipment inválido. Informe um identificador válido!'
+      message: 'Identificador de equipamento inválido. Informe um identificador válido!'
+    })
+
+    this.validator.addRule('areaId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de área inválido. Informe um identificador válido!'
+    })
+
+    this.validator.addRule('accessAreaId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de área de acesso inválido. Informe um identificador válido!'
+    })
+
+    this.validator.addRule('accessPointId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de ponto de acesso inválido. Informe um identificador válido!'
     })
   }
 

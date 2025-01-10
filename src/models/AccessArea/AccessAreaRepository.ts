@@ -1,9 +1,9 @@
 import { Aggregate, FilterQuery } from 'mongoose'
 
-import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
+import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AccessAreaModel, IAccessArea, IListAccessAreasFilters } from './AccessAreaModel'
+import { AccessAreaModel, IAccessArea, IFindAccessAreaByNameProps, IListAccessAreasFilters } from './AccessAreaModel'
 import { IAccessAreaMongoDB } from './AccessAreaSchema'
 
 export class AccessAreaRepository extends Repository<IAccessAreaMongoDB, AccessAreaModel> {
@@ -25,9 +25,11 @@ export class AccessAreaRepository extends Repository<IAccessAreaMongoDB, AccessA
 
   async findByName ({
     name,
-    tenantId
-  }: IFindModelByNameProps): Promise<AccessAreaModel | null> {
+    tenantId,
+    areaId
+  }: IFindAccessAreaByNameProps): Promise<AccessAreaModel | null> {
     const match: FilterQuery<IAccessArea> = {
+      areaId,
       name,
       tenantId,
       deletionDate: null

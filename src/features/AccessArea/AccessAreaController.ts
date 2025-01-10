@@ -67,18 +67,20 @@ class AccessAreaController extends Controller {
           const {
             name,
             accessPointsIds,
-            description
+            description,
+            areaId
           } = request.body
 
           this.rules.validate(
             { accessPointsIds, isRequiredField: false },
             { description, isRequiredField: false },
-            { name }
+            { name },
+            { areaId }
           )
 
           const accessAreaModel = new AccessAreaModel({
             name,
-            accessPointsIds,
+            areaId,
             description,
             tenantId,
             actions: [{
@@ -111,10 +113,13 @@ class AccessAreaController extends Controller {
             name,
             accessPointsIds,
             description,
-            active
+            active,
+            areaId
           } = request.body
 
           this.rules.validate(
+            { accessAreaId },
+            { areaId, isRequiredField: false },
             { name, isRequiredField: false },
             { accessPointsIds, isRequiredField: false },
             { description, isRequiredField: false },
@@ -126,7 +131,7 @@ class AccessAreaController extends Controller {
             tenantId,
             data: {
               name,
-              accessPointsIds,
+              areaId,
               description,
               active
             },

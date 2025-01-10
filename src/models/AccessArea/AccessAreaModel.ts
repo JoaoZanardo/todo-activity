@@ -11,30 +11,41 @@ export interface IUpdateAccessAreaProps extends IUpdateModelProps<IAccessArea> {
 
 export interface IDeleteAccessAreaProps extends IDeleteModelProps { }
 
-export interface IAccessArea extends IModel {
-  description?: string
-  accessPointsIds?: Array<Types.ObjectId>
+export interface IFindAccessAreaByNameProps {
+  areaId?: Types.ObjectId
 
   name: string
+  tenantId: Types.ObjectId
+}
+
+export interface IAccessArea extends IModel {
+  description?: string
+
+  name: string
+  areaId: Types.ObjectId
 }
 
 export class AccessAreaModel extends Model<IAccessArea> {
-  private _accessPointsIds?: IAccessArea['accessPointsIds']
   private _description?: IAccessArea['description']
 
   private _name: IAccessArea['name']
+  private _areaId: IAccessArea['areaId']
 
   constructor (accessArea: IAccessArea) {
     super(accessArea)
 
-    this._accessPointsIds = accessArea.accessPointsIds
     this._description = accessArea.description
 
     this._name = accessArea.name
+    this._areaId = accessArea.areaId
   }
 
   get name (): IAccessArea['name'] {
     return this._name
+  }
+
+  get areaId (): IAccessArea['areaId'] {
+    return this._areaId
   }
 
   get object (): IAccessArea {
@@ -45,7 +56,7 @@ export class AccessAreaModel extends Model<IAccessArea> {
       active: this.active,
       createdAt: this.createdAt,
       deletionDate: this.deletionDate,
-      accessPointsIds: this._accessPointsIds,
+      areaId: this._areaId,
       description: this._description,
       name: this._name
     }

@@ -1,9 +1,9 @@
-import { Aggregate, FilterQuery } from 'mongoose'
+import { Aggregate, FilterQuery, Types } from 'mongoose'
 
-import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
+import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AreaModel, IArea, IListAreasFilters } from './AreaModel'
+import { AreaModel, IArea, IFindAreaByNameProps, IListAreasFilters } from './AreaModel'
 import { IAreaMongoDB } from './AreaSchema'
 
 export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
@@ -23,12 +23,27 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
     return new AreaModel(document)
   }
 
+  async findMain (tenantId: Types.ObjectId): Promise<AreaModel | null> {
+    const match: FilterQuery<IArea> = {
+      main: true,
+      tenantId,
+      deletionDate: null
+    }
+
+    const document = await this.mongoDB.findOne(match).lean()
+    if (!document) return null
+
+    return new AreaModel(document)
+  }
+
   async findByName ({
     name,
+    areaId,
     tenantId
-  }: IFindModelByNameProps): Promise<AreaModel | null> {
+  }: IFindAreaByNameProps): Promise<AreaModel | null> {
     const match: FilterQuery<IArea> = {
       name,
+      areaId,
       tenantId,
       deletionDate: null
     }

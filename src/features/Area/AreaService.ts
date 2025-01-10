@@ -1,6 +1,8 @@
-import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
+import { Types } from 'mongoose'
+
+import { IFindAllModelsProps, IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AreaModel, IArea, IListAreasFilters, IUpdateAreaProps } from '../../models/Area/AreaModel'
+import { AreaModel, IArea, IFindAreaByNameProps, IListAreasFilters, IUpdateAreaProps } from '../../models/Area/AreaModel'
 import { AreaRepositoryImp } from '../../models/Area/AreaMongoDB'
 import { IDeleteEquipmentProps } from '../../models/Equipment/EquipmentModel'
 import CustomResponse from '../../utils/CustomResponse'
@@ -40,6 +42,13 @@ export class AreaService {
     return area
   }
 
+  async findMain (tenantId: Types.ObjectId): Promise<AreaModel> {
+    const area = await this.areaRepositoryImp.findMain(tenantId)
+    if (!area) throw CustomResponse.NOT_FOUND('Área não cadastrada!')
+
+    return area
+  }
+
   async create (area: AreaModel): Promise<AreaModel> {
     await this.validateDuplicatedName(area)
 
@@ -62,7 +71,8 @@ export class AreaService {
     if (name && name !== area.name) {
       await this.validateDuplicatedName({
         name,
-        tenantId
+        tenantId,
+        areaId: area.areaId
       })
     }
 
@@ -128,10 +138,12 @@ export class AreaService {
 
   private async validateDuplicatedName ({
     name,
+    areaId,
     tenantId
-  }: IFindModelByNameProps): Promise<void> {
+  }: IFindAreaByNameProps): Promise<void> {
     const exists = await this.areaRepositoryImp.findByName({
       name,
+      areaId,
       tenantId
     })
 
