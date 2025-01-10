@@ -3,15 +3,15 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { EquipmentModel, IEquipment, IFindEquipmentByIpProps, IListEquipmentsFilters } from './EquipmentModel'
-import { IEquipmentMongoDB } from './EquipmentSchema'
+import { AreaModel, IArea, IListAreasFilters } from './AreaModel'
+import { IAreaMongoDB } from './AreaSchema'
 
-export class EquipmentRepository extends Repository<IEquipmentMongoDB, EquipmentModel> {
+export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
   async findById ({
     id,
     tenantId
-  }: IFindModelByIdProps): Promise<EquipmentModel | null> {
-    const match: FilterQuery<IEquipment> = {
+  }: IFindModelByIdProps): Promise<AreaModel | null> {
+    const match: FilterQuery<IArea> = {
       _id: id,
       tenantId,
       deletionDate: null
@@ -20,30 +20,14 @@ export class EquipmentRepository extends Repository<IEquipmentMongoDB, Equipment
     const document = await this.mongoDB.findOne(match).lean()
     if (!document) return null
 
-    return new EquipmentModel(document)
-  }
-
-  async findByIp ({
-    ip,
-    tenantId
-  }: IFindEquipmentByIpProps): Promise<EquipmentModel | null> {
-    const match: FilterQuery<IEquipment> = {
-      ip,
-      tenantId,
-      deletionDate: null
-    }
-
-    const document = await this.mongoDB.findOne(match).lean()
-    if (!document) return null
-
-    return new EquipmentModel(document)
+    return new AreaModel(document)
   }
 
   async findByName ({
     name,
     tenantId
-  }: IFindModelByNameProps): Promise<EquipmentModel | null> {
-    const match: FilterQuery<IEquipment> = {
+  }: IFindModelByNameProps): Promise<AreaModel | null> {
+    const match: FilterQuery<IArea> = {
       name,
       tenantId,
       deletionDate: null
@@ -52,10 +36,10 @@ export class EquipmentRepository extends Repository<IEquipmentMongoDB, Equipment
     const document = await this.mongoDB.findOne(match).lean()
     if (!document) return null
 
-    return new EquipmentModel(document)
+    return new AreaModel(document)
   }
 
-  async list ({ limit, page, ...filters }: IListEquipmentsFilters): Promise<IAggregatePaginate<IEquipment>> {
+  async list ({ limit, page, ...filters }: IListAreasFilters): Promise<IAggregatePaginate<IArea>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
       { $sort: { _id: -1 } }
@@ -72,7 +56,7 @@ export class EquipmentRepository extends Repository<IEquipmentMongoDB, Equipment
   async findAll ({
     tenantId,
     select
-  }: IFindAllProps): Promise<Array<Partial<IEquipment>>> {
+  }: IFindAllProps): Promise<Array<Partial<IArea>>> {
     const documents = await this.mongoDB.find({
       tenantId,
       active: true,
@@ -82,10 +66,10 @@ export class EquipmentRepository extends Repository<IEquipmentMongoDB, Equipment
     return documents
   }
 
-  async create (equipment: EquipmentModel): Promise < EquipmentModel > {
-    const document = await this.mongoDB.create(equipment.object)
+  async create (area: AreaModel): Promise < AreaModel > {
+    const document = await this.mongoDB.create(area.object)
 
-    return new EquipmentModel(document)
+    return new AreaModel(document)
   }
 
   async update ({

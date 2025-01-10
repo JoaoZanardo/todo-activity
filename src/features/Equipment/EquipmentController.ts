@@ -58,20 +58,20 @@ class EquipmentController extends Controller {
     })
 
     this.router.get(
-      '/one/:EquipmentId',
+      '/one/:equipmentId',
       permissionAuthMiddleware(Permission.read),
       async (request: Request, response: Response, next: NextFunction) => {
         try {
           const { tenantId } = request
 
-          const { EquipmentId } = request.params
+          const { equipmentId } = request.params
 
           this.rules.validate(
-            { EquipmentId }
+            { equipmentId }
           )
 
           const equipment = await EquipmentServiceImp.findById({
-            id: ObjectId(EquipmentId),
+            id: ObjectId(equipmentId),
             tenantId
           })
 
@@ -131,13 +131,13 @@ class EquipmentController extends Controller {
       })
 
     this.router.patch(
-      '/:EquipmentId',
+      '/:equipmentId',
       permissionAuthMiddleware(Permission.update),
       async (request: Request, response: Response, next: NextFunction) => {
         try {
           const { tenantId, userId } = request
 
-          const { EquipmentId } = request.params
+          const { equipmentId } = request.params
 
           const {
             serialNumber,
@@ -158,7 +158,7 @@ class EquipmentController extends Controller {
           )
 
           await EquipmentServiceImp.update({
-            id: ObjectId(EquipmentId),
+            id: ObjectId(equipmentId),
             tenantId,
             data: {
               serialNumber,
@@ -178,20 +178,20 @@ class EquipmentController extends Controller {
       })
 
     this.router.delete(
-      '/:EquipmentId',
+      '/:equipmentId',
       permissionAuthMiddleware(Permission.delete),
       async (request: Request, response: Response, next: NextFunction) => {
         try {
           const { tenantId, userId } = request
 
-          const { EquipmentId } = request.params
+          const { equipmentId } = request.params
 
           this.rules.validate(
-            { EquipmentId }
+            { equipmentId }
           )
 
           await EquipmentServiceImp.delete({
-            id: ObjectId(EquipmentId),
+            id: ObjectId(equipmentId),
             tenantId,
             responsibleId: userId
           })
