@@ -14,6 +14,7 @@ export interface IDeleteAccessPointProps extends IDeleteModelProps { }
 export interface IAccessPoint extends IModel {
   generalExit?: boolean
 
+  name: string
   accesstype: string
   equipmentsIds: Array<Types.ObjectId>
   personTypesIds: Array<Types.ObjectId>
@@ -22,6 +23,7 @@ export interface IAccessPoint extends IModel {
 export class AccessPointModel extends Model<IAccessPoint> {
   private _generalExit?: IAccessPoint['generalExit']
 
+  private _name: IAccessPoint['name']
   private _accesstype: IAccessPoint['accesstype']
   private _equipmentsIds: IAccessPoint['equipmentsIds']
   private _personTypesIds: IAccessPoint['personTypesIds']
@@ -31,6 +33,7 @@ export class AccessPointModel extends Model<IAccessPoint> {
 
     this._generalExit = accessPoint.generalExit
 
+    this._name = accessPoint.name
     this._accesstype = accessPoint.accesstype
     this._equipmentsIds = accessPoint.equipmentsIds
     this._personTypesIds = accessPoint.personTypesIds
@@ -45,10 +48,15 @@ export class AccessPointModel extends Model<IAccessPoint> {
       createdAt: this.createdAt,
       deletionDate: this.deletionDate,
       equipmentsIds: this._equipmentsIds,
+      name: this._name,
       personTypesIds: this._personTypesIds,
       generalExit: this._generalExit,
       accesstype: this._accesstype
     }
+  }
+
+  get name (): IAccessPoint['name'] {
+    return this._name
   }
 
   get show (): IAccessPoint {

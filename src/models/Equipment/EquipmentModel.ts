@@ -56,6 +56,10 @@ export class EquipmentModel extends Model<IEquipment> {
     return this._ip
   }
 
+  get name (): IEquipment['name'] {
+    return this._name
+  }
+
   get object (): IEquipment {
     return {
       _id: this._id,

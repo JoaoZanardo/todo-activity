@@ -3,15 +3,15 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AreaModel, IArea, IListAreasFilters } from './AreaModel'
-import { IAreaMongoDB } from './AreaSchema'
+import { AccessAreaModel, IAccessArea, IListAccessAreasFilters } from './AccessAreaModel'
+import { IAccessAreaMongoDB } from './AccessAreaSchema'
 
-export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
+export class AccessAreaRepository extends Repository<IAccessAreaMongoDB, AccessAreaModel> {
   async findById ({
     id,
     tenantId
-  }: IFindModelByIdProps): Promise<AreaModel | null> {
-    const match: FilterQuery<IArea> = {
+  }: IFindModelByIdProps): Promise<AccessAreaModel | null> {
+    const match: FilterQuery<IAccessArea> = {
       _id: id,
       tenantId,
       deletionDate: null
@@ -20,14 +20,14 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
     const document = await this.mongoDB.findOne(match).lean()
     if (!document) return null
 
-    return new AreaModel(document)
+    return new AccessAreaModel(document)
   }
 
   async findByName ({
     name,
     tenantId
-  }: IFindModelByNameProps): Promise<AreaModel | null> {
-    const match: FilterQuery<IArea> = {
+  }: IFindModelByNameProps): Promise<AccessAreaModel | null> {
+    const match: FilterQuery<IAccessArea> = {
       name,
       tenantId,
       deletionDate: null
@@ -36,10 +36,10 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
     const document = await this.mongoDB.findOne(match).lean()
     if (!document) return null
 
-    return new AreaModel(document)
+    return new AccessAreaModel(document)
   }
 
-  async list ({ limit, page, ...filters }: IListAreasFilters): Promise<IAggregatePaginate<IArea>> {
+  async list ({ limit, page, ...filters }: IListAccessAreasFilters): Promise<IAggregatePaginate<IAccessArea>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
       { $sort: { _id: -1 } }
@@ -56,7 +56,7 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
   async findAll ({
     tenantId,
     select
-  }: IFindAllProps): Promise<Array<Partial<IArea>>> {
+  }: IFindAllProps): Promise<Array<Partial<IAccessArea>>> {
     const documents = await this.mongoDB.find({
       tenantId,
       active: true,
@@ -66,10 +66,10 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
     return documents
   }
 
-  async create (area: AreaModel): Promise < AreaModel > {
-    const document = await this.mongoDB.create(area.object)
+  async create (accessArea: AccessAreaModel): Promise < AccessAreaModel > {
+    const document = await this.mongoDB.create(accessArea.object)
 
-    return new AreaModel(document)
+    return new AccessAreaModel(document)
   }
 
   async update ({

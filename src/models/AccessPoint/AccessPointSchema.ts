@@ -16,6 +16,10 @@ class AccessPointSchema extends Schema<IAccessPointDocument> {
         default: false
       },
 
+      name: {
+        type: String,
+        required: true
+      },
       accesstype: {
         type: String,
         required: true

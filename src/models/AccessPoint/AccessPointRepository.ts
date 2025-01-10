@@ -1,6 +1,6 @@
 import { Aggregate, FilterQuery } from 'mongoose'
 
-import { IFindModelByIdProps } from '../../core/interfaces/Model'
+import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { AccessPointModel, IAccessPoint, IListAccessPointsFilters } from './AccessPointModel'
@@ -13,6 +13,22 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
   }: IFindModelByIdProps): Promise<AccessPointModel | null> {
     const match: FilterQuery<IAccessPoint> = {
       _id: id,
+      tenantId,
+      deletionDate: null
+    }
+
+    const document = await this.mongoDB.findOne(match).lean()
+    if (!document) return null
+
+    return new AccessPointModel(document)
+  }
+
+  async findByName ({
+    name,
+    tenantId
+  }: IFindModelByNameProps): Promise<AccessPointModel | null> {
+    const match: FilterQuery<IAccessPoint> = {
+      name,
       tenantId,
       deletionDate: null
     }

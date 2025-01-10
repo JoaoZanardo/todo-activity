@@ -42,6 +42,10 @@ export class AreaModel extends Model<IArea> {
     this._type = area.type
   }
 
+  get name (): IArea['name'] {
+    return this._name
+  }
+
   get object (): IArea {
     return {
       _id: this._id,

@@ -1,4 +1,4 @@
-import { IFindAllModelsProps, IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
+import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { EquipmentModel, IDeleteEquipmentProps, IEquipment, IFindEquipmentByIpProps, IListEquipmentsFilters, IUpdateEquipmentProps } from '../../models/Equipment/EquipmentModel'
 import { EquipmentRepositoryImp } from '../../models/Equipment/EquipmentMongoDB'
@@ -34,7 +34,6 @@ export class EquipmentService {
       id,
       tenantId
     })
-
     if (!equipment) throw CustomResponse.NOT_FOUND('Equipamento não cadastrado!')
 
     return equipment
@@ -42,6 +41,11 @@ export class EquipmentService {
 
   async create (equipment: EquipmentModel): Promise<EquipmentModel> {
     await this.validateDuplicatedIp(equipment)
+
+    await Promise.all([
+      this.validateDuplicatedIp(equipment),
+      this.validateDuplicatedName(equipment)
+    ])
 
     const createdEquipment = await this.equipmentRepositoryImp.create(equipment)
 
@@ -59,11 +63,18 @@ export class EquipmentService {
       tenantId
     })
 
-    const ip = data.ip
+    const { ip, name } = data
 
     if (ip && ip !== equipment.ip) {
       await this.validateDuplicatedIp({
         ip,
+        tenantId
+      })
+    }
+
+    if (name && name !== equipment.name) {
+      await this.validateDuplicatedName({
+        name,
         tenantId
       })
     }
@@ -136,5 +147,17 @@ export class EquipmentService {
     })
 
     if (equipment) throw CustomResponse.CONFLICT('Ip de equipamento já cadastrado!')
+  }
+
+  private async validateDuplicatedName ({
+    name,
+    tenantId
+  }: IFindModelByNameProps): Promise<void> {
+    const exists = await this.equipmentRepositoryImp.findByName({
+      name,
+      tenantId
+    })
+
+    if (exists) throw CustomResponse.CONFLICT('Nome de equipamento já cadastrado!')
   }
 }

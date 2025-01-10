@@ -1,6 +1,6 @@
 import { Aggregate, FilterQuery } from 'mongoose'
 
-import { IFindModelByIdProps } from '../../core/interfaces/Model'
+import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { EquipmentModel, IEquipment, IFindEquipmentByIpProps, IListEquipmentsFilters } from './EquipmentModel'
@@ -29,6 +29,22 @@ export class EquipmentRepository extends Repository<IEquipmentMongoDB, Equipment
   }: IFindEquipmentByIpProps): Promise<EquipmentModel | null> {
     const match: FilterQuery<IEquipment> = {
       ip,
+      tenantId,
+      deletionDate: null
+    }
+
+    const document = await this.mongoDB.findOne(match).lean()
+    if (!document) return null
+
+    return new EquipmentModel(document)
+  }
+
+  async findByName ({
+    name,
+    tenantId
+  }: IFindModelByNameProps): Promise<EquipmentModel | null> {
+    const match: FilterQuery<IEquipment> = {
+      name,
       tenantId,
       deletionDate: null
     }
