@@ -20,7 +20,7 @@ class AccessPointSchema extends Schema<IAccessPointDocument> {
         type: String,
         required: true
       },
-      accesstype: {
+      accessType: {
         type: String,
         required: true
       },

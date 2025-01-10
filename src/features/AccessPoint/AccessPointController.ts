@@ -46,7 +46,7 @@ class AccessPointController extends Controller {
 
         const accessPoints = await AccessPointServiceImp.findAll({
           tenantId,
-          select: ['_id', 'name', 'accesstype']
+          select: ['_id', 'name', 'accessType']
         })
 
         response.OK('Pontos de acessos encontrados com sucesso!', {
@@ -65,7 +65,7 @@ class AccessPointController extends Controller {
           const { tenantId, userId } = request
 
           const {
-            accesstype,
+            accessType,
             equipmentsIds,
             personTypesIds,
             generalExit,
@@ -75,14 +75,14 @@ class AccessPointController extends Controller {
           this.rules.validate(
             { generalExit, isRequiredField: false },
             { name },
-            { accesstype },
+            { accessType },
             { equipmentsIds },
             { personTypesIds }
           )
 
           const accessPointModel = new AccessPointModel({
             name,
-            accesstype,
+            accessType,
             equipmentsIds,
             personTypesIds,
             generalExit,
@@ -114,7 +114,7 @@ class AccessPointController extends Controller {
           const { accessPointId } = request.params
 
           const {
-            accesstype,
+            accessType,
             equipmentsIds,
             personTypesIds,
             generalExit,
@@ -125,7 +125,7 @@ class AccessPointController extends Controller {
           this.rules.validate(
             { name, isRequiredField: false },
             { generalExit, isRequiredField: false },
-            { accesstype, isRequiredField: false },
+            { accessType, isRequiredField: false },
             { equipmentsIds, isRequiredField: false },
             { personTypesIds, isRequiredField: false },
             { active, isRequiredField: false }
@@ -136,7 +136,7 @@ class AccessPointController extends Controller {
             tenantId,
             data: {
               name,
-              accesstype,
+              accessType,
               equipmentsIds,
               personTypesIds,
               generalExit,
