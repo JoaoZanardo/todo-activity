@@ -3,15 +3,15 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AreaModel, IArea, IListAreasFilters } from './AreaModel'
-import { IAreaMongoDB } from './AreaSchema'
+import { AccessPointModel, IAccessPoint, IListAccessPointsFilters } from './AccessPointModel'
+import { IAccessPointMongoDB } from './AccessPointSchema'
 
-export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
+export class AccessPointRepository extends Repository<IAccessPointMongoDB, AccessPointModel> {
   async findById ({
     id,
     tenantId
-  }: IFindModelByIdProps): Promise<AreaModel | null> {
-    const match: FilterQuery<IArea> = {
+  }: IFindModelByIdProps): Promise<AccessPointModel | null> {
+    const match: FilterQuery<IAccessPoint> = {
       _id: id,
       tenantId,
       deletionDate: null
@@ -20,10 +20,10 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
     const document = await this.mongoDB.findOne(match).lean()
     if (!document) return null
 
-    return new AreaModel(document)
+    return new AccessPointModel(document)
   }
 
-  async list ({ limit, page, ...filters }: IListAreasFilters): Promise<IAggregatePaginate<IArea>> {
+  async list ({ limit, page, ...filters }: IListAccessPointsFilters): Promise<IAggregatePaginate<IAccessPoint>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
       { $sort: { _id: -1 } }
@@ -40,7 +40,7 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
   async findAll ({
     tenantId,
     select
-  }: IFindAllProps): Promise<Array<Partial<IArea>>> {
+  }: IFindAllProps): Promise<Array<Partial<IAccessPoint>>> {
     const documents = await this.mongoDB.find({
       tenantId,
       active: true,
@@ -50,10 +50,10 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
     return documents
   }
 
-  async create (area: AreaModel): Promise < AreaModel > {
-    const document = await this.mongoDB.create(area.object)
+  async create (AccessPoint: AccessPointModel): Promise < AccessPointModel > {
+    const document = await this.mongoDB.create(AccessPoint.object)
 
-    return new AreaModel(document)
+    return new AccessPointModel(document)
   }
 
   async update ({

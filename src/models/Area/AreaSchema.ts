@@ -13,7 +13,10 @@ class AreaSchema extends Schema<IAreaDocument> {
       ...coreSchema,
       accessAreasIds: Array<Types.ObjectId>,
       subAreasIds: Array<Types.ObjectId>,
-      analysis: Boolean,
+      analysis: {
+        type: Boolean,
+        default: false
+      },
       description: String,
 
       name: {
