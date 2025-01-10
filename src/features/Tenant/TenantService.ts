@@ -1,6 +1,7 @@
 import { ClientSession, Types } from 'mongoose'
 
 import { ModelAction } from '../../core/interfaces/Model'
+import { AreaModel } from '../../models/Area/AreaModel'
 import { PersonTypeModel, TimeUnit } from '../../models/PersonType/PersonTypeModel'
 import { PersonTypeRepositoryImp } from '../../models/PersonType/PersonTypeMongoDB'
 import { PersonTypeFormModel } from '../../models/PersonTypeForm/PersonTypeFormModel'
@@ -11,6 +12,7 @@ import MailerServer from '../../services/MailerServer'
 import { createdTenatTemplate } from '../../templates/createdTenant'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { AreaServiceImp } from '../Area/AreaController'
 import { PersonTypeFormServiceImp } from '../PersonTypeForm/PersonTypeFormController'
 import { UserServiceImp } from '../User/UserController'
 
@@ -33,7 +35,7 @@ export class TenantService {
 
     const createdTenant = await this.tenantRepositoryImp.create(tenant, session)
 
-    await this.createDefaultPersonType(createdTenant._id!, session)
+    await this.createDefaultDocuments(createdTenant._id!, session)
 
     await this.sendEmailWithTenantInfo(createdTenant, session)
 
@@ -73,7 +75,7 @@ export class TenantService {
     })
   }
 
-  private async createDefaultPersonType (tenantId: Types.ObjectId, session: ClientSession): Promise<void> {
+  private async createDefaultDocuments (tenantId: Types.ObjectId, session: ClientSession): Promise<void> {
     const visitorPersonType = new PersonTypeModel({
       name: 'Visitante',
       tenantId,
@@ -92,5 +94,15 @@ export class TenantService {
     })
 
     await PersonTypeFormServiceImp.create(visitorPersonTypeForm, session)
+
+    const mainAreaModel = new AreaModel({
+      main: true,
+      name: 'Área principal',
+      tenantId,
+      type: 'main',
+      description: 'Área principal do condomínio!'
+    })
+
+    await AreaServiceImp.create(mainAreaModel)
   }
 }
