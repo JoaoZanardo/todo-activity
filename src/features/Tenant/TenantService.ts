@@ -99,7 +99,7 @@ export class TenantService {
       main: true,
       name: 'Área principal',
       tenantId,
-      type: 'main',
+      type: 'commonArea',
       description: 'Área principal do condomínio!'
     })
 
