@@ -57,15 +57,41 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
   async list ({ limit, page, ...filters }: IListAreasFilters): Promise<IAggregatePaginate<IArea>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
-      { $sort: { _id: -1 } }
+      { $sort: { _id: -1 } },
+      {
+        $lookup: {
+          from: 'areas',
+          localField: '_id',
+          foreignField: 'areaId',
+          as: 'relatedAreas'
+        }
+      },
+      {
+        $addFields: {
+          areasCount: { $size: '$relatedAreas' }
+        }
+      },
+      { $project: { relatedAreas: 0 } },
+      {
+        $lookup: {
+          from: 'accesspoints',
+          localField: '_id',
+          foreignField: 'areaId',
+          as: 'relatedPoints'
+        }
+      },
+      {
+        $addFields: {
+          accessPointsCount: { $size: '$relatedPoints' }
+        }
+      },
+      { $project: { relatedPoints: 0 } }
     ])
 
-    return await this.mongoDB.aggregatePaginate(
-      aggregationStages,
-      {
-        limit,
-        page
-      })
+    return await this.mongoDB.aggregatePaginate(aggregationStages, {
+      limit,
+      page
+    })
   }
 
   async findAll ({

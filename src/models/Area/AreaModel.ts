@@ -25,6 +25,8 @@ export interface IArea extends IModel {
   analysis?: boolean
   description?: string
   main?: boolean
+  areasCount?: number
+  accessPointsCount?: number
 
   name: string
   type: string
@@ -35,6 +37,8 @@ export class AreaModel extends Model<IArea> {
   private _analysis?: IArea['analysis']
   private _description?: IArea['description']
   private _main?: IArea['main']
+  private _areasCount?: IArea['areasCount']
+  private _accessPointsCount?: IArea['accessPointsCount']
 
   private _name: IArea['name']
   private _type: IArea['type']
@@ -46,6 +50,8 @@ export class AreaModel extends Model<IArea> {
     this._analysis = area.analysis
     this._description = area.description
     this._main = area.main
+    this._areasCount = area.areasCount
+    this._accessPointsCount = area.accessPointsCount
 
     this._name = area.name
     this._type = area.type
@@ -77,7 +83,11 @@ export class AreaModel extends Model<IArea> {
   }
 
   get show (): IArea {
-    return this.object
+    return {
+      ...this.object,
+      areasCount: this._areasCount,
+      accessPointsCount: this._accessPointsCount
+    }
   }
 
   static listFilters (
