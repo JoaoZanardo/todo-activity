@@ -66,8 +66,8 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
       },
       {
         $lookup: {
-          from: 'equipments',
-          let: { personTypesIds: '$equipmentsIds' },
+          from: 'equipment',
+          let: { equipmentsIds: '$equipmentsIds' },
           pipeline: [
             {
               $match: {
