@@ -61,10 +61,10 @@ class AreaController extends Controller {
       try {
         const { tenantId } = request
 
-        const areas = await AreaServiceImp.findMain(tenantId)
+        const area = await AreaServiceImp.findMain(tenantId)
 
         response.OK('Áreas encontradas com sucesso!', {
-          areas
+          area: area.show
         })
       } catch (error) {
         next(error)
