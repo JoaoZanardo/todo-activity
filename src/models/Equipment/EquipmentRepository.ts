@@ -58,15 +58,28 @@ export class EquipmentRepository extends Repository<IEquipmentMongoDB, Equipment
   async list ({ limit, page, ...filters }: IListEquipmentsFilters): Promise<IAggregatePaginate<IEquipment>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
+      {
+        $lookup: {
+          from: 'accesspoints',
+          localField: '_id',
+          foreignField: 'equipmentsIds',
+          as: 'associatedAccessPoints'
+        }
+      },
+      {
+        $addFields: {
+          alreadyAssociated: { $gt: [{ $size: '$associatedAccessPoints' }, 0] }
+        }
+      },
+      {
+        $project: {
+          associatedAccessPoints: 0
+        }
+      },
       { $sort: { _id: -1 } }
     ])
 
-    return await this.mongoDB.aggregatePaginate(
-      aggregationStages,
-      {
-        limit,
-        page
-      })
+    return await this.mongoDB.aggregatePaginate(aggregationStages, { limit, page })
   }
 
   async findAll ({
