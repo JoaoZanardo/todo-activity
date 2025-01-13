@@ -5,7 +5,9 @@ import Model from '../../core/Model'
 import { format } from '../../utils/format'
 import ObjectId from '../../utils/ObjectId'
 
-export interface IListAccessAreasFilters extends IListModelsFilters { }
+export interface IListAccessAreasFilters extends IListModelsFilters {
+  areaId?: Types.ObjectId
+}
 
 export interface IUpdateAccessAreaProps extends IUpdateModelProps<IAccessArea> { }
 
@@ -72,7 +74,8 @@ export class AccessAreaModel extends Model<IAccessArea> {
       search,
       limit,
       page,
-      active
+      active,
+      areaId
     }: Partial<IListAccessAreasFilters>
   ): IListAccessAreasFilters {
     const filters = {
@@ -81,6 +84,7 @@ export class AccessAreaModel extends Model<IAccessArea> {
     } as IListAccessAreasFilters
 
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
+    if (areaId) Object.assign(filters, { areaId: ObjectId(areaId) })
     if (active) Object.assign(filters, { active: format.boolean(active) })
     if (search) {
       Object.assign(filters, {

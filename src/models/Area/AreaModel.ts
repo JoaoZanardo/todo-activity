@@ -5,7 +5,9 @@ import Model from '../../core/Model'
 import { format } from '../../utils/format'
 import ObjectId from '../../utils/ObjectId'
 
-export interface IListAreasFilters extends IListModelsFilters { }
+export interface IListAreasFilters extends IListModelsFilters {
+  areaId?: Types.ObjectId
+}
 
 export interface IUpdateAreaProps extends IUpdateModelProps<IArea> { }
 
@@ -84,7 +86,8 @@ export class AreaModel extends Model<IArea> {
       search,
       limit,
       page,
-      active
+      active,
+      areaId
     }: Partial<IListAreasFilters>
   ): IListAreasFilters {
     const filters = {
@@ -92,11 +95,14 @@ export class AreaModel extends Model<IArea> {
       deletionDate: undefined
     } as IListAreasFilters
 
+    if (areaId) Object.assign(filters, { areaId: ObjectId(areaId) })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (active) Object.assign(filters, { active: format.boolean(active) })
     if (search) {
       Object.assign(filters, {
         $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
         ]
       })
     }

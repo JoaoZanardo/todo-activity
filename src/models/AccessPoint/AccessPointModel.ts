@@ -5,7 +5,10 @@ import Model from '../../core/Model'
 import { format } from '../../utils/format'
 import ObjectId from '../../utils/ObjectId'
 
-export interface IListAccessPointsFilters extends IListModelsFilters { }
+export interface IListAccessPointsFilters extends IListModelsFilters {
+  areaId?: Types.ObjectId
+  accessAreaId?: Types.ObjectId
+}
 
 export interface IUpdateAccessPointProps extends IUpdateModelProps<IAccessPoint> { }
 
@@ -93,7 +96,9 @@ export class AccessPointModel extends Model<IAccessPoint> {
       search,
       limit,
       page,
-      active
+      active,
+      accessAreaId,
+      areaId
     }: Partial<IListAccessPointsFilters>
   ): IListAccessPointsFilters {
     const filters = {
@@ -101,6 +106,8 @@ export class AccessPointModel extends Model<IAccessPoint> {
       deletionDate: undefined
     } as IListAccessPointsFilters
 
+    if (accessAreaId) Object.assign(filters, { accessAreaId: ObjectId(accessAreaId) })
+    if (areaId) Object.assign(filters, { areaId: ObjectId(areaId) })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (active) Object.assign(filters, { active: format.boolean(active) })
     if (search) {
