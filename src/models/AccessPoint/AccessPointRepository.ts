@@ -45,16 +45,48 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
 
   async list ({ limit, page, ...filters }: IListAccessPointsFilters): Promise<IAggregatePaginate<IAccessPoint>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
-      { $match: filters },
+      {
+        $match: filters
+      },
+      {
+        $lookup: {
+          from: 'persontypes',
+          let: { personTypesIds: '$personTypesIds' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', '$$personTypesIds']
+                }
+              }
+            }
+          ],
+          as: 'personTypes'
+        }
+      },
+      {
+        $lookup: {
+          from: 'equipments',
+          let: { personTypesIds: '$equipmentsIds' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', '$$equipmentsIds']
+                }
+              }
+            }
+          ],
+          as: 'equipments'
+        }
+      },
       { $sort: { _id: -1 } }
     ])
 
-    return await this.mongoDB.aggregatePaginate(
-      aggregationStages,
-      {
-        limit,
-        page
-      })
+    return await this.mongoDB.aggregatePaginate(aggregationStages, {
+      limit,
+      page
+    })
   }
 
   async findAll ({

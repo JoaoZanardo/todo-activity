@@ -27,11 +27,11 @@ class AccessPointSchema extends Schema<IAccessPointDocument> {
         required: true
       },
       equipmentsIds: {
-        type: Types.ObjectId,
+        type: Array<Types.ObjectId>,
         required: true
       },
       personTypesIds: {
-        type: Types.ObjectId,
+        type: Array<Types.ObjectId>,
         required: true
       }
     })
