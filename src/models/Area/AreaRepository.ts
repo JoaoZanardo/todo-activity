@@ -104,8 +104,8 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
       {
         $lookup: {
           from: 'areas',
-          localField: '_id',
-          foreignField: 'areaId',
+          localField: 'areaId',
+          foreignField: '_id',
           as: 'area'
         }
       },
