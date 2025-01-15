@@ -115,7 +115,15 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
           preserveNullAndEmptyArrays: true
         }
       },
-      { $sort: { _id: -1 } }
+      { $sort: { _id: -1 } },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          type: 1,
+          area: 1
+        }
+      }
     ])
 
     return await this.mongoDB.aggregatePaginate(aggregationStages)
