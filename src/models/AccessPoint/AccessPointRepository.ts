@@ -80,6 +80,34 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
           as: 'equipments'
         }
       },
+      {
+        $lookup: {
+          from: 'areas',
+          localField: 'areaId',
+          foreignField: '_id',
+          as: 'area'
+        }
+      },
+      {
+        $lookup: {
+          from: 'accessareas',
+          localField: 'accessAreaId',
+          foreignField: '_id',
+          as: 'accessArea'
+        }
+      },
+      {
+        $unwind: {
+          path: '$area',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: '$accessArea',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       { $sort: { _id: -1 } }
     ])
 
