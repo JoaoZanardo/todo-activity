@@ -1,6 +1,6 @@
 import { Types } from 'mongoose'
 
-import { IFindAllModelsProps, IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
+import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AreaModel, IArea, IFindAreaByNameProps, IListAreasFilters, IUpdateAreaProps } from '../../models/Area/AreaModel'
 import { AreaRepositoryImp } from '../../models/Area/AreaMongoDB'
@@ -19,14 +19,8 @@ export class AreaService {
     return await this.areaRepositoryImp.list(filters)
   }
 
-  async findAll ({
-    tenantId,
-    select
-  }: IFindAllModelsProps): Promise<Array<Partial<IArea>>> {
-    return await this.areaRepositoryImp.findAll({
-      tenantId,
-      select
-    })
+  async findAll (tenantId: Types.ObjectId): Promise<IAggregatePaginate<IArea>> {
+    return await this.areaRepositoryImp.findAll(tenantId)
   }
 
   async findById ({

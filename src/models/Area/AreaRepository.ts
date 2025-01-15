@@ -1,7 +1,7 @@
 import { Aggregate, FilterQuery, Types } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
-import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
+import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { AreaModel, IArea, IFindAreaByNameProps, IListAreasFilters } from './AreaModel'
 import { IAreaMongoDB } from './AreaSchema'
@@ -94,17 +94,31 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
     })
   }
 
-  async findAll ({
-    tenantId,
-    select
-  }: IFindAllProps): Promise<Array<Partial<IArea>>> {
-    const documents = await this.mongoDB.find({
-      tenantId,
-      active: true,
-      deletionDate: null
-    }, select)
+  async findAll (tenantId: Types.ObjectId): Promise<IAggregatePaginate<IArea>> {
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $match: {
+          tenantId
+        }
+      },
+      {
+        $lookup: {
+          from: 'areas',
+          localField: '_id',
+          foreignField: 'areaId',
+          as: 'area'
+        }
+      },
+      {
+        $unwind: {
+          path: '$area',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $sort: { _id: -1 } }
+    ])
 
-    return documents
+    return await this.mongoDB.aggregatePaginate(aggregationStages)
   }
 
   async create (area: AreaModel): Promise < AreaModel > {

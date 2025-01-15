@@ -44,10 +44,7 @@ class AreaController extends Controller {
       try {
         const { tenantId } = request
 
-        const areas = await AreaServiceImp.findAll({
-          tenantId,
-          select: ['_id', 'name', 'type']
-        })
+        const areas = await AreaServiceImp.findAll(tenantId)
 
         response.OK('Áreas encontradas com sucesso!', {
           areas
