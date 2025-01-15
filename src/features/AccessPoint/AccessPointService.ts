@@ -1,4 +1,6 @@
-import { IFindAllModelsProps, IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
+import { Types } from 'mongoose'
+
+import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AccessPointModel, IAccessPoint, IFindAccessPointByNameProps, IListAccessPointsFilters, IUpdateAccessPointProps } from '../../models/AccessPoint/AccessPointModel'
 import { AccessPointRepositoryImp } from '../../models/AccessPoint/AccessPointMongoDB'
@@ -17,14 +19,8 @@ export class AccessPointService {
     return await this.accessPointRepositoryImp.list(filters)
   }
 
-  async findAll ({
-    tenantId,
-    select
-  }: IFindAllModelsProps): Promise<Array<Partial<IAccessPoint>>> {
-    return await this.accessPointRepositoryImp.findAll({
-      tenantId,
-      select
-    })
+  async findAll (tenantId: Types.ObjectId): Promise<IAggregatePaginate<IAccessPoint>> {
+    return await this.accessPointRepositoryImp.findAll(tenantId)
   }
 
   async findById ({

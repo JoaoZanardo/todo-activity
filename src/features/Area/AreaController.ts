@@ -47,7 +47,7 @@ class AreaController extends Controller {
         const areas = await AreaServiceImp.findAll(tenantId)
 
         response.OK('Áreas encontradas com sucesso!', {
-          areas
+          areas: areas.docs
         })
       } catch (error) {
         next(error)

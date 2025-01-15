@@ -44,13 +44,10 @@ class AccessPointController extends Controller {
       try {
         const { tenantId } = request
 
-        const accessPoints = await AccessPointServiceImp.findAll({
-          tenantId,
-          select: ['_id', 'name', 'accessType']
-        })
+        const accessPoints = await AccessPointServiceImp.findAll(tenantId)
 
         response.OK('Pontos de acessos encontrados com sucesso!', {
-          accessPoints
+          accessPoints: accessPoints.docs
         })
       } catch (error) {
         next(error)

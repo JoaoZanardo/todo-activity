@@ -1,7 +1,7 @@
-import { Aggregate, FilterQuery } from 'mongoose'
+import { Aggregate, FilterQuery, Types } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
-import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
+import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { AccessPointModel, IAccessPoint, IFindAccessPointByNameProps, IListAccessPointsFilters } from './AccessPointModel'
 import { IAccessPointMongoDB } from './AccessPointSchema'
@@ -80,6 +80,22 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
           as: 'equipments'
         }
       },
+      { $sort: { _id: -1 } }
+    ])
+
+    return await this.mongoDB.aggregatePaginate(aggregationStages, {
+      limit,
+      page
+    })
+  }
+
+  async findAll (tenantId: Types.ObjectId): Promise<IAggregatePaginate<IAccessPoint>> {
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $match: {
+          tenantId
+        }
+      },
       {
         $lookup: {
           from: 'areas',
@@ -108,26 +124,19 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
           preserveNullAndEmptyArrays: true
         }
       },
-      { $sort: { _id: -1 } }
+      { $sort: { _id: -1 } },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          accessType: 1,
+          area: 1,
+          accessArea: 1
+        }
+      }
     ])
 
-    return await this.mongoDB.aggregatePaginate(aggregationStages, {
-      limit,
-      page
-    })
-  }
-
-  async findAll ({
-    tenantId,
-    select
-  }: IFindAllProps): Promise<Array<Partial<IAccessPoint>>> {
-    const documents = await this.mongoDB.find({
-      tenantId,
-      active: true,
-      deletionDate: null
-    }, select)
-
-    return documents
+    return await this.mongoDB.aggregatePaginate(aggregationStages)
   }
 
   async create (AccessPoint: AccessPointModel): Promise < AccessPointModel > {
