@@ -3,7 +3,7 @@ import { Aggregate, FilterQuery, Types } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AccessPointModel, IAccessPoint, IFindAccessPointByNameProps, IListAccessPointsFilters } from './AccessPointModel'
+import { AccessPointModel, IAccessPoint, IFindAccessPointByEquipmentIdProps, IFindAccessPointByNameProps, IFindAllAccessPointsByAreaIdProps, IFindAllAccessPointsByPersonTypeIdProps, IListAccessPointsFilters } from './AccessPointModel'
 import { IAccessPointMongoDB } from './AccessPointSchema'
 
 export class AccessPointRepository extends Repository<IAccessPointMongoDB, AccessPointModel> {
@@ -21,6 +21,52 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
     if (!document) return null
 
     return new AccessPointModel(document)
+  }
+
+  async findByEquipmentId ({
+    equipmentId,
+    tenantId
+  }: IFindAccessPointByEquipmentIdProps): Promise<AccessPointModel | null> {
+    const document = await this.mongoDB.findOne({
+      equipmentsIds: {
+        $in: [equipmentId]
+      },
+      tenantId,
+      deletionDate: null
+    })
+    if (!document) return null
+
+    return new AccessPointModel(document)
+  }
+
+  async findAllByPersonTypeId ({
+    personTypeId,
+    tenantId
+  }: IFindAllAccessPointsByPersonTypeIdProps): Promise<Array<Partial<IAccessPoint>>> {
+    console.log({ personTypeId })
+
+    const documents = await this.mongoDB.find({
+      personTypesIds: {
+        $in: [personTypeId]
+      },
+      tenantId,
+      deletionDate: null
+    }, ['_id', 'generalExit', 'equipmentsIds', 'personTypesIds'])
+
+    return documents
+  }
+
+  async findAllByAreaId ({
+    areaId,
+    tenantId
+  }: IFindAllAccessPointsByAreaIdProps): Promise<Array<Partial<IAccessPoint>>> {
+    const documents = await this.mongoDB.find({
+      areaId,
+      tenantId,
+      deletionDate: null
+    }, ['_id', 'generalExit', 'equipmentsIds', 'personTypesIds'])
+
+    return documents
   }
 
   async findByName ({

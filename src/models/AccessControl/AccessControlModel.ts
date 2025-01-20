@@ -18,6 +18,12 @@ export interface IUpdateAccessControlProps extends IUpdateModelProps<IAccessCont
 
 export interface IDeleteAccessControlProps extends IDeleteModelProps { }
 
+export interface ICreateAccessControlByEquipmentIdProps {
+  equipmentId: Types.ObjectId
+  personId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
 export enum AccessControlType {
   'entry' = 'entry',
   'exit' = 'exit'
@@ -38,6 +44,8 @@ export interface IAccessControl extends IModel {
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
   accessRelease: AccessRelease
+  areasIds: Array<Types.ObjectId>
+  accessPointId: Types.ObjectId
 }
 
 export class AccessControlModel extends Model<IAccessControl> {
@@ -49,6 +57,8 @@ export class AccessControlModel extends Model<IAccessControl> {
   private _personId: IAccessControl['personId']
   private _personTypeId: IAccessControl['personTypeId']
   private _accessRelease: IAccessControl['accessRelease']
+  private _areasIds: IAccessControl['areasIds']
+  private _accessPointId: IAccessControl['accessPointId']
 
   constructor (accessControl: IAccessControl) {
     super(accessControl)
@@ -56,10 +66,12 @@ export class AccessControlModel extends Model<IAccessControl> {
     this._personTypeCategoryId = accessControl.personTypeCategoryId
     this._responsibleId = accessControl.responsibleId
     this._observation = accessControl.observation
-
+    this._accessPointId = accessControl.accessPointId
     this._type = accessControl.type
     this._personId = accessControl.personId
     this._personTypeId = accessControl.personTypeId
+    this._areasIds = accessControl.areasIds.map(areaId => ObjectId(areaId))
+    this._observation = accessControl.observation
     this._accessRelease = accessControl.accessRelease
     this.actions = accessControl.actions || [{
       action: ModelAction.create,
@@ -69,6 +81,14 @@ export class AccessControlModel extends Model<IAccessControl> {
 
   get personId (): IAccessControl['personId'] {
     return this._personId
+  }
+
+  get accessPointId (): IAccessControl['accessPointId'] {
+    return this._accessPointId
+  }
+
+  get areasIds (): IAccessControl['areasIds'] {
+    return this._areasIds
   }
 
   get object (): IAccessControl {
@@ -82,6 +102,8 @@ export class AccessControlModel extends Model<IAccessControl> {
       personTypeCategoryId: this._personTypeCategoryId,
       responsibleId: this._responsibleId,
       observation: this._observation,
+      areasIds: this._areasIds,
+      accessPointId: this._accessPointId,
 
       type: this._type,
       personId: this._personId,

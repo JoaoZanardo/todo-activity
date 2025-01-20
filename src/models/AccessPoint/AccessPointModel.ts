@@ -14,6 +14,21 @@ export interface IUpdateAccessPointProps extends IUpdateModelProps<IAccessPoint>
 
 export interface IDeleteAccessPointProps extends IDeleteModelProps { }
 
+export interface IFindAccessPointByEquipmentIdProps {
+  equipmentId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
+export interface IFindAllAccessPointsByPersonTypeIdProps {
+  personTypeId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
+export interface IFindAllAccessPointsByAreaIdProps {
+  areaId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
 export interface IFindAccessPointByNameProps {
   areaId?: Types.ObjectId
   accessAreaId?: Types.ObjectId
@@ -52,8 +67,8 @@ export class AccessPointModel extends Model<IAccessPoint> {
 
     this._name = accessPoint.name
     this._accessType = accessPoint.accessType
-    this._equipmentsIds = accessPoint.equipmentsIds
-    this._personTypesIds = accessPoint.personTypesIds
+    this._equipmentsIds = accessPoint.equipmentsIds.map(equipmentId => ObjectId(equipmentId))
+    this._personTypesIds = accessPoint.personTypesIds.map(personTypeId => ObjectId(personTypeId))
   }
 
   get areaId (): IAccessPoint['areaId'] {

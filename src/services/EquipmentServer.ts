@@ -17,6 +17,11 @@ interface IAddAccessToEquipmentProps {
   equipmentIp: string
 }
 
+interface IRemoveAccessFromEquipmentProps {
+  personId: Types.ObjectId
+  equipmentIp: string
+}
+
 class EquipmentServer {
   private baseUrl: string
 
@@ -24,7 +29,7 @@ class EquipmentServer {
     this.baseUrl = baseUrl
   }
 
-  async AddAccess ({
+  async addAccess ({
     personId,
     personCode,
     personName,
@@ -45,7 +50,29 @@ class EquipmentServer {
       dtFim: endDate
     })
 
-    if (response.data.code !== 201) throw CustomResponse.BAD_REQUEST('Ocorreu um erro ao adicionar cadastro no equipamento!')
+    if (response.data.code !== 201) {
+      throw CustomResponse.BAD_REQUEST('Ocorreu um erro ao adicionar cadastro no equipamento!', {
+        personId,
+        equipmentIp
+      })
+    }
+  }
+
+  async removeAccess ({
+    personId,
+    equipmentIp
+  }: IRemoveAccessFromEquipmentProps): Promise<void> {
+    const response = await axios.post<IResponseData>(`${this.baseUrl}/delete`, {
+      pessoaId: personId,
+      equipamentoIp: equipmentIp
+    })
+
+    if (response.data.code !== 200) {
+      throw CustomResponse.BAD_REQUEST('Ocorreu um erro ao remover cadastro no equipamento!', {
+        personId,
+        equipmentIp
+      })
+    }
   }
 }
 

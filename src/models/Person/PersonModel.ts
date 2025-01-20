@@ -107,6 +107,10 @@ export class PersonModel extends Model<IPerson> {
     }]
   }
 
+  get personTypeId (): IPerson['personTypeId'] {
+    return this._personTypeId
+  }
+
   get object (): IPerson {
     return {
       _id: this._id,

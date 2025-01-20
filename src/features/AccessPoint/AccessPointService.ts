@@ -2,7 +2,7 @@ import { Types } from 'mongoose'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessPointModel, IAccessPoint, IFindAccessPointByNameProps, IListAccessPointsFilters, IUpdateAccessPointProps } from '../../models/AccessPoint/AccessPointModel'
+import { AccessPointModel, IAccessPoint, IFindAccessPointByEquipmentIdProps, IFindAccessPointByNameProps, IFindAllAccessPointsByAreaIdProps, IFindAllAccessPointsByPersonTypeIdProps, IListAccessPointsFilters, IUpdateAccessPointProps } from '../../models/AccessPoint/AccessPointModel'
 import { AccessPointRepositoryImp } from '../../models/AccessPoint/AccessPointMongoDB'
 import { IDeleteEquipmentProps } from '../../models/Equipment/EquipmentModel'
 import CustomResponse from '../../utils/CustomResponse'
@@ -31,9 +31,47 @@ export class AccessPointService {
       id,
       tenantId
     })
-    if (!accessPoint) throw CustomResponse.NOT_FOUND('Ponto de acesso não cadastrada!')
+    if (!accessPoint) throw CustomResponse.NOT_FOUND('Ponto de acesso não cadastrado!')
 
     return accessPoint
+  }
+
+  async findByEquipmentId ({
+    equipmentId,
+    tenantId
+  }: IFindAccessPointByEquipmentIdProps): Promise<AccessPointModel> {
+    const accessPoint = await this.accessPointRepositoryImp.findByEquipmentId({
+      equipmentId,
+      tenantId
+    })
+    if (!accessPoint) throw CustomResponse.NOT_FOUND('Ponto de acesso não cadastrado!')
+
+    return accessPoint
+  }
+
+  async findAllByPersonTypeId ({
+    personTypeId,
+    tenantId
+  }: IFindAllAccessPointsByPersonTypeIdProps): Promise<Array<Partial<IAccessPoint>>> {
+    const accessPoint = await this.accessPointRepositoryImp.findAllByPersonTypeId({
+      personTypeId,
+      tenantId
+    })
+    if (!accessPoint) throw CustomResponse.NOT_FOUND('Ponto de acesso não cadastrado!')
+
+    return accessPoint
+  }
+
+  async findAllByAreaId ({
+    areaId,
+    tenantId
+  }: IFindAllAccessPointsByAreaIdProps): Promise<Array<Partial<IAccessPoint>>> {
+    const accessPoints = await this.accessPointRepositoryImp.findAllByAreaId({
+      areaId,
+      tenantId
+    })
+
+    return accessPoints
   }
 
   async create (accessPoint: AccessPointModel): Promise<AccessPointModel> {

@@ -28,6 +28,14 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
         type: Types.ObjectId,
         required: true
       },
+      accessPointId: {
+        type: Types.ObjectId,
+        required: true
+      },
+      areasIds: {
+        type: Array<Types.ObjectId>,
+        required: true
+      },
       accessRelease: {
         type: String,
         enum: AccessRelease,
