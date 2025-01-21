@@ -39,6 +39,7 @@ export interface IAccessControl extends IModel {
   personTypeCategoryId?: Types.ObjectId
   responsibleId?: Types.ObjectId
   observation?: string
+  picture?: string
 
   type: AccessControlType
   personId: Types.ObjectId
@@ -52,6 +53,7 @@ export class AccessControlModel extends Model<IAccessControl> {
   private _personTypeCategoryId?: IAccessControl['personTypeCategoryId']
   private _responsibleId?: IAccessControl['responsibleId']
   private _observation?: IAccessControl['observation']
+  private _picture?: IAccessControl['picture']
 
   private _type: IAccessControl['type']
   private _personId: IAccessControl['personId']
@@ -66,6 +68,8 @@ export class AccessControlModel extends Model<IAccessControl> {
     this._personTypeCategoryId = accessControl.personTypeCategoryId
     this._responsibleId = accessControl.responsibleId
     this._observation = accessControl.observation
+    this._picture = accessControl.picture
+
     this._accessPointId = accessControl.accessPointId
     this._type = accessControl.type
     this._personId = accessControl.personId
@@ -104,6 +108,7 @@ export class AccessControlModel extends Model<IAccessControl> {
       observation: this._observation,
       areasIds: this._areasIds,
       accessPointId: this._accessPointId,
+      picture: this._picture,
 
       type: this._type,
       personId: this._personId,

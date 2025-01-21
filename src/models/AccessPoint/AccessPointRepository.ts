@@ -43,8 +43,6 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
     personTypeId,
     tenantId
   }: IFindAllAccessPointsByPersonTypeIdProps): Promise<Array<Partial<IAccessPoint>>> {
-    console.log({ personTypeId })
-
     const documents = await this.mongoDB.find({
       personTypesIds: {
         $in: [personTypeId]

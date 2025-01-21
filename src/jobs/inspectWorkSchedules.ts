@@ -5,8 +5,6 @@ export const inspectWorkSchedules = async () => {
     const inWorkSchedules = await WorkScheduleRepositoryImp.findAllInOfSchedule()
     const outWorkSchedules = await WorkScheduleRepositoryImp.findAllOutOfSchedule()
 
-    console.log({ inWorkSchedules, outWorkSchedules })
-
     if (inWorkSchedules.length) {
       await Promise.all(
         inWorkSchedules.map(async workSchedule => {

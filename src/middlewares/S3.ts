@@ -17,11 +17,16 @@ export const S3Middleware = async (request: Request, response: Response, next: N
       throw CustomResponse.UNPROCESSABLE_ENTITY('Tipo de arquivo inválido. Apenas imagens são permitidas.')
     }
 
-    let compressedImageBuffer = file.buffer
+    let compressedImageBuffer = await sharp(file.buffer)
+      .resize(300, 400)
+      .jpeg({ quality: 90 })
+      .toBuffer()
+
     let quality = 90
 
     while (compressedImageBuffer.length > MAX_IMAGE_SIZE && quality > 10) {
-      compressedImageBuffer = await sharp(file.buffer)
+      console.log(compressedImageBuffer.length, MAX_IMAGE_SIZE, compressedImageBuffer.length > MAX_IMAGE_SIZE)
+      compressedImageBuffer = await sharp(compressedImageBuffer)
         .jpeg({ quality })
         .toBuffer()
 

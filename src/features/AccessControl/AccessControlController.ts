@@ -58,7 +58,8 @@ class AccessControlController extends Controller {
             personTypeCategoryId,
             responsibleId,
             accessPointId,
-            areasIds
+            areasIds,
+            picture
           } = request.body
 
           this.rules.validate(
@@ -67,6 +68,7 @@ class AccessControlController extends Controller {
             { observation, isRequiredField: false },
             { accessPointId, isRequiredField: false },
             { areasIds, isRequiredField: false },
+            { picture, isRequiredField: false },
             { accessRelease },
             { personId },
             { personTypeId },
@@ -80,6 +82,7 @@ class AccessControlController extends Controller {
             responsibleId,
             observation,
             tenantId,
+            picture,
             actions: [{
               action: ModelAction.create,
               date: DateUtils.getCurrent(),

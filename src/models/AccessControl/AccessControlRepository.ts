@@ -45,7 +45,6 @@ export class AccessControlRepository extends Repository<IAccessControlMongoDB, A
   }
 
   async list ({ limit, page, ...filters }: IListAccessControlsFilters): Promise<IAggregatePaginate<IAccessControl>> {
-    console.log({ filters })
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
       {

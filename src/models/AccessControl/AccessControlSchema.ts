@@ -14,6 +14,7 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
       personTypeCategoryId: Types.ObjectId,
       responsibleId: Types.ObjectId,
       observation: String,
+      picture: String,
 
       type: {
         type: String,

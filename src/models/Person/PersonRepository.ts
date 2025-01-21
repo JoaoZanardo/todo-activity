@@ -78,8 +78,6 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
   }
 
   async list ({ limit, page, ...filters }: IListPersonsFilters): Promise<IAggregatePaginate<IPerson>> {
-    console.log({ filters })
-
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
       {
