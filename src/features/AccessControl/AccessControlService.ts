@@ -6,7 +6,9 @@ import { AccessControlModel, AccessControlType, AccessRelease, IAccessControl, I
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
 import { IAccessPoint } from '../../models/AccessPoint/AccessPointModel'
 import { PersonModel } from '../../models/Person/PersonModel'
+import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
+import { DateUtils } from '../../utils/Date'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
@@ -30,7 +32,7 @@ export class AccessControlService {
       id,
       tenantId
     })
-    if (!accessControl) throw CustomResponse.NOT_FOUND('Categoria de tipo de pessoa não cadastrada!')
+    if (!accessControl) throw CustomResponse.NOT_FOUND('Controle de acesso não cadastrado!')
 
     return accessControl
   }
@@ -62,15 +64,15 @@ export class AccessControlService {
             if (accessPoint.equipmentsIds?.length) {
               await Promise.all(
                 accessPoint.equipmentsIds.map(async equipmentId => {
-                  await EquipmentServiceImp.findById({
+                  const equipment = await EquipmentServiceImp.findById({
                     id: equipmentId,
                     tenantId
                   })
 
-                  // await EquipmentServer.removeAccess({
-                  //   equipmentIp: equipament.ip,
-                  //   personId
-                  // })
+                  await EquipmentServer.removeAccess({
+                    equipmentIp: equipment.ip,
+                    personId
+                  })
                 })
               )
             }
@@ -114,19 +116,6 @@ export class AccessControlService {
     return await this.accessControlRepositoryImp.create(accessControl)
   }
 
-  // private async processAccessPointEquipments (accessPoint: AccessPointModel, tenantId: Types.ObjectId) {
-  //   const { equipmentsIds } = accessPoint.object
-
-  //   if (equipmentsIds?.length) {
-  //     await Promise.all(
-  //       equipmentsIds.map(async (equipmentId) => {
-  //         const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
-  //         console.log({ equipment: equipment.show })
-  //       })
-  //     )
-  //   }
-  // }
-
   private async processAreaAccessPoints (
     accessPoints: Array<Partial<IAccessPoint>>,
     person: PersonModel,
@@ -153,16 +142,16 @@ export class AccessControlService {
         const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
         console.log({ equipment: equipment.show })
 
-        // await EquipmentServer.AddAccess({
-        //   equipmentIp: equipment.ip,
-        //   personCode: person._id!,
-        //   personId: person._id!,
-        //   personName: person.name,
-        //   personPictureUrl: person.object.picture!,
-        //   endDate,
-        //   initDate,
-        //   schedules
-        // });
+        await EquipmentServer.addAccess({
+          equipmentIp: equipment.ip,
+          personCode: person._id!,
+          personId: person._id!,
+          personName: person.name,
+          personPictureUrl: person.object.picture!,
+          initDate: DateUtils.getCurrent(),
+          endDate: DateUtils.getDefaultEndDate(),
+          schedules: []
+        })
       })
     )
   }

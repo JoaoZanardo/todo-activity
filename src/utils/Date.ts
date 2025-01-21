@@ -8,6 +8,13 @@ export const DateUtils = {
 
     return date
   },
+  getDefaultEndDate: (): Date => {
+    const date = new Date(moment().local().format('YYYY-MM-DD HH:mm:ss'))
+
+    date.setMonth(date.getHours() + 108)
+
+    return date
+  },
   parse: (dateInput: string | Date): Date | null => {
     if (dateInput instanceof Date && !isNaN(dateInput.getTime())) {
       return dateInput
