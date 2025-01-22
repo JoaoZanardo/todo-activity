@@ -1,7 +1,7 @@
-import { Aggregate, FilterQuery } from 'mongoose'
+import { Aggregate, FilterQuery, Types } from 'mongoose'
 
 import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
-import { IAggregatePaginate, IFindAllProps, IUpdateProps } from '../../core/interfaces/Repository'
+import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { EquipmentModel, IEquipment, IFindEquipmentByIpProps, IListEquipmentsFilters } from './EquipmentModel'
 import { IEquipmentMongoDB } from './EquipmentSchema'
@@ -58,6 +58,21 @@ export class EquipmentRepository extends Repository<IEquipmentMongoDB, Equipment
   async list ({ limit, page, ...filters }: IListEquipmentsFilters): Promise<IAggregatePaginate<IEquipment>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
+      { $sort: { _id: -1 } }
+    ])
+
+    return await this.mongoDB.aggregatePaginate(aggregationStages, { limit, page })
+  }
+
+  async findAll (tenantId: Types.ObjectId): Promise<IAggregatePaginate<IEquipment>> {
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $match: {
+          tenantId,
+          active: true,
+          deletionDate: null
+        }
+      },
       {
         $lookup: {
           from: 'accesspoints',
@@ -76,26 +91,25 @@ export class EquipmentRepository extends Repository<IEquipmentMongoDB, Equipment
           associatedAccessPoints: 0
         }
       },
+      // {
+      //   $project: {
+      //     _id: 1,
+      //     name: 1,
+      //     pattern: 1,
+      //     alreadyAssociated: 1,
+      //     associatedAccessPoints: 0,
+      //     serialNumber: 0,
+      //     description: 0,
+      //     ip: 0
+      //   }
+      // },
       { $sort: { _id: -1 } }
     ])
 
-    return await this.mongoDB.aggregatePaginate(aggregationStages, { limit, page })
+    return await this.mongoDB.aggregatePaginate(aggregationStages, { limit: 1000 })
   }
 
-  async findAll ({
-    tenantId,
-    select
-  }: IFindAllProps): Promise<Array<Partial<IEquipment>>> {
-    const documents = await this.mongoDB.find({
-      tenantId,
-      active: true,
-      deletionDate: null
-    }, select)
-
-    return documents
-  }
-
-  async create (equipment: EquipmentModel): Promise < EquipmentModel > {
+  async create (equipment: EquipmentModel): Promise<EquipmentModel> {
     const document = await this.mongoDB.create(equipment.object)
 
     return new EquipmentModel(document)
@@ -105,7 +119,7 @@ export class EquipmentRepository extends Repository<IEquipmentMongoDB, Equipment
     id,
     tenantId,
     data
-  }: IUpdateProps): Promise < boolean > {
+  }: IUpdateProps): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId

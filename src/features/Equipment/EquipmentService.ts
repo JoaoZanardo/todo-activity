@@ -1,4 +1,6 @@
-import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
+import { Types } from 'mongoose'
+
+import { IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { EquipmentModel, IDeleteEquipmentProps, IEquipment, IFindEquipmentByIpProps, IListEquipmentsFilters, IUpdateEquipmentProps } from '../../models/Equipment/EquipmentModel'
 import { EquipmentRepositoryImp } from '../../models/Equipment/EquipmentMongoDB'
@@ -16,14 +18,8 @@ export class EquipmentService {
     return await this.equipmentRepositoryImp.list(filters)
   }
 
-  async findAll ({
-    tenantId,
-    select
-  }: IFindAllModelsProps): Promise<Array<Partial<EquipmentModel>>> {
-    return await this.equipmentRepositoryImp.findAll({
-      tenantId,
-      select
-    })
+  async findAll (tenantId: Types.ObjectId): Promise<IAggregatePaginate<IEquipment>> {
+    return await this.equipmentRepositoryImp.findAll(tenantId)
   }
 
   async findById ({

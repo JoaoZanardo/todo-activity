@@ -44,10 +44,7 @@ class EquipmentController extends Controller {
       try {
         const { tenantId } = request
 
-        const equipments = await EquipmentServiceImp.findAll({
-          tenantId,
-          select: ['_id', 'name', 'pattern']
-        })
+        const equipments = await EquipmentServiceImp.findAll(tenantId)
 
         response.OK('Equipamentos encontrados com sucesso!', {
           equipments
