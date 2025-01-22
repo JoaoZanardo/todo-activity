@@ -73,6 +73,14 @@ export class AccessControlRepository extends Repository<IAccessControlMongoDB, A
       },
       {
         $lookup: {
+          from: 'accesspoints',
+          localField: 'accessPointId',
+          foreignField: '_id',
+          as: 'accessPoint'
+        }
+      },
+      {
+        $lookup: {
           from: 'persontypecategories',
           localField: 'personTypeCategoryId',
           foreignField: '_id',
@@ -94,7 +102,19 @@ export class AccessControlRepository extends Repository<IAccessControlMongoDB, A
       {
         $unwind: '$personType'
       },
+      {
+        $unwind: '$accessPoint'
+      },
       { $unwind: '$person' },
+      {
+        $lookup: {
+          from: 'areas',
+          localField: 'accessPoint.areaId',
+          foreignField: '_id',
+          as: 'area'
+        }
+      },
+      { $unwind: '$area' },
       { $sort: { _id: -1 } }
     ])
 
