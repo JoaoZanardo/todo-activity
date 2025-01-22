@@ -121,12 +121,15 @@ export class AreaRepository extends Repository<IAreaMongoDB, AreaModel> {
           _id: 1,
           name: 1,
           type: 1,
-          area: 1
+          area: 1,
+          main: 1
         }
       }
     ])
 
-    return await this.mongoDB.aggregatePaginate(aggregationStages)
+    return await this.mongoDB.aggregatePaginate(aggregationStages, {
+      limit: 1000
+    })
   }
 
   async create (area: AreaModel): Promise < AreaModel > {
