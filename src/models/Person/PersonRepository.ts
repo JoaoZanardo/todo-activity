@@ -96,23 +96,27 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
           as: 'personTypeCategory'
         }
       },
-      // {
-      //   $lookup: {
-      //     from: 'accesscontrols',
-      //     localField: '_id',
-      //     foreignField: 'personId',
-      //     as: 'lastAccessControl'
-      //   }
-      // },
-      // {
-
-      //   $set: {
-      //     lastAccessControl: {
-      //       $sortArray: { input: '$lastAccessControl', sortBy: { _id: -1 } }
-      //     }
-      //   }
-      // },
-      // { $unwind: '$lastAccessControl' },
+      {
+        $lookup: {
+          from: 'accesscontrols',
+          localField: '_id',
+          foreignField: 'personId',
+          as: 'lastAccessControl'
+        }
+      },
+      {
+        $set: {
+          lastAccessControl: {
+            $arrayElemAt: [
+              {
+                $sortArray: { input: '$lastAccessControl', sortBy: { _id: -1 } }
+              },
+              0
+            ]
+          }
+        }
+      },
+      // Caso sejam necessários mesmo que seja array com único elemento
       { $unwind: '$personType' },
       {
         $unwind: {
