@@ -47,7 +47,7 @@ class EquipmentController extends Controller {
         const equipments = await EquipmentServiceImp.findAll(tenantId)
 
         response.OK('Equipamentos encontrados com sucesso!', {
-          equipments
+          equipments: equipments.docs
         })
       } catch (error) {
         next(error)
