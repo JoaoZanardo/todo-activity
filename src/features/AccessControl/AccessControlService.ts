@@ -6,9 +6,7 @@ import { AccessControlModel, AccessControlType, AccessRelease, IAccessControl, I
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
 import { IAccessPoint } from '../../models/AccessPoint/AccessPointModel'
 import { PersonModel } from '../../models/Person/PersonModel'
-import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
-import { DateUtils } from '../../utils/Date'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
@@ -64,15 +62,15 @@ export class AccessControlService {
             if (accessPoint.equipmentsIds?.length) {
               await Promise.all(
                 accessPoint.equipmentsIds.map(async equipmentId => {
-                  const equipment = await EquipmentServiceImp.findById({
+                  await EquipmentServiceImp.findById({
                     id: equipmentId,
                     tenantId
                   })
 
-                  await EquipmentServer.removeAccess({
-                    equipmentIp: equipment.ip,
-                    personId
-                  })
+                  // await EquipmentServer.removeAccess({
+                  //   equipmentIp: equipment.ip,
+                  //   personId
+                  // })
                 })
               )
             }
@@ -142,16 +140,16 @@ export class AccessControlService {
         const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
         console.log({ equipment: equipment.show })
 
-        await EquipmentServer.addAccess({
-          equipmentIp: equipment.ip,
-          personCode: person._id!,
-          personId: person._id!,
-          personName: person.name,
-          personPictureUrl: person.object.picture!,
-          initDate: DateUtils.getCurrent(),
-          endDate: DateUtils.getDefaultEndDate(),
-          schedules: []
-        })
+        // await EquipmentServer.addAccess({
+        //   equipmentIp: equipment.ip,
+        //   personCode: person._id!,
+        //   personId: person._id!,
+        //   personName: person.name,
+        //   personPictureUrl: person.object.picture!,
+        //   initDate: DateUtils.getCurrent(),
+        //   endDate: DateUtils.getDefaultEndDate(),
+        //   schedules: []
+        // })
       })
     )
   }
