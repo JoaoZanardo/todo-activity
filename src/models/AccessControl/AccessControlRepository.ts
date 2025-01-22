@@ -114,7 +114,21 @@ export class AccessControlRepository extends Repository<IAccessControlMongoDB, A
           as: 'area'
         }
       },
+      {
+        $lookup: {
+          from: 'accessareas',
+          localField: 'accessPoint.accessAreaId',
+          foreignField: '_id',
+          as: 'accessArea'
+        }
+      },
       { $unwind: '$area' },
+      {
+        $unwind: {
+          path: '$accessArea',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       { $sort: { _id: -1 } }
     ])
 
