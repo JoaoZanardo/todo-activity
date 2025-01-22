@@ -116,11 +116,24 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
           }
         }
       },
-      // Caso sejam necessários mesmo que seja array com único elemento
+      {
+        $lookup: {
+          from: 'accesspoints',
+          localField: 'lastAccessControl.accessPointId',
+          foreignField: '_id',
+          as: 'lastAccessPoint'
+        }
+      },
       { $unwind: '$personType' },
       {
         $unwind: {
           path: '$personTypeCategory',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: '$lastAccessPoint',
           preserveNullAndEmptyArrays: true
         }
       },
