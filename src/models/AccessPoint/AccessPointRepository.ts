@@ -142,6 +142,22 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
       },
       {
         $lookup: {
+          from: 'persontypes',
+          let: { personTypesIds: '$personTypesIds' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', '$$personTypesIds']
+                }
+              }
+            }
+          ],
+          as: 'personTypes'
+        }
+      },
+      {
+        $lookup: {
           from: 'areas',
           localField: 'areaId',
           foreignField: '_id',
@@ -175,7 +191,8 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
           name: 1,
           accessType: 1,
           area: 1,
-          accessArea: 1
+          accessArea: 1,
+          personTypes: 1
         }
       }
     ])
