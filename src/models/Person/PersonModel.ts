@@ -1,4 +1,8 @@
 import { Types } from 'mongoose'
+import { IAccessArea } from 'src/models/AccessArea/AccessAreaModel'
+import { IAccessControl } from 'src/models/AccessControl/AccessControlModel'
+import { IAccessPoint } from 'src/models/AccessPoint/AccessPointModel'
+import { IPersonType } from 'src/models/PersonType/PersonTypeModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -50,6 +54,10 @@ export interface IPerson extends IModel {
   cpf?: string
   picture?: string
   personTypeCategoryId?: string
+  personType?: IPersonType
+  lastAccessControl?: IAccessControl
+  lastAccessPoint?: IAccessPoint
+  lastAccessArea?: IAccessArea
 
   personTypeId: Types.ObjectId
   name: string
@@ -73,6 +81,10 @@ export class PersonModel extends Model<IPerson> {
   private _cpf?: IPerson['cpf']
   private _picture?: IPerson['picture']
   private _personTypeCategoryId?: IPerson['personTypeCategoryId']
+  private _personType?: IPerson['personType']
+  private _lastAccessControl?: IPerson['lastAccessControl']
+  private _lastAccessPoint?: IPerson['lastAccessPoint']
+  private _lastAccessArea?: IPerson['lastAccessArea']
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
@@ -96,6 +108,10 @@ export class PersonModel extends Model<IPerson> {
     this._cpf = person.cpf
     this._picture = person.picture
     this._personTypeCategoryId = person.personTypeCategoryId
+    this._personType = person.personType
+    this._lastAccessControl = person.lastAccessControl
+    this._lastAccessPoint = person.lastAccessPoint
+    this._lastAccessArea = person.lastAccessArea
 
     this._personTypeId = person.personTypeId
     this._name = person.name
@@ -142,7 +158,13 @@ export class PersonModel extends Model<IPerson> {
   }
 
   get show () {
-    return this.object
+    return {
+      ...this.object,
+      personType: this._personType,
+      lastAccessControl: this._lastAccessControl,
+      lastAccessPoint: this._lastAccessPoint,
+      lastAccessArea: this._lastAccessArea
+    }
   }
 
   get name (): IPerson['name'] {

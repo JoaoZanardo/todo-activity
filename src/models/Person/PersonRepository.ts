@@ -10,18 +10,26 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
   async findById ({
     id,
     tenantId
-
   }: IFindModelByIdProps): Promise<PersonModel | null> {
-    const match: FilterQuery<IPerson> = {
-      _id: id,
-      tenantId,
-      deletionDate: null
-    }
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $match: {
+          _id: id,
+          tenantId,
+          deletionDate: null
+        }
+      },
+      ...this.$lookupAndUnwindStages(),
+      { $sort: { _id: -1 } }
+    ])
 
-    const document = await this.mongoDB.findOne(match).lean()
-    if (!document) return null
+    const people = await this.mongoDB.aggregatePaginate(aggregationStages)
 
-    return new PersonModel(document)
+    const person = people.docs[0]
+
+    if (!person) return null
+
+    return new PersonModel(person)
   }
 
   async findByName ({
@@ -80,6 +88,20 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
   async list ({ limit, page, ...filters }: IListPersonsFilters): Promise<IAggregatePaginate<IPerson>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
+      ...this.$lookupAndUnwindStages(),
+      { $sort: { _id: -1 } }
+    ])
+
+    return await this.mongoDB.aggregatePaginate(
+      aggregationStages,
+      {
+        limit,
+        page
+      })
+  }
+
+  private $lookupAndUnwindStages (): Array<any> {
+    return [
       {
         $lookup: {
           from: 'persontypes',
@@ -150,15 +172,7 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
           path: '$lastAccessArea',
           preserveNullAndEmptyArrays: true
         }
-      },
-      { $sort: { _id: -1 } }
-    ])
-
-    return await this.mongoDB.aggregatePaginate(
-      aggregationStages,
-      {
-        limit,
-        page
-      })
+      }
+    ]
   }
 }

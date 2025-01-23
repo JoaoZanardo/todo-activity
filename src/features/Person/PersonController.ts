@@ -19,6 +19,34 @@ class PersonController extends Controller {
 
   handle (): Router {
     this.router.get(
+      '/:personId',
+      permissionAuthMiddleware(Permission.read),
+      async (request: Request, response: Response, next: NextFunction) => {
+        try {
+          const { tenantId } = request
+
+          const {
+            personId
+          } = request.params
+
+          this.rules.validate(
+            { personId }
+          )
+
+          const person = await PersonServiceImp.findById({
+            id: ObjectId(personId),
+            tenantId
+          })
+
+          response.OK('Pessoa encontrada com sucesso!', {
+            person: person.show
+          })
+        } catch (error) {
+          next(error)
+        }
+      })
+
+    this.router.get(
       '/',
       permissionAuthMiddleware(Permission.read),
       async (request: Request, response: Response, next: NextFunction) => {
