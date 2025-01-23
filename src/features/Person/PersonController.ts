@@ -19,7 +19,7 @@ class PersonController extends Controller {
 
   handle (): Router {
     this.router.get(
-      '/:personId',
+      '/one/:personId',
       permissionAuthMiddleware(Permission.read),
       async (request: Request, response: Response, next: NextFunction) => {
         try {
