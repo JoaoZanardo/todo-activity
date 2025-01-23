@@ -137,6 +137,20 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
           preserveNullAndEmptyArrays: true
         }
       },
+      {
+        $lookup: {
+          from: 'accessareas',
+          localField: 'lastAccessPoint.accessAreaId',
+          foreignField: '_id',
+          as: 'lastAccessArea'
+        }
+      },
+      {
+        $unwind: {
+          path: '$lastAccessArea',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       { $sort: { _id: -1 } }
     ])
 
