@@ -25,9 +25,9 @@ export interface IUpdatePersonProps extends IUpdateModelProps<IPerson> { }
 
 export interface IDeletePersonProps extends IDeleteModelProps { }
 
-export interface IFindPersonByDocumentProps {
+export interface IFindPersonByCpfProps {
+  cpf: string
   tenantId: Types.ObjectId
-  document: string
 }
 
 export interface IPerson extends IModel {
@@ -125,6 +125,10 @@ export class PersonModel extends Model<IPerson> {
 
   get personTypeId (): IPerson['personTypeId'] {
     return this._personTypeId
+  }
+
+  get cpf (): IPerson['cpf'] {
+    return this._cpf
   }
 
   get object (): IPerson {

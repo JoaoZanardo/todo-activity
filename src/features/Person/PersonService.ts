@@ -1,5 +1,5 @@
-import { IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
-import { IDeletePersonProps, IListPersonsFilters, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
+import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
+import { IDeletePersonProps, IFindPersonByCpfProps, IListPersonsFilters, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
 import { PersonRepositoryImp } from '../../models/Person/PersonMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
@@ -33,6 +33,13 @@ export class PersonService {
     // await Promise.all([
     //   this.validateDuplicatedName(person)
     // ])
+
+    if (person.cpf) {
+      await this.validateDuplicatedCpf({
+        cpf: person.cpf,
+        tenantId: person.tenantId
+      })
+    }
 
     return await this.personRepositoryImp.create(person)
   }
@@ -115,12 +122,12 @@ export class PersonService {
     })
   }
 
-  private async validateDuplicatedName ({
-    name,
+  private async validateDuplicatedCpf ({
+    cpf,
     tenantId
-  }: IFindModelByNameProps): Promise<void> {
-    const person = await this.personRepositoryImp.findByName({
-      name,
+  }: IFindPersonByCpfProps): Promise<void> {
+    const person = await this.personRepositoryImp.findByCpf({
+      cpf,
       tenantId
     })
 

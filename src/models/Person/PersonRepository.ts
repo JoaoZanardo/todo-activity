@@ -3,7 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { IFindPersonByDocumentProps, IListPersonsFilters, IPerson, PersonModel } from './PersonModel'
+import { IFindPersonByCpfProps, IListPersonsFilters, IPerson, PersonModel } from './PersonModel'
 import { IPersonMongoDB } from './PersonSchema'
 
 export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
@@ -48,12 +48,12 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
     return new PersonModel(document)
   }
 
-  async findByDocument ({
-    document,
+  async findByCpf ({
+    cpf,
     tenantId
-  }: IFindPersonByDocumentProps): Promise<PersonModel | null> {
+  }: IFindPersonByCpfProps): Promise<PersonModel | null> {
     const match: FilterQuery<IPerson> = {
-      document,
+      cpf,
       tenantId,
       deletionDate: null
     }
