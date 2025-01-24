@@ -65,15 +65,15 @@ export class AccessControlModel extends Model<IAccessControl> {
   constructor (accessControl: IAccessControl) {
     super(accessControl)
 
-    this._personTypeCategoryId = accessControl.personTypeCategoryId
-    this._responsibleId = accessControl.responsibleId
+    this._personTypeCategoryId = accessControl.personTypeCategoryId ? ObjectId(accessControl.personTypeCategoryId) : undefined
+    this._responsibleId = accessControl.responsibleId ? ObjectId(accessControl.responsibleId) : undefined
     this._observation = accessControl.observation
     this._picture = accessControl.picture
 
-    this._accessPointId = accessControl.accessPointId
+    this._accessPointId = ObjectId(accessControl.accessPointId)
     this._type = accessControl.type
-    this._personId = accessControl.personId
-    this._personTypeId = accessControl.personTypeId
+    this._personId = ObjectId(accessControl.personId)
+    this._personTypeId = ObjectId(accessControl.personTypeId)
     this._areasIds = accessControl.areasIds.map(areaId => ObjectId(areaId))
     this._observation = accessControl.observation
     this._accessRelease = accessControl.accessRelease
