@@ -115,17 +115,20 @@ class UserController extends Controller {
           email,
           password,
           name,
-          accessGroupId
+          accessGroupId,
+          login
         } = request.body
 
         this.rules.validate(
+          { email, isRequiredField: false },
           { name },
-          { email },
+          { login },
           { password },
           { accessGroupId }
         )
 
         const userModel = new UserModel({
+          login,
           email,
           tenantId,
           password,

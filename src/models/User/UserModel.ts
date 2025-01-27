@@ -17,7 +17,7 @@ export interface ITokenPayload {
 
 export interface ISignInProps {
   tenantId: Types.ObjectId
-  email: string
+  login: string
   password: string
 }
 
@@ -26,18 +26,19 @@ export interface IAuthenticatedProps {
   token: string
 }
 
-export interface IFindUserByEmailProps {
+export interface IFindUserByLoginProps {
   tenantId: Types.ObjectId
-  email: string
+  login: string
 }
 
 export interface IUser extends IModel {
   admin?: boolean
   accessGroup?: IAccessGroup
   accessGroupId?: Types.ObjectId
+  email?: string
 
   name: string
-  email: string
+  login: string
   password: string
 }
 
@@ -45,9 +46,10 @@ export class UserModel extends Model<IUser> {
   private _admin?: IUser['admin']
   private _accessGroup?: IUser['accessGroup']
   private _accessGroupId?: IUser['accessGroupId']
+  private _email?: IUser['email']
 
   private _name: IUser['name']
-  private _email: IUser['email']
+  private _login: IUser['login']
   private _password: IUser['password']
 
   constructor (user: IUser) {
@@ -55,8 +57,9 @@ export class UserModel extends Model<IUser> {
 
     this._admin = user.admin
     this._accessGroup = user.accessGroup
-    this._name = user.name
     this._email = user.email
+    this._name = user.name
+    this._login = user.login
     this._password = user.password
     this._accessGroupId = user.accessGroupId
   }
@@ -70,8 +73,9 @@ export class UserModel extends Model<IUser> {
       createdAt: this.createdAt,
       deletionDate: this.deletionDate,
       admin: this._admin,
-      name: this._name,
       email: this._email,
+      name: this._name,
+      login: this._login,
       password: this._password,
       accessGroupId: this._accessGroupId
     }

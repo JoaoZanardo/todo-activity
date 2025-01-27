@@ -10,6 +10,11 @@ export class UserRules extends Rules {
       message: 'Email inválido. Informe um email válido!'
     })
 
+    this.validator.addRule('login', {
+      validator: (value: string) => is.string(value),
+      message: 'Login inválido. Informe um login válido!'
+    })
+
     this.validator.addRule('password', {
       validator: (value: string) => is.string(value),
       message: 'Senha inválida. Informe uma senha válida!'

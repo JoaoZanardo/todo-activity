@@ -11,11 +11,12 @@ export interface IUserMongoDB extends AggregatePaginateModel<IUser> { }
 class UserSchema extends Schema<IUserDocument> {
   constructor () {
     const user = new mongoose.Schema({
+      ...coreSchema,
       accessGroupId: {
         type: Types.ObjectId,
         ref: 'AccessGroup'
       },
-      ...coreSchema,
+      email: String,
       admin: {
         type: Boolean,
         default: false
@@ -28,7 +29,7 @@ class UserSchema extends Schema<IUserDocument> {
         type: String,
         required: true
       },
-      email: {
+      login: {
         type: String,
         required: true
       }

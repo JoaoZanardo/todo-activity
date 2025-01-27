@@ -3,7 +3,7 @@ import { Aggregate, ClientSession, PipelineStage } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { IFindUserByEmailProps, IListUsersFilters, IUser, UserModel } from './UserModel'
+import { IFindUserByLoginProps, IListUsersFilters, IUser, UserModel } from './UserModel'
 import { IUserMongoDB } from './UserSchema'
 
 export class UserRepository extends Repository<IUserMongoDB, UserModel> {
@@ -41,12 +41,12 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     return new UserModel(result[0])
   }
 
-  async findByEmail ({
-    email,
+  async findByLogin ({
+    login,
     tenantId
-  }: IFindUserByEmailProps): Promise<UserModel | null> {
+  }: IFindUserByLoginProps): Promise<UserModel | null> {
     const document = await this.mongoDB.findOne({
-      email,
+      login,
       tenantId,
       deletionDate: null
     })

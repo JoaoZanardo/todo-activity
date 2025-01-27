@@ -16,17 +16,17 @@ class UserAuthenticationController extends Controller {
         const { tenantId } = request
 
         const {
-          email,
+          login,
           password
         } = request.body
 
         this.rules.validate(
-          { email },
+          { login },
           { password }
         )
 
         const { user, token } = await UserAuthenticationServiceImp.signin({
-          email,
+          login,
           password,
           tenantId
         })

@@ -10,11 +10,11 @@ import { UserServiceImp } from '../UserController'
 export class UserAuthenticationService {
   async signin ({
     tenantId,
-    email,
+    login,
     password
   }: ISignInProps): Promise<IAuthenticatedProps> {
-    const user = await UserServiceImp.findByEmail({
-      email,
+    const user = await UserServiceImp.findByLogin({
+      login,
       tenantId
     })
 

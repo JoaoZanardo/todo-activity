@@ -1,7 +1,7 @@
 import { ClientSession } from 'mongoose'
 
 import { IDeleteModelProps, IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
-import { IFindUserByEmailProps, IListUsersFilters, IUpdateUserProps, UserModel } from '../../models/User/UserModel'
+import { IFindUserByLoginProps, IListUsersFilters, IUpdateUserProps, UserModel } from '../../models/User/UserModel'
 import { UserRepositoryImp } from '../../models/User/UserMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
@@ -19,15 +19,7 @@ export class UserService {
   }
 
   async create (user: UserModel, session?: ClientSession): Promise<UserModel> {
-    const {
-      email,
-      tenantId
-    } = user.object
-
-    await this.validateDuplicatedEmail({
-      email,
-      tenantId
-    })
+    await this.validateDuplicatedLogin(user.object)
 
     // const count = await CountServiceImp.findByTenantId(tenantId)
 
@@ -136,37 +128,33 @@ export class UserService {
     return user
   }
 
-  async findByEmail ({
-    email,
+  async findByLogin ({
+    login,
     tenantId
-  }: IFindUserByEmailProps): Promise<UserModel> {
-    const user = await this.userRepositoryImp.findByEmail({
-      email,
+  }: IFindUserByLoginProps): Promise<UserModel> {
+    const user = await this.userRepositoryImp.findByLogin({
+      login,
       tenantId
     })
     if (!user) {
       throw CustomResponse.NOT_FOUND('Usuário não cadastrado!', {
-        email
+        login
       })
     }
-
-    // await this.setForeignProperties(user)
 
     return user
   }
 
-  private async validateDuplicatedEmail ({
-    email,
+  private async validateDuplicatedLogin ({
+    login,
     tenantId
-  }: IFindUserByEmailProps): Promise<void> {
-    if (!email) return
-
-    const exists = await this.userRepositoryImp.findByEmail({
-      email,
+  }: IFindUserByLoginProps): Promise<void> {
+    const exists = await this.userRepositoryImp.findByLogin({
+      login,
       tenantId
     })
 
-    if (exists) throw CustomResponse.CONFLICT('Email já cadastrado!')
+    if (exists) throw CustomResponse.CONFLICT('Login já cadastrado!')
   }
 
   // private async setForeignProperties (user: UserModel, includeDeleted?: boolean): Promise<void> {
