@@ -49,9 +49,10 @@ export class TenantService {
   }
 
   private async sendEmailWithTenantInfo (tenant: TenantModel, session: ClientSession): Promise<void> {
-    const password = 'Access@2024'
+    const password = 'admin'
 
     const userModel = new UserModel({
+      login: 'admin',
       email: tenant.email,
       name: tenant.name,
       tenantId: tenant._id!,
