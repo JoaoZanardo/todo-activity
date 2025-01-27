@@ -1,0 +1,150 @@
+import { Types } from 'mongoose'
+import { ExpiringTime } from 'src/models/PersonType/PersonTypeModel'
+
+import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
+import Model from '../../core/Model'
+import { DateUtils } from '../../utils/Date'
+import ObjectId from '../../utils/ObjectId'
+
+export interface IListAccessReleasesFilters extends IListModelsFilters {
+  personId?: Types.ObjectId
+  personTypeId?: Types.ObjectId
+  personTypeCategoryId?: Types.ObjectId
+  type?: AccessReleaseType
+  accessRelease?: AccessRelease
+  responsibleId?: Types.ObjectId
+}
+
+export interface IUpdateAccessReleaseProps extends IUpdateModelProps<IAccessRelease> { }
+
+export interface IDeleteAccessReleaseProps extends IDeleteModelProps { }
+
+export interface ICreateAccessReleaseByEquipmentIdProps {
+  equipmentId: Types.ObjectId
+  personId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
+export interface IAccessRelease extends IModel {
+  personTypeCategoryId?: Types.ObjectId
+  responsibleId?: Types.ObjectId
+  observation?: string
+  picture?: string
+  expiringTime?: ExpiringTime
+
+  personId: Types.ObjectId
+  personTypeId: Types.ObjectId
+  areasIds: Array<Types.ObjectId>
+  accessPointId: Types.ObjectId
+}
+
+export class AccessReleaseModel extends Model<IAccessRelease> {
+  private _personTypeCategoryId?: IAccessRelease['personTypeCategoryId']
+  private _responsibleId?: IAccessRelease['responsibleId']
+  private _observation?: IAccessRelease['observation']
+  private _picture?: IAccessRelease['picture']
+
+  private _type: IAccessRelease['type']
+  private _personId: IAccessRelease['personId']
+  private _personTypeId: IAccessRelease['personTypeId']
+  private _accessRelease: IAccessRelease['accessRelease']
+  private _areasIds: IAccessRelease['areasIds']
+  private _accessPointId: IAccessRelease['accessPointId']
+
+  constructor (accessRelease: IAccessRelease) {
+    super(accessRelease)
+
+    this._personTypeCategoryId = accessRelease.personTypeCategoryId ? ObjectId(accessRelease.personTypeCategoryId) : undefined
+    this._responsibleId = accessRelease.responsibleId ? ObjectId(accessRelease.responsibleId) : undefined
+    this._observation = accessRelease.observation
+    this._picture = accessRelease.picture
+
+    this._accessPointId = ObjectId(accessRelease.accessPointId)
+    this._type = accessRelease.type
+    this._personId = ObjectId(accessRelease.personId)
+    this._personTypeId = ObjectId(accessRelease.personTypeId)
+    this._areasIds = accessRelease.areasIds.map(areaId => ObjectId(areaId))
+    this._observation = accessRelease.observation
+    this._accessRelease = accessRelease.accessRelease
+    this.actions = accessRelease.actions || [{
+      action: ModelAction.create,
+      date: DateUtils.getCurrent()
+    }]
+  }
+
+  get personId (): IAccessRelease['personId'] {
+    return this._personId
+  }
+
+  get accessPointId (): IAccessRelease['accessPointId'] {
+    return this._accessPointId
+  }
+
+  get areasIds (): IAccessRelease['areasIds'] {
+    return this._areasIds
+  }
+
+  get object (): IAccessRelease {
+    return {
+      _id: this._id,
+      tenantId: this.tenantId,
+      actions: this.actions,
+      active: this.active,
+      createdAt: this.createdAt,
+      deletionDate: this.deletionDate,
+      personTypeCategoryId: this._personTypeCategoryId,
+      responsibleId: this._responsibleId,
+      observation: this._observation,
+      areasIds: this._areasIds,
+      accessPointId: this._accessPointId,
+      picture: this._picture,
+
+      type: this._type,
+      personId: this._personId,
+      personTypeId: this._personTypeId,
+      accessRelease: this._accessRelease
+    }
+  }
+
+  get show () {
+    return this.object
+  }
+
+  static listFilters (
+    {
+      search,
+      limit,
+      page,
+      tenantId,
+      personTypeId,
+      personId,
+      personTypeCategoryId,
+      type,
+      accessRelease,
+      responsibleId
+    }: Partial<IListAccessReleasesFilters>
+  ): IListAccessReleasesFilters {
+    const filters = {
+      deletionDate: undefined
+    } as IListAccessReleasesFilters
+
+    if (personId) Object.assign(filters, { personId: ObjectId(personId) })
+    if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
+    if (personTypeCategoryId) Object.assign(filters, { personTypeCategoryId: ObjectId(personTypeCategoryId) })
+    if (responsibleId) Object.assign(filters, { responsibleId: ObjectId(responsibleId) })
+    if (type) Object.assign(filters, { type })
+    if (accessRelease) Object.assign(filters, { accessRelease })
+    if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
+    if (search) {
+      Object.assign(filters, {
+        $or: [
+          { observation: { $regex: search, $options: 'i' } }
+        ]
+      })
+    }
+    if (limit) Object.assign(filters, { limit: Number(limit) })
+    if (page) Object.assign(filters, { page: Number(page) })
+
+    return filters
+  }
+}

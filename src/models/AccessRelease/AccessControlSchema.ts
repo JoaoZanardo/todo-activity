@@ -1,15 +1,15 @@
 import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
-import { AccessControlType, AccessRelease, IAccessControl } from './AccessControlModel'
+import { AccessReleaseType, IAccessRelease } from './AccessReleaseModel'
 
-export interface IAccessControlDocument extends Document, Omit<IAccessControl, '_id'> { }
+export interface IAccessReleaseDocument extends Document, Omit<IAccessRelease, '_id'> { }
 
-export interface IAccessControlMongoDB extends AggregatePaginateModel<IAccessControl> { }
+export interface IAccessReleaseMongoDB extends AggregatePaginateModel<IAccessRelease> { }
 
-class AccessControlSchema extends Schema<IAccessControlDocument> {
+class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
   constructor () {
-    const accessControl = new mongoose.Schema({
+    const accessRelease = new mongoose.Schema({
       ...coreSchema,
       personTypeCategoryId: Types.ObjectId,
       responsibleId: Types.ObjectId,
@@ -18,7 +18,7 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
 
       type: {
         type: String,
-        enum: AccessControlType,
+        enum: AccessReleaseType,
         required: true
       },
       personId: {
@@ -44,8 +44,8 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
       }
     })
 
-    super(accessControl)
+    super(accessRelease)
   }
 }
 
-export default new AccessControlSchema()
+export default new AccessReleaseSchema()
