@@ -1,7 +1,8 @@
 import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
-import { AccessReleaseType, IAccessRelease } from './AccessReleaseModel'
+import { TimeUnit } from '../PersonType/PersonTypeModel'
+import { AccessRelease, IAccessRelease } from './AccessReleaseModel'
 
 export interface IAccessReleaseDocument extends Document, Omit<IAccessRelease, '_id'> { }
 
@@ -11,14 +12,24 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
   constructor () {
     const accessRelease = new mongoose.Schema({
       ...coreSchema,
-      personTypeCategoryId: Types.ObjectId,
       responsibleId: Types.ObjectId,
       observation: String,
       picture: String,
+      expiringTime: {
+        value: String,
+        unit: {
+          type: String,
+          enum: TimeUnit
+        }
+      },
+      singleAccess: {
+        type: Boolean,
+        default: true
+      },
 
       type: {
         type: String,
-        enum: AccessReleaseType,
+        enum: AccessRelease,
         required: true
       },
       personId: {
@@ -35,11 +46,6 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
       },
       areasIds: {
         type: Array<Types.ObjectId>,
-        required: true
-      },
-      accessRelease: {
-        type: String,
-        enum: AccessRelease,
         required: true
       }
     })

@@ -9,28 +9,25 @@ import ObjectId from '../../utils/ObjectId'
 export interface IListAccessReleasesFilters extends IListModelsFilters {
   personId?: Types.ObjectId
   personTypeId?: Types.ObjectId
-  personTypeCategoryId?: Types.ObjectId
-  type?: AccessReleaseType
-  accessRelease?: AccessRelease
-  responsibleId?: Types.ObjectId
 }
 
 export interface IUpdateAccessReleaseProps extends IUpdateModelProps<IAccessRelease> { }
 
 export interface IDeleteAccessReleaseProps extends IDeleteModelProps { }
 
-export interface ICreateAccessReleaseByEquipmentIdProps {
-  equipmentId: Types.ObjectId
-  personId: Types.ObjectId
-  tenantId: Types.ObjectId
+export enum AccessRelease {
+  manually = 'manually',
+  facial = 'facial',
+  qrCode = 'qrCode'
 }
 
 export interface IAccessRelease extends IModel {
-  personTypeCategoryId?: Types.ObjectId
   responsibleId?: Types.ObjectId
   observation?: string
   picture?: string
+  type?: AccessRelease
   expiringTime?: ExpiringTime
+  singleAccess?: boolean
 
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
@@ -39,25 +36,26 @@ export interface IAccessRelease extends IModel {
 }
 
 export class AccessReleaseModel extends Model<IAccessRelease> {
-  private _personTypeCategoryId?: IAccessRelease['personTypeCategoryId']
   private _responsibleId?: IAccessRelease['responsibleId']
   private _observation?: IAccessRelease['observation']
   private _picture?: IAccessRelease['picture']
+  private _type?: IAccessRelease['type']
+  private _expiringTime?: IAccessRelease['expiringTime']
+  private _singleAccess?: IAccessRelease['singleAccess']
 
-  private _type: IAccessRelease['type']
   private _personId: IAccessRelease['personId']
   private _personTypeId: IAccessRelease['personTypeId']
-  private _accessRelease: IAccessRelease['accessRelease']
   private _areasIds: IAccessRelease['areasIds']
   private _accessPointId: IAccessRelease['accessPointId']
 
   constructor (accessRelease: IAccessRelease) {
     super(accessRelease)
 
-    this._personTypeCategoryId = accessRelease.personTypeCategoryId ? ObjectId(accessRelease.personTypeCategoryId) : undefined
     this._responsibleId = accessRelease.responsibleId ? ObjectId(accessRelease.responsibleId) : undefined
     this._observation = accessRelease.observation
     this._picture = accessRelease.picture
+    this._expiringTime = accessRelease.expiringTime
+    this._singleAccess = accessRelease.singleAccess
 
     this._accessPointId = ObjectId(accessRelease.accessPointId)
     this._type = accessRelease.type
@@ -65,7 +63,6 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._personTypeId = ObjectId(accessRelease.personTypeId)
     this._areasIds = accessRelease.areasIds.map(areaId => ObjectId(areaId))
     this._observation = accessRelease.observation
-    this._accessRelease = accessRelease.accessRelease
     this.actions = accessRelease.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
@@ -92,17 +89,17 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       active: this.active,
       createdAt: this.createdAt,
       deletionDate: this.deletionDate,
-      personTypeCategoryId: this._personTypeCategoryId,
       responsibleId: this._responsibleId,
       observation: this._observation,
       areasIds: this._areasIds,
       accessPointId: this._accessPointId,
       picture: this._picture,
+      expiringTime: this._expiringTime,
+      singleAccess: this._singleAccess,
 
       type: this._type,
       personId: this._personId,
-      personTypeId: this._personTypeId,
-      accessRelease: this._accessRelease
+      personTypeId: this._personTypeId
     }
   }
 
@@ -117,11 +114,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       page,
       tenantId,
       personTypeId,
-      personId,
-      personTypeCategoryId,
-      type,
-      accessRelease,
-      responsibleId
+      personId
     }: Partial<IListAccessReleasesFilters>
   ): IListAccessReleasesFilters {
     const filters = {
@@ -130,10 +123,6 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
 
     if (personId) Object.assign(filters, { personId: ObjectId(personId) })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
-    if (personTypeCategoryId) Object.assign(filters, { personTypeCategoryId: ObjectId(personTypeCategoryId) })
-    if (responsibleId) Object.assign(filters, { responsibleId: ObjectId(responsibleId) })
-    if (type) Object.assign(filters, { type })
-    if (accessRelease) Object.assign(filters, { accessRelease })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (search) {
       Object.assign(filters, {
