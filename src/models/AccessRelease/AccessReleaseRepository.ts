@@ -3,15 +3,15 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AccessControlModel, IAccessControl, IListAccessControlsFilters } from './AccessControlModel'
-import { IAccessControlMongoDB } from './AccessControlSchema'
+import { AccessReleaseModel, IAccessRelease, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from './AccessReleaseModel'
+import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
-export class AccessControlRepository extends Repository<IAccessControlMongoDB, AccessControlModel> {
+export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, AccessReleaseModel> {
   async findById ({
     id,
     tenantId
-  }: IFindModelByIdProps): Promise<AccessControlModel | null> {
-    const match: FilterQuery<IAccessControl> = {
+  }: IFindModelByIdProps): Promise<AccessReleaseModel | null> {
+    const match: FilterQuery<IAccessRelease> = {
       _id: id,
       tenantId,
       deletionDate: null
@@ -20,20 +20,59 @@ export class AccessControlRepository extends Repository<IAccessControlMongoDB, A
     const document = await this.mongoDB.findOne(match).lean()
     if (!document) return null
 
-    return new AccessControlModel(document)
+    return new AccessReleaseModel(document)
   }
 
-  async create (accessControl: AccessControlModel): Promise<AccessControlModel> {
-    const document = await this.mongoDB.create(accessControl.object)
+  async findLastByPersonId ({
+    personId,
+    tenantId
+  }: IFindLastAccessReleaseByPersonId): Promise<AccessReleaseModel | null> {
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $match: {
+          personId,
+          tenantId,
+          deletionDate: null,
+          active: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'responsibleId',
+          foreignField: '_id',
+          as: 'responsible'
+        }
+      },
+      {
+        $unwind: {
+          path: '$responsible',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $sort: { _id: -1 } }
+    ])
 
-    return new AccessControlModel(document)
+    const documents = await this.mongoDB.aggregatePaginate(aggregationStages)
+
+    const accessRelease = documents.docs[0]
+
+    if (!accessRelease) return null
+
+    return new AccessReleaseModel(accessRelease)
+  }
+
+  async create (accessRelease: AccessReleaseModel): Promise<AccessReleaseModel> {
+    const document = await this.mongoDB.create(accessRelease.object)
+
+    return new AccessReleaseModel(document)
   }
 
   async update ({
     id,
     data,
     tenantId
-  }: IUpdateProps<IAccessControl>): Promise<boolean> {
+  }: IUpdateProps<IAccessRelease>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
@@ -44,7 +83,7 @@ export class AccessControlRepository extends Repository<IAccessControlMongoDB, A
     return !!updated.modifiedCount
   }
 
-  async list ({ limit, page, ...filters }: IListAccessControlsFilters): Promise<IAggregatePaginate<IAccessControl>> {
+  async list ({ limit, page, ...filters }: IListAccessReleasesFilters): Promise<IAggregatePaginate<IAccessRelease>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
       {

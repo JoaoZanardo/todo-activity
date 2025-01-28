@@ -50,6 +50,11 @@ export default class Rules {
       validator: (value: string) => is.objectId(value),
       message: 'Identificador de ponto de acesso inválido. Informe um identificador válido!'
     })
+
+    this.validator.addRule('accessReleaseId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de liberação de acesso inválido. Informe um identificador válido!'
+    })
   }
 
   public invalid (...args: Array<{ [key: string]: any, isRequiredField?: boolean } | null | undefined>): any {

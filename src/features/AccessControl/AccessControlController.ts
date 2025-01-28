@@ -50,37 +50,25 @@ class AccessControlController extends Controller {
           const { tenantId, userId } = request
 
           const {
-            accessRelease,
             personId,
             personTypeId,
             type,
-            observation,
-            personTypeCategoryId,
-            responsibleId,
             accessPointId,
-            areasIds,
-            picture
+            picture,
+            accessReleaseId
           } = request.body
 
           this.rules.validate(
-            { personTypeCategoryId, isRequiredField: false },
-            { responsibleId, isRequiredField: false },
-            { observation, isRequiredField: false },
             { accessPointId, isRequiredField: false },
-            { areasIds, isRequiredField: false },
             { picture, isRequiredField: false },
-            { accessRelease },
             { personId },
             { personTypeId },
-            { type }
+            { type },
+            { accessReleaseId }
           )
 
           const accessControlModel = new AccessControlModel({
             accessPointId,
-            areasIds,
-            personTypeCategoryId,
-            responsibleId,
-            observation,
             tenantId,
             picture,
             actions: [{
@@ -88,10 +76,10 @@ class AccessControlController extends Controller {
               date: DateUtils.getCurrent(),
               userId
             }],
-            accessRelease,
             personId,
             personTypeId,
-            type
+            type,
+            accessReleaseId
           })
 
           const accessControl = await AccessControlServiceImp.create(accessControlModel)

@@ -5,6 +5,7 @@ import AccessAreaController from '../features/AccessArea/AccessAreaController'
 import AccessControlController from '../features/AccessControl/AccessControlController'
 import AccessGroupController from '../features/AccessGroup/AccessGroupController'
 import AccessPointController from '../features/AccessPoint/AccessPointController'
+import AccessReleaseController from '../features/AccessRelease/AccessReleaseController'
 import AreaController from '../features/Area/AreaController'
 import EquipmentController from '../features/Equipment/EquipmentController'
 import PersonController from '../features/Person/PersonController'
@@ -52,6 +53,7 @@ class AuthRouter {
     this.authRouter.use('/people', moduleAuthMiddleware('B-01'), PersonController)
     this.authRouter.use('/work-schedules', moduleAuthMiddleware('B-04'), WorkScheduleController)
     this.authRouter.use('/access-controls', moduleAuthMiddleware('A-02'), AccessControlController)
+    this.authRouter.use('/access-releases', moduleAuthMiddleware('A-02'), AccessReleaseController)
     this.authRouter.use('/equipments', moduleAuthMiddleware('C-01'), EquipmentController)
     this.authRouter.use('/access-areas', moduleAuthMiddleware('C-02'), AccessAreaController)
     this.authRouter.use('/access-points', moduleAuthMiddleware('C-02'), AccessPointController)

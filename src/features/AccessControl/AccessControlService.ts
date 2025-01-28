@@ -1,11 +1,12 @@
 import { Types } from 'mongoose'
+import { AccessReleaseRepositoryImp } from 'src/models/AccessRelease/AccessReleaseMongoDB'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessControlModel, AccessControlType, AccessRelease, IAccessControl, ICreateAccessControlByEquipmentIdProps, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
+import { AccessControlModel, AccessControlType, IAccessControl, ICreateAccessControlByEquipmentIdProps, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
-import { IAccessPoint } from '../../models/AccessPoint/AccessPointModel'
 import { PersonModel } from '../../models/Person/PersonModel'
+import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
@@ -50,107 +51,57 @@ export class AccessControlService {
       tenantId
     })
 
-    if (accessPoint.object.generalExit) {
-      const accessPoints = await AccessPointServiceImp.findAllByPersonTypeId({
-        personTypeId: person.personTypeId,
-        tenantId
-      })
+    const accessRelease = await AccessReleaseRepositoryImp.findLastByPersonId({
+      personId,
+      tenantId
+    })
 
-      if (accessPoints.length) {
-        await Promise.all(
-          accessPoints.map(async accessPoint => {
-            if (accessPoint.equipmentsIds?.length) {
-              await Promise.all(
-                accessPoint.equipmentsIds.map(async equipmentId => {
-                  await EquipmentServiceImp.findById({
-                    id: equipmentId,
-                    tenantId
-                  })
+    if (!accessRelease) throw CustomResponse.BAD_REQUEST('Pessoa não possui liberação de acesso!')
 
-                  // await EquipmentServer.removeAccess({
-                  //   equipmentIp: equipment.ip,
-                  //   personId
-                  // })
-                })
-              )
-            }
-          })
-        )
-      }
-    }
+    if (accessPoint.object.generalExit) await this.removeAllAccessFromPerson(person, tenantId)
 
     const accessControlModel = new AccessControlModel({
       accessPointId: accessPoint._id!,
-      accessRelease: AccessRelease.facial,
-      areasIds: [],
       personId,
       personTypeId: person.personTypeId,
       tenantId,
-      type: AccessControlType.entry // mocked one
+      type: AccessControlType.entry, // mocked one
+      accessReleaseId: accessRelease._id!
     })
 
     return await this.accessControlRepositoryImp.create(accessControlModel)
   }
 
   async create (accessControl: AccessControlModel): Promise<AccessControlModel> {
-    const { tenantId, accessPointId, personId, areasIds } = accessControl
-
-    const person = await PersonServiceImp.findById({ id: personId, tenantId })
-
-    const accessPoint = await AccessPointServiceImp.findById({ id: accessPointId, tenantId })
-
-    await this.processAreaAccessPoints([accessPoint.object], person, tenantId)
-
-    await Promise.all(
-      areasIds.map(async areaId => {
-        const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
-
-        if (accessPoints.length) {
-          await this.processAreaAccessPoints(accessPoints, person, tenantId)
-        }
-      })
-    )
-
     return await this.accessControlRepositoryImp.create(accessControl)
   }
 
-  private async processAreaAccessPoints (
-    accessPoints: Array<Partial<IAccessPoint>>,
-    person: PersonModel,
-    tenantId: Types.ObjectId
-  ) {
-    const personTypeId = person.personTypeId
+  async removeAllAccessFromPerson (person: PersonModel, tenantId: Types.ObjectId) {
+    const accessPoints = await AccessPointServiceImp.findAllByPersonTypeId({
+      personTypeId: person.personTypeId,
+      tenantId
+    })
 
-    await Promise.all(
-      accessPoints.map(async (accessPoint) => {
-        const { generalExit, personTypesIds, equipmentsIds } = accessPoint
+    if (accessPoints.length) {
+      await Promise.all(
+        accessPoints.map(async accessPoint => {
+          if (accessPoint.equipmentsIds?.length) {
+            await Promise.all(
+              accessPoint.equipmentsIds.map(async equipmentId => {
+                const equipment = await EquipmentServiceImp.findById({
+                  id: equipmentId,
+                  tenantId
+                })
 
-        const isPersonTypeIncluded = personTypesIds?.some(id => id.equals(personTypeId))
-
-        if (!generalExit && isPersonTypeIncluded && equipmentsIds?.length) {
-          await this.processEquipments(equipmentsIds, person, tenantId)
-        }
-      })
-    )
-  }
-
-  private async processEquipments (equipmentsIds: Array<Types.ObjectId>, person: PersonModel, tenantId: Types.ObjectId) {
-    await Promise.all(
-      equipmentsIds.map(async (equipmentId) => {
-        const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
-        console.log({ equipment: equipment.show })
-
-        // await EquipmentServer.addAccess({
-        //   equipmentIp: equipment.ip,
-        //   personCode: person._id!,
-        //   personId: person._id!,
-        //   personName: person.name,
-        //   personPictureUrl: person.object.picture!,
-        //   initDate: DateUtils.getCurrent(),
-        //   endDate: DateUtils.getDefaultEndDate(),
-        //   schedules: []
-        // })
-      })
-    )
+                await EquipmentServer.removeAccess({
+                  equipmentIp: equipment.ip,
+                  personId: person._id!
+                })
+              })
+            )
+          }
+        })
+      )
+    }
   }
 }
