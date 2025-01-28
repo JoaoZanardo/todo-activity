@@ -1,10 +1,10 @@
 import { Types } from 'mongoose'
-import { AccessReleaseRepositoryImp } from 'src/models/AccessRelease/AccessReleaseMongoDB'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AccessControlModel, AccessControlType, IAccessControl, ICreateAccessControlByEquipmentIdProps, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
+import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import { PersonModel } from '../../models/Person/PersonModel'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'

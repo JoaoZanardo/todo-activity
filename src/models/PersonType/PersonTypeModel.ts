@@ -20,6 +20,7 @@ export interface ExpiringTime {
   value: number,
   unit: TimeUnit
 }
+
 export interface IPersonType extends IModel {
   description?: string
   appAccess?: boolean

@@ -26,6 +26,7 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         type: Boolean,
         default: true
       },
+      endDate: Date,
 
       type: {
         type: String,

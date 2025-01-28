@@ -1,5 +1,4 @@
 import { Types } from 'mongoose'
-import { AccessControlServiceImp } from 'src/features/AccessControl/AccessControlController'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
@@ -9,6 +8,7 @@ import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessRel
 import { PersonModel } from '../../models/Person/PersonModel'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { AccessControlServiceImp } from '../AccessControl/AccessControlController'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
@@ -47,6 +47,10 @@ export class AccessReleaseService {
     })
 
     return accessRelease
+  }
+
+  async findAllExpiringToday (): Promise<Array<Partial<IAccessRelease>>> {
+    return await this.accessReleaseRepositoryImp.findAllExpiringToday()
   }
 
   async create (AccessRelease: AccessReleaseModel): Promise<AccessReleaseModel> {

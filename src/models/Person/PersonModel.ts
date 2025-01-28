@@ -1,13 +1,13 @@
 import { Types } from 'mongoose'
-import { IAccessArea } from 'src/models/AccessArea/AccessAreaModel'
-import { IAccessControl } from 'src/models/AccessControl/AccessControlModel'
-import { IAccessPoint } from 'src/models/AccessPoint/AccessPointModel'
-import { IPersonType } from 'src/models/PersonType/PersonTypeModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
+import { IAccessArea } from '../AccessArea/AccessAreaModel'
+import { IAccessControl } from '../AccessControl/AccessControlModel'
+import { IAccessPoint } from '../AccessPoint/AccessPointModel'
+import { IPersonType } from '../PersonType/PersonTypeModel'
 
 export interface IListPersonsFilters extends IListModelsFilters {
   personTypeId?: Types.ObjectId

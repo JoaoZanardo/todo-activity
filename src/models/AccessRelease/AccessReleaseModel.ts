@@ -1,10 +1,11 @@
 import { Types } from 'mongoose'
-import { ExpiringTime } from 'src/models/PersonType/PersonTypeModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
+import { addExpiringTime } from '../../utils/addExpiringTime'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
+import { ExpiringTime } from '../PersonType/PersonTypeModel'
 
 export interface IListAccessReleasesFilters extends IListModelsFilters {
   personId?: Types.ObjectId
@@ -40,6 +41,7 @@ export interface IAccessRelease extends IModel {
   type?: AccessReleaseType
   expiringTime?: ExpiringTime
   singleAccess?: boolean
+  endDate?: Date
 
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
@@ -54,6 +56,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _type?: IAccessRelease['type']
   private _expiringTime?: IAccessRelease['expiringTime']
   private _singleAccess?: IAccessRelease['singleAccess']
+  private _endDate?: IAccessRelease['endDate']
 
   private _personId: IAccessRelease['personId']
   private _personTypeId: IAccessRelease['personTypeId']
@@ -68,6 +71,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._picture = accessRelease.picture
     this._expiringTime = accessRelease.expiringTime
     this._singleAccess = accessRelease.singleAccess
+    this._endDate = this._expiringTime ? addExpiringTime(this._expiringTime) : accessRelease.endDate
 
     this._accessPointId = ObjectId(accessRelease.accessPointId)
     this._type = accessRelease.type
@@ -108,6 +112,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       picture: this._picture,
       expiringTime: this._expiringTime,
       singleAccess: this._singleAccess,
+      endDate: this._endDate,
 
       type: this._type,
       personId: this._personId,
