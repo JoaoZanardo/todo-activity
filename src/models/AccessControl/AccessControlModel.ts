@@ -8,10 +8,7 @@ import ObjectId from '../../utils/ObjectId'
 export interface IListAccessControlsFilters extends IListModelsFilters {
   personId?: Types.ObjectId
   personTypeId?: Types.ObjectId
-  personTypeCategoryId?: Types.ObjectId
   type?: AccessControlType
-  accessRelease?: AccessRelease
-  responsibleId?: Types.ObjectId
 }
 
 export interface IUpdateAccessControlProps extends IUpdateModelProps<IAccessControl> { }
@@ -29,54 +26,35 @@ export enum AccessControlType {
   'exit' = 'exit'
 }
 
-export enum AccessRelease {
-  manually = 'manually',
-  facial = 'facial',
-  qrCode = 'qrCode'
-}
-
 export interface IAccessControl extends IModel {
-  personTypeCategoryId?: Types.ObjectId
-  responsibleId?: Types.ObjectId
-  observation?: string
   picture?: string
 
   type: AccessControlType
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
-  accessRelease: AccessRelease
-  areasIds: Array<Types.ObjectId>
   accessPointId: Types.ObjectId
+  accessReleaseId: Types.ObjectId
 }
 
 export class AccessControlModel extends Model<IAccessControl> {
-  private _personTypeCategoryId?: IAccessControl['personTypeCategoryId']
-  private _responsibleId?: IAccessControl['responsibleId']
-  private _observation?: IAccessControl['observation']
   private _picture?: IAccessControl['picture']
 
   private _type: IAccessControl['type']
   private _personId: IAccessControl['personId']
   private _personTypeId: IAccessControl['personTypeId']
-  private _accessRelease: IAccessControl['accessRelease']
-  private _areasIds: IAccessControl['areasIds']
   private _accessPointId: IAccessControl['accessPointId']
+  private _accessReleaseId: IAccessControl['accessReleaseId']
 
   constructor (accessControl: IAccessControl) {
     super(accessControl)
 
-    this._personTypeCategoryId = accessControl.personTypeCategoryId ? ObjectId(accessControl.personTypeCategoryId) : undefined
-    this._responsibleId = accessControl.responsibleId ? ObjectId(accessControl.responsibleId) : undefined
-    this._observation = accessControl.observation
     this._picture = accessControl.picture
 
     this._accessPointId = ObjectId(accessControl.accessPointId)
+    this._accessReleaseId = ObjectId(accessControl.accessReleaseId)
     this._type = accessControl.type
     this._personId = ObjectId(accessControl.personId)
     this._personTypeId = ObjectId(accessControl.personTypeId)
-    this._areasIds = accessControl.areasIds.map(areaId => ObjectId(areaId))
-    this._observation = accessControl.observation
-    this._accessRelease = accessControl.accessRelease
     this.actions = accessControl.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
@@ -91,10 +69,6 @@ export class AccessControlModel extends Model<IAccessControl> {
     return this._accessPointId
   }
 
-  get areasIds (): IAccessControl['areasIds'] {
-    return this._areasIds
-  }
-
   get object (): IAccessControl {
     return {
       _id: this._id,
@@ -103,17 +77,13 @@ export class AccessControlModel extends Model<IAccessControl> {
       active: this.active,
       createdAt: this.createdAt,
       deletionDate: this.deletionDate,
-      personTypeCategoryId: this._personTypeCategoryId,
-      responsibleId: this._responsibleId,
-      observation: this._observation,
-      areasIds: this._areasIds,
       accessPointId: this._accessPointId,
       picture: this._picture,
 
       type: this._type,
       personId: this._personId,
       personTypeId: this._personTypeId,
-      accessRelease: this._accessRelease
+      accessReleaseId: this._accessReleaseId
     }
   }
 
@@ -129,10 +99,7 @@ export class AccessControlModel extends Model<IAccessControl> {
       tenantId,
       personTypeId,
       personId,
-      personTypeCategoryId,
-      type,
-      accessRelease,
-      responsibleId
+      type
     }: Partial<IListAccessControlsFilters>
   ): IListAccessControlsFilters {
     const filters = {
@@ -141,10 +108,7 @@ export class AccessControlModel extends Model<IAccessControl> {
 
     if (personId) Object.assign(filters, { personId: ObjectId(personId) })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
-    if (personTypeCategoryId) Object.assign(filters, { personTypeCategoryId: ObjectId(personTypeCategoryId) })
-    if (responsibleId) Object.assign(filters, { responsibleId: ObjectId(responsibleId) })
     if (type) Object.assign(filters, { type })
-    if (accessRelease) Object.assign(filters, { accessRelease })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (search) {
       Object.assign(filters, {

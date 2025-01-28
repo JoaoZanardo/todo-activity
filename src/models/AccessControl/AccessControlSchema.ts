@@ -1,7 +1,7 @@
 import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
-import { AccessControlType, AccessRelease, IAccessControl } from './AccessControlModel'
+import { AccessControlType, IAccessControl } from './AccessControlModel'
 
 export interface IAccessControlDocument extends Document, Omit<IAccessControl, '_id'> { }
 
@@ -11,9 +11,6 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
   constructor () {
     const accessControl = new mongoose.Schema({
       ...coreSchema,
-      personTypeCategoryId: Types.ObjectId,
-      responsibleId: Types.ObjectId,
-      observation: String,
       picture: String,
 
       type: {
@@ -33,13 +30,8 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
         type: Types.ObjectId,
         required: true
       },
-      areasIds: {
-        type: Array<Types.ObjectId>,
-        required: true
-      },
-      accessRelease: {
-        type: String,
-        enum: AccessRelease,
+      accessReleaseId: {
+        type: Types.ObjectId,
         required: true
       }
     })

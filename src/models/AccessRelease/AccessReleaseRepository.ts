@@ -3,7 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AccessReleaseModel, IAccessRelease, IListAccessReleasesFilters } from './AccessReleaseModel'
+import { AccessReleaseModel, IAccessRelease, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from './AccessReleaseModel'
 import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
 export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, AccessReleaseModel> {
@@ -21,6 +21,45 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
     if (!document) return null
 
     return new AccessReleaseModel(document)
+  }
+
+  async findLastByPersonId ({
+    personId,
+    tenantId
+  }: IFindLastAccessReleaseByPersonId): Promise<AccessReleaseModel | null> {
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $match: {
+          personId,
+          tenantId,
+          deletionDate: null,
+          active: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'responsibleId',
+          foreignField: '_id',
+          as: 'responsible'
+        }
+      },
+      {
+        $unwind: {
+          path: '$responsible',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $sort: { _id: -1 } }
+    ])
+
+    const documents = await this.mongoDB.aggregatePaginate(aggregationStages)
+
+    const accessRelease = documents.docs[0]
+
+    if (!accessRelease) return null
+
+    return new AccessReleaseModel(accessRelease)
   }
 
   async create (accessRelease: AccessReleaseModel): Promise<AccessReleaseModel> {

@@ -15,17 +15,29 @@ export interface IUpdateAccessReleaseProps extends IUpdateModelProps<IAccessRele
 
 export interface IDeleteAccessReleaseProps extends IDeleteModelProps { }
 
-export enum AccessRelease {
-  manually = 'manually',
-  facial = 'facial',
-  qrCode = 'qrCode'
+export interface IDisableAccessReleaseProps {
+  id: Types.ObjectId
+  tenantId: Types.ObjectId
+  responsibleId: Types.ObjectId
 }
+
+export interface IFindLastAccessReleaseByPersonId {
+  personId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
+export enum AccessReleaseType {
+  manually = 'manually',
+  invite = 'invite'
+}
+
+export const AccessReleaseTypeValues = Object.values(AccessReleaseType)
 
 export interface IAccessRelease extends IModel {
   responsibleId?: Types.ObjectId
   observation?: string
   picture?: string
-  type?: AccessRelease
+  type?: AccessReleaseType
   expiringTime?: ExpiringTime
   singleAccess?: boolean
 
