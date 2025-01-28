@@ -11,14 +11,9 @@ export class AccessPointRules extends Rules {
       message: 'Nome inválido. Informe um nome válido!'
     })
 
-    this.validator.addRule('description', {
-      validator: (value: string) => is.string(value),
-      message: 'Descrição inválida. Informe uma descrição válida!'
-    })
-
-    this.validator.addRule('appAccess', {
+    this.validator.addRule('manualAccess', {
       validator: (value: string) => is.boolean(value),
-      message: 'Acesso ao App inválido!'
+      message: 'Acesso manual inválido!'
     })
   }
 }

@@ -1,20 +1,26 @@
+import schedule from 'node-schedule'
+
 import { AccessReleaseServiceImp } from '../features/AccessRelease/AccessReleaseController'
-import { TenantRepositoryImp } from '../models/Tenant/TenantMongoDB'
 
 export const UpdateExpiringAccessReleases = async () => {
-  console.log('UpdateExpiringAccessReleases')
-
   try {
-    const tenants = await AccessReleaseServiceImp.findAllExpiringToday()
+    const accessReleases = await AccessReleaseServiceImp.findAllExpiringToday()
 
-    if (tenants.length) {
+    console.log(`UpdateExpiringAccessReleases - ${accessReleases.length}`)
+
+    if (accessReleases.length) {
       await Promise.all([
-        tenants.forEach(async tenant => {
-          await TenantRepositoryImp.updateById({
-            id: tenant._id!,
-            data: {
-              active: false
-            }
+        accessReleases.forEach(async accessRelease => {
+          const endDate = accessRelease.endDate!
+
+          const adjustedExecutionDate = new Date(endDate)
+          adjustedExecutionDate.setHours(endDate.getHours() + 3)
+
+          schedule.scheduleJob(adjustedExecutionDate, async () => {
+            await AccessReleaseServiceImp.disable({
+              id: accessRelease._id!,
+              tenantId: accessRelease.tenantId!
+            })
           })
         })
       ])

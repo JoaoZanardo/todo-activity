@@ -68,13 +68,15 @@ class AccessPointController extends Controller {
             generalExit,
             name,
             areaId,
-            accessAreaId
+            accessAreaId,
+            manualAccess
           } = request.body
 
           this.rules.validate(
             { generalExit, isRequiredField: false },
             { areaId, isRequiredField: false },
             { accessAreaId, isRequiredField: false },
+            { manualAccess, isRequiredField: false },
             { name },
             { accessType },
             { equipmentsIds },
@@ -94,7 +96,8 @@ class AccessPointController extends Controller {
               userId
             }],
             areaId,
-            accessAreaId
+            accessAreaId,
+            manualAccess
           })
 
           const accessPoint = await AccessPointServiceImp.create(accessPointModel)

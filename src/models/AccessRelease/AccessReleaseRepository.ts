@@ -36,7 +36,7 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         $gte: startOfDay,
         $lte: endOfDay
       }
-    }, ['_id'])
+    }, ['_id', 'tenantId', 'endDate'])
 
     return documents
   }

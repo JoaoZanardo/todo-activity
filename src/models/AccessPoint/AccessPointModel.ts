@@ -41,6 +41,7 @@ export interface IAccessPoint extends IModel {
   generalExit?: boolean
   areaId?: Types.ObjectId
   accessAreaId?: Types.ObjectId
+  manualAccess?: boolean
 
   name: string
   accessType: string
@@ -52,6 +53,7 @@ export class AccessPointModel extends Model<IAccessPoint> {
   private _generalExit?: IAccessPoint['generalExit']
   private _areaId?: IAccessPoint['areaId']
   private _accessAreaId?: IAccessPoint['accessAreaId']
+  private _manualAccess?: IAccessPoint['manualAccess']
 
   private _name: IAccessPoint['name']
   private _accessType: IAccessPoint['accessType']
@@ -64,6 +66,7 @@ export class AccessPointModel extends Model<IAccessPoint> {
     this._generalExit = accessPoint.generalExit
     this._areaId = accessPoint.areaId
     this._accessAreaId = accessPoint.accessAreaId
+    this._manualAccess = accessPoint.manualAccess
 
     this._name = accessPoint.name
     this._accessType = accessPoint.accessType
@@ -93,7 +96,8 @@ export class AccessPointModel extends Model<IAccessPoint> {
       generalExit: this._generalExit,
       accessType: this._accessType,
       accessAreaId: this._accessAreaId,
-      areaId: this._areaId
+      areaId: this._areaId,
+      manualAccess: this._manualAccess
     }
   }
 

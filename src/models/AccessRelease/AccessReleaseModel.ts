@@ -17,9 +17,10 @@ export interface IUpdateAccessReleaseProps extends IUpdateModelProps<IAccessRele
 export interface IDeleteAccessReleaseProps extends IDeleteModelProps { }
 
 export interface IDisableAccessReleaseProps {
+  responsibleId?: Types.ObjectId
+
   id: Types.ObjectId
   tenantId: Types.ObjectId
-  responsibleId: Types.ObjectId
 }
 
 export interface IFindLastAccessReleaseByPersonId {
