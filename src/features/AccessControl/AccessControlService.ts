@@ -58,7 +58,7 @@ export class AccessControlService {
 
     if (!accessRelease) throw CustomResponse.BAD_REQUEST('Pessoa não possui liberação de acesso!')
 
-    if (accessPoint.object.generalExit) await this.removeAllAccessFromPerson(person, tenantId)
+    if (accessPoint.object.generalExit && accessRelease.object.singleAccess) await this.removeAllAccessFromPerson(person, tenantId)
 
     const accessControlModel = new AccessControlModel({
       accessPointId: accessPoint._id!,
