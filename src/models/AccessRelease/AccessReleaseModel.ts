@@ -64,6 +64,7 @@ export interface IAccessRelease extends IModel {
   expiringTime?: ExpiringTime
   singleAccess?: boolean
   endDate?: Date
+  personTypeCategoryId?: Types.ObjectId
   person?: IPerson
   responsible?: IPerson
 
@@ -81,6 +82,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _expiringTime?: IAccessRelease['expiringTime']
   private _singleAccess?: IAccessRelease['singleAccess']
   private _endDate?: IAccessRelease['endDate']
+  private _personTypeCategoryId?: IAccessRelease['personTypeCategoryId']
   private _person?: IAccessRelease['person']
   private _responsible?: IAccessRelease['responsible']
 
@@ -98,6 +100,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._expiringTime = accessRelease.expiringTime
     this._singleAccess = accessRelease.singleAccess
     this._endDate = this._expiringTime ? addExpiringTime(this._expiringTime) : accessRelease.endDate
+    this._personTypeCategoryId = accessRelease.personTypeCategoryId ? ObjectId(accessRelease.personTypeCategoryId) : undefined
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
 
@@ -153,6 +156,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       expiringTime: this._expiringTime,
       singleAccess: this._singleAccess,
       endDate: this._endDate,
+      personTypeCategoryId: this._personTypeCategoryId,
 
       type: this._type,
       personId: this._personId,

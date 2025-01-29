@@ -27,6 +27,7 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         default: true
       },
       endDate: Date,
+      personTypeCategoryId: Types.ObjectId,
 
       type: {
         type: String,

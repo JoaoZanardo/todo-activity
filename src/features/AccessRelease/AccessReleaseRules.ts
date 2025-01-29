@@ -23,7 +23,7 @@ export class AccessReleaseRules extends Rules {
     })
 
     this.validator.addRule('expiringTime', {
-      validator: (value: string) => is.string(value),
+      validator: (value: string) => is.object(value),
       message: 'Tempo de expiração inválido! Informe um tempo válido!'
     })
 
