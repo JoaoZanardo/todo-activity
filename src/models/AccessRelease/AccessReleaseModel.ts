@@ -1,8 +1,9 @@
 import { Types } from 'mongoose'
+import { IAccessPoint } from 'src/models/AccessPoint/AccessPointModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
-import { IPerson } from '../../models/Person/PersonModel'
+import { IPerson, PersonModel } from '../../models/Person/PersonModel'
 import { addExpiringTime } from '../../utils/addExpiringTime'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
@@ -32,6 +33,20 @@ export interface IFindAllAccessReleaseByPersonTypeId {
 export interface IFindLastAccessReleaseByPersonId {
   personId: Types.ObjectId
   tenantId: Types.ObjectId
+}
+
+export interface IProcessAreaAccessPointsProps {
+  accessPoints: Array<Partial<IAccessPoint>>
+  person: PersonModel
+  tenantId: Types.ObjectId
+  endDate: Date
+}
+
+export interface IProcessEquipments {
+  equipmentsIds: Array<Types.ObjectId>
+  person: PersonModel
+  tenantId: Types.ObjectId
+  endDate: Date
 }
 
 export enum AccessReleaseType {
@@ -96,6 +111,18 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       action: ModelAction.create,
       date: DateUtils.getCurrent()
     }]
+  }
+
+  get expiringTime (): IAccessRelease['expiringTime'] {
+    return this._expiringTime
+  }
+
+  get endDate (): IAccessRelease['endDate'] {
+    return this._endDate
+  }
+
+  set endDate (endDate: IAccessRelease['endDate']) {
+    this._endDate = endDate
   }
 
   get personId (): IAccessRelease['personId'] {

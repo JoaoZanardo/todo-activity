@@ -1,11 +1,9 @@
-import { Types } from 'mongoose'
+import to from 'await-to-js'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { IAccessPoint } from '../../models/AccessPoint/AccessPointModel'
-import { AccessReleaseModel, IAccessRelease, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, IAccessRelease, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
-import { PersonModel } from '../../models/Person/PersonModel'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
@@ -71,19 +69,35 @@ export class AccessReleaseService {
 
     const accessPoint = await AccessPointServiceImp.findById({ id: accessPointId, tenantId })
 
-    await this.processAreaAccessPoints([accessPoint.object], person, tenantId)
+    if (!accessRelease.expiringTime) {
+      accessRelease.endDate = DateUtils.getDefaultEndDate()
+    }
+
+    const createdAccessRelease = await this.accessReleaseRepositoryImp.create(accessRelease)
+
+    await this.processAreaAccessPoints({
+      accessPoints: [accessPoint.object],
+      endDate: accessRelease.endDate!,
+      person,
+      tenantId
+    })
 
     await Promise.all(
       areasIds.map(async areaId => {
         const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
 
         if (accessPoints.length) {
-          await this.processAreaAccessPoints(accessPoints, person, tenantId)
+          await this.processAreaAccessPoints({
+            accessPoints,
+            endDate: accessRelease.endDate!,
+            person,
+            tenantId
+          })
         }
       })
     )
 
-    return await this.accessReleaseRepositoryImp.create(accessRelease)
+    return createdAccessRelease
   }
 
   async disable ({
@@ -128,11 +142,12 @@ export class AccessReleaseService {
     return await this.accessReleaseRepositoryImp.create(accessRelease)
   }
 
-  private async processAreaAccessPoints (
-    accessPoints: Array<Partial<IAccessPoint>>,
-    person: PersonModel,
-    tenantId: Types.ObjectId
-  ) {
+  private async processAreaAccessPoints ({
+    accessPoints,
+    endDate,
+    person,
+    tenantId
+  }: IProcessAreaAccessPointsProps) {
     const personTypeId = person.personTypeId
 
     await Promise.all(
@@ -142,28 +157,44 @@ export class AccessReleaseService {
         const isPersonTypeIncluded = personTypesIds?.some(id => id.equals(personTypeId))
 
         if (!generalExit && isPersonTypeIncluded && equipmentsIds?.length) {
-          await this.processEquipments(equipmentsIds, person, tenantId)
+          await this.processEquipments({
+            endDate,
+            equipmentsIds,
+            person,
+            tenantId
+          })
         }
       })
     )
   }
 
-  private async processEquipments (equipmentsIds: Array<Types.ObjectId>, person: PersonModel, tenantId: Types.ObjectId) {
+  private async processEquipments ({
+    endDate,
+    equipmentsIds,
+    person,
+    tenantId
+  }: IProcessEquipments) {
     await Promise.all(
       equipmentsIds.map(async (equipmentId) => {
         const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
         console.log({ equipment: equipment.show })
 
-        await EquipmentServer.addAccess({
-          equipmentIp: equipment.ip,
-          personCode: person._id!,
-          personId: person._id!,
-          personName: person.name,
-          personPictureUrl: person.object.picture!,
-          initDate: DateUtils.getCurrent(),
-          endDate: DateUtils.getDefaultEndDate(),
-          schedules: []
-        })
+        // try to create all access, if one throw errors, do not cancel all the session
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+        const [error, _] = await to(
+          EquipmentServer.addAccess({
+            equipmentIp: equipment.ip,
+            personCode: person._id!,
+            personId: person._id!,
+            personName: person.name,
+            personPictureUrl: person.object.picture!,
+            initDate: DateUtils.getCurrent(),
+            endDate,
+            schedules: []
+          })
+        )
+
+        if (error) console.log({ error: error.message })
       })
     )
   }

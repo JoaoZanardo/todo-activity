@@ -1,3 +1,4 @@
+import to from 'await-to-js'
 import { Types } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
@@ -36,7 +37,7 @@ export class AccessControlService {
     return accessControl
   }
 
-  async createByEquipmentId ({
+  async createByEquipmentIp ({
     equipmentIp,
     personId,
     tenantId
@@ -98,10 +99,16 @@ export class AccessControlService {
                   tenantId
                 })
 
-                await EquipmentServer.removeAccess({
-                  equipmentIp: equipment.ip,
-                  personId: person._id!
-                })
+                // try to delete  all access, if one throw errors, do not cancel all the session
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+                const [error, _] = await to(
+                  EquipmentServer.removeAccess({
+                    equipmentIp: equipment.ip,
+                    personId: person._id!
+                  })
+                )
+
+                if (error) console.log({ error: error.message })
               })
             )
           }

@@ -25,7 +25,7 @@ class UnauthRouter {
             personId
           } = request.body
 
-          const accessControl = await AccessControlServiceImp.createByEquipmentId({
+          const accessControl = await AccessControlServiceImp.createByEquipmentIp({
             equipmentIp,
             personId: ObjectId(personId),
             tenantId
