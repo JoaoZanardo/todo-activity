@@ -3,14 +3,14 @@ import { Aggregate, Types } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { IListSynchronizationsFilters, ISynchronization, SynchronizationModel } from './SynchronizationModel'
-import { ISynchronizationMongoDB } from './SynchronizationSchema'
+import { AccessSynchronizationModel, IAccessSynchronization, IListAccessSynchronizationsFilters, IUpdateAccessSynchronizationSyncErrorsProps, IUpdateAccessSynchronizationSyncExecutedNumberProps } from './AccessSynchronizationModel'
+import { IAccessSynchronizationMongoDB } from './AccessSynchronizationSchema'
 
-export class SynchronizationRepository extends Repository<ISynchronizationMongoDB, SynchronizationModel> {
+export class AccessSynchronizationRepository extends Repository<IAccessSynchronizationMongoDB, AccessSynchronizationModel> {
   async findById ({
     id,
     tenantId
-  }: IFindModelByIdProps): Promise<SynchronizationModel | null> {
+  }: IFindModelByIdProps): Promise<AccessSynchronizationModel | null> {
     const document = await this.mongoDB.findOne({
       _id: id,
       tenantId,
@@ -18,16 +18,16 @@ export class SynchronizationRepository extends Repository<ISynchronizationMongoD
     })
     if (!document) return null
 
-    return new SynchronizationModel(document)
+    return new AccessSynchronizationModel(document)
   }
 
-  async create (synchronization: SynchronizationModel): Promise<SynchronizationModel> {
-    const document = await this.mongoDB.create(synchronization.object)
+  async create (accessSynchronization: AccessSynchronizationModel): Promise<AccessSynchronizationModel> {
+    const document = await this.mongoDB.create(accessSynchronization.object)
 
-    return new SynchronizationModel(document)
+    return new AccessSynchronizationModel(document)
   }
 
-  async findAllForToday (): Promise<Array<SynchronizationModel>> {
+  async findAllForToday (): Promise<Array<AccessSynchronizationModel>> {
     const startOfDay = new Date()
     startOfDay.setHours(0, 0, 0, 0)
 
@@ -42,14 +42,14 @@ export class SynchronizationRepository extends Repository<ISynchronizationMongoD
       error: null
     })
 
-    return documents.map(doc => new SynchronizationModel(doc))
+    return documents.map(doc => new AccessSynchronizationModel(doc))
   }
 
   async update ({
     id,
     data,
     tenantId
-  }: IUpdateProps<ISynchronization>): Promise<boolean> {
+  }: IUpdateProps<IAccessSynchronization>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
@@ -60,9 +60,14 @@ export class SynchronizationRepository extends Repository<ISynchronizationMongoD
     return !!updated.modifiedCount
   }
 
-  async updateSynErrors (id: Types.ObjectId, syncError: any): Promise<boolean> {
+  async updateSynErrors ({
+    id,
+    syncError,
+    tenantId
+  }: IUpdateAccessSynchronizationSyncErrorsProps): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
-      _id: id
+      _id: id,
+      tenantId
     }, {
       $push: {
         syncErrors: syncError
@@ -72,9 +77,14 @@ export class SynchronizationRepository extends Repository<ISynchronizationMongoD
     return !!updated.modifiedCount
   }
 
-  async updateExecutedsNumber (id: Types.ObjectId, number: number): Promise<boolean> {
+  async updateExecutedsNumber ({
+    id,
+    number,
+    tenantId
+  }: IUpdateAccessSynchronizationSyncExecutedNumberProps): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
-      _id: id
+      _id: id,
+      tenantId
     }, {
       $inc: {
         executedsNumber: number
@@ -92,7 +102,7 @@ export class SynchronizationRepository extends Repository<ISynchronizationMongoD
     return !!deleted.deletedCount
   }
 
-  async list ({ limit, page, ...filters }: IListSynchronizationsFilters): Promise<IAggregatePaginate<ISynchronization>> {
+  async list ({ limit, page, ...filters }: IListAccessSynchronizationsFilters): Promise<IAggregatePaginate<IAccessSynchronization>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
       { $sort: { _id: -1 } }

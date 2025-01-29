@@ -3,7 +3,7 @@ import { Types } from 'mongoose'
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { IAccessPoint } from '../../models/AccessPoint/AccessPointModel'
-import { AccessReleaseModel, IAccessRelease, IDisableAccessReleaseProps, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, IAccessRelease, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import { PersonModel } from '../../models/Person/PersonModel'
 import CustomResponse from '../../utils/CustomResponse'
@@ -53,8 +53,18 @@ export class AccessReleaseService {
     return await this.accessReleaseRepositoryImp.findAllExpiringToday()
   }
 
-  async create (AccessRelease: AccessReleaseModel): Promise<AccessReleaseModel> {
-    const { tenantId, accessPointId, personId, areasIds } = AccessRelease
+  async findAllByPersonTypeId ({
+    personTypeId,
+    tenantId
+  }: IFindAllAccessReleaseByPersonTypeId): Promise<Array<Partial<IAccessRelease>>> {
+    return await this.accessReleaseRepositoryImp.findAllByPersonTypeId({
+      personTypeId,
+      tenantId
+    })
+  }
+
+  async create (accessRelease: AccessReleaseModel): Promise<AccessReleaseModel> {
+    const { tenantId, accessPointId, personId, areasIds } = accessRelease
 
     const person = await PersonServiceImp.findById({ id: personId, tenantId })
 
@@ -72,7 +82,7 @@ export class AccessReleaseService {
       })
     )
 
-    return await this.accessReleaseRepositoryImp.create(AccessRelease)
+    return await this.accessReleaseRepositoryImp.create(accessRelease)
   }
 
   async disable ({

@@ -1,0 +1,123 @@
+import to from 'await-to-js'
+import { fork } from 'child_process'
+import path from 'path'
+import { AccessReleaseServiceImp } from 'src/features/AccessRelease/AccessReleaseController'
+import { EquipmentServiceImp } from 'src/features/Equipment/EquipmentController'
+import { IAccessRelease } from 'src/models/AccessRelease/AccessReleaseModel'
+import EquipmentServer from 'src/services/EquipmentServer'
+import { DateUtils } from 'src/utils/Date'
+
+import { IFindModelByIdProps } from '../../core/interfaces/Model'
+import { IAggregatePaginate } from '../../core/interfaces/Repository'
+import { AccessSynchronizationModel, IAccessSynchronization, IListAccessSynchronizationsFilters, ISynchronizeProps } from '../../models/AccessSynchronization/AccessSynchronizationModel'
+import { AccessSynchronizationRepositoryImp } from '../../models/AccessSynchronization/AccessSynchronizationMongoDB'
+import CustomResponse from '../../utils/CustomResponse'
+
+export class AccessSynchronizationService {
+  constructor (
+    private accessSynchronizationRepositoryImp: typeof AccessSynchronizationRepositoryImp
+  ) {
+    this.accessSynchronizationRepositoryImp = accessSynchronizationRepositoryImp
+  }
+
+  async list (filters: IListAccessSynchronizationsFilters): Promise<IAggregatePaginate<IAccessSynchronization>> {
+    return await this.accessSynchronizationRepositoryImp.list(filters)
+  }
+
+  async findById ({
+    id,
+    tenantId
+  }: IFindModelByIdProps): Promise<AccessSynchronizationModel> {
+    const accessSynchronization = await this.accessSynchronizationRepositoryImp.findById({
+      id,
+      tenantId
+    })
+    if (!accessSynchronization) throw CustomResponse.NOT_FOUND('Sincronização de acesso não cadastrada!')
+
+    return accessSynchronization
+  }
+
+  async create (accessSynchronization: AccessSynchronizationModel): Promise<AccessSynchronizationModel> {
+    const tenantId = accessSynchronization.tenantId
+
+    const equipment = await EquipmentServiceImp.findById({
+      id: accessSynchronization.object.equipmentId,
+      tenantId
+    })
+
+    const createdAccessSynchronization = await this.accessSynchronizationRepositoryImp.create(accessSynchronization)
+
+    const accessReleases: Array<Partial<IAccessRelease>> = []
+
+    await Promise.all(
+      accessSynchronization.personTypesIds.map(async personTypeId => {
+        const accessReleases = await AccessReleaseServiceImp.findAllByPersonTypeId({
+          personTypeId,
+          tenantId
+        })
+
+        accessReleases.push(...accessReleases)
+      })
+    )
+
+    if (accessReleases.length) {
+      await this.accessSynchronizationRepositoryImp.update({
+        id: createdAccessSynchronization._id!,
+        tenantId,
+        data: {
+          totalDocs: accessReleases.length
+        }
+      })
+
+      const worker = fork(path.resolve(__dirname, './syncWorker.js'))
+
+      worker.send({
+        accessReleases,
+        accessSynchronizationId: createdAccessSynchronization._id,
+        equipment,
+        tenantId
+      })
+    }
+
+    return createdAccessSynchronization
+  }
+
+  async synchronize ({
+    accessReleases,
+    accessSynchronizationId,
+    equipment,
+    tenantId
+  }: ISynchronizeProps): Promise<void> {
+    await Promise.all(
+      accessReleases.map(async accessRelease => {
+        const person = accessRelease.person!
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+        const [error, _] = await to(
+          EquipmentServer.addAccess({
+            equipmentIp: equipment.ip,
+            personCode: person._id!,
+            personId: person._id!,
+            personName: person.name,
+            personPictureUrl: person.picture!,
+            initDate: DateUtils.getCurrent(),
+            endDate: DateUtils.getDefaultEndDate(),
+            schedules: []
+          })
+        )
+
+        if (error) {
+          await this.accessSynchronizationRepositoryImp.updateSynErrors({
+            id: accessSynchronizationId!,
+            tenantId,
+            syncError: {
+              equipmentId: equipment._id!,
+              equipmentIp: equipment.ip,
+              message: error.message
+            }
+          })
+        }
+      })
+    )
+  }
+}

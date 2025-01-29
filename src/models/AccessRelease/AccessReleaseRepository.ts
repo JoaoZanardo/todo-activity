@@ -3,7 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AccessReleaseModel, IAccessRelease, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from './AccessReleaseModel'
+import { AccessReleaseModel, IAccessRelease, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from './AccessReleaseModel'
 import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
 export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, AccessReleaseModel> {
@@ -35,10 +35,48 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       endDate: {
         $gte: startOfDay,
         $lte: endOfDay
-      }
+      },
+      active: true
     }, ['_id', 'tenantId', 'endDate'])
 
     return documents
+  }
+
+  async findAllByPersonTypeId ({
+    personTypeId,
+    tenantId
+  }: IFindAllAccessReleaseByPersonTypeId): Promise<Array<Partial<IAccessRelease>>> {
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $match: {
+          personTypeId,
+          tenantId,
+          deletionDate: null,
+          active: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
+        }
+      },
+      {
+        $unwind: '$person'
+      },
+      // {
+      //   $project
+      // }
+      { $sort: { _id: -1 } }
+    ])
+
+    const documents = await this.mongoDB.aggregatePaginate(aggregationStages, {
+      limit: 5000
+    })
+
+    return documents.docs
   }
 
   async findLastByPersonId ({
