@@ -49,7 +49,7 @@ class PersonTypeController extends Controller {
 
         const personTypes = await PersonTypeServiceImp.findAll({
           tenantId,
-          select: ['_id', 'name', 'description']
+          select: ['_id', 'name', 'description', 'expiringTime']
         })
 
         response.OK('Tipos de pessoas encontrados com sucesso!', {
