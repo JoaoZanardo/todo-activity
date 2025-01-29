@@ -1,5 +1,4 @@
 import { Types } from 'mongoose'
-import { IAccessPoint } from 'src/models/AccessPoint/AccessPointModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -7,6 +6,7 @@ import { IPerson, PersonModel } from '../../models/Person/PersonModel'
 import { addExpiringTime } from '../../utils/addExpiringTime'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
+import { IAccessPoint } from '../AccessPoint/AccessPointModel'
 import { ExpiringTime } from '../PersonType/PersonTypeModel'
 
 export interface IListAccessReleasesFilters extends IListModelsFilters {

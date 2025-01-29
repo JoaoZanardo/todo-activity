@@ -9,6 +9,7 @@ import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { AccessControlServiceImp } from '../AccessControl/AccessControlController'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
+import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
 
@@ -64,6 +65,13 @@ export class AccessReleaseService {
 
   async create (accessRelease: AccessReleaseModel): Promise<AccessReleaseModel> {
     const { tenantId, accessPointId, personId, areasIds } = accessRelease
+
+    const lastAccessRelease = await AccessReleaseServiceImp.findLastByPersonId({
+      personId,
+      tenantId
+    })
+
+    if (lastAccessRelease) throw CustomResponse.CONFLICT('Essa pessoa já possui uma liberação de acesso!')
 
     const person = await PersonServiceImp.findById({ id: personId, tenantId })
 

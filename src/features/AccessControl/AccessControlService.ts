@@ -10,6 +10,7 @@ import { PersonModel } from '../../models/Person/PersonModel'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
+import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
 
@@ -64,14 +65,26 @@ export class AccessControlService {
 
     if (!accessRelease) throw CustomResponse.BAD_REQUEST('Pessoa não possui liberação de acesso!')
 
-    if (accessPoint.object.generalExit && accessRelease.object.singleAccess) await this.removeAllAccessFromPerson(person, tenantId)
+    let accessType = AccessControlType.entry
+
+    if (accessPoint.object.generalExit && accessRelease.object.singleAccess) {
+      accessType = AccessControlType.exit
+
+      await Promise.all([
+        AccessReleaseServiceImp.disable({
+          id: accessRelease._id!,
+          tenantId
+        }),
+        this.removeAllAccessFromPerson(person, tenantId)
+      ])
+    }
 
     const accessControlModel = new AccessControlModel({
       accessPointId: accessPoint._id!,
       personId,
       personTypeId: person.personTypeId,
       tenantId,
-      type: AccessControlType.entry, // mocked one
+      type: accessType, // mocked one
       accessReleaseId: accessRelease._id!
     })
 
