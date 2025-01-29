@@ -127,7 +127,8 @@ class AccessPointController extends Controller {
             name,
             active,
             areaId,
-            accessAreaId
+            accessAreaId,
+            manualAccess
           } = request.body
 
           this.rules.validate(
@@ -139,7 +140,8 @@ class AccessPointController extends Controller {
             { accessType, isRequiredField: false },
             { equipmentsIds, isRequiredField: false },
             { personTypesIds, isRequiredField: false },
-            { active, isRequiredField: false }
+            { active, isRequiredField: false },
+            { manualAccess, isRequiredField: false }
           )
 
           await AccessPointServiceImp.update({
@@ -148,12 +150,13 @@ class AccessPointController extends Controller {
             data: {
               name,
               accessType,
-              equipmentsIds,
-              personTypesIds,
+              equipmentsIds: equipmentsIds ? equipmentsIds.map((equipmentId: string) => ObjectId(equipmentId)) : undefined,
+              personTypesIds: personTypesIds ? personTypesIds.map((personTypeId: string) => ObjectId(personTypeId)) : undefined,
               generalExit,
               active,
               areaId,
-              accessAreaId
+              accessAreaId,
+              manualAccess
             },
             responsibleId: userId
           })

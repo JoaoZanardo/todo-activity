@@ -22,11 +22,6 @@ export class AccessReleaseRules extends Rules {
       message: 'Foto inválida! Informe uma foto válida!'
     })
 
-    this.validator.addRule('expiringTime', {
-      validator: (value: string) => is.object(value),
-      message: 'Tempo de expiração inválido! Informe um tempo válido!'
-    })
-
     this.validator.addRule('singleAccess', {
       validator: (value: string) => is.boolean(value),
       message: 'Acesso único inválido!'

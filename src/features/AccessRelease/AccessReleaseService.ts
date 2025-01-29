@@ -152,11 +152,11 @@ export class AccessReleaseService {
 
     await Promise.all(
       accessPoints.map(async (accessPoint) => {
-        const { generalExit, personTypesIds, equipmentsIds } = accessPoint
+        const { personTypesIds, equipmentsIds } = accessPoint
 
         const isPersonTypeIncluded = personTypesIds?.some(id => id.equals(personTypeId))
 
-        if (!generalExit && isPersonTypeIncluded && equipmentsIds?.length) {
+        if (isPersonTypeIncluded && equipmentsIds?.length) {
           await this.processEquipments({
             endDate,
             equipmentsIds,
