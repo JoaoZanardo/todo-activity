@@ -6,19 +6,9 @@ export class AccessControlRules extends Rules {
   constructor () {
     super()
 
-    this.validator.addRule('name', {
+    this.validator.addRule('equipmentIp', {
       validator: (value: string) => is.string(value),
-      message: 'Nome inválido. Informe um nome válido!'
-    })
-
-    this.validator.addRule('description', {
-      validator: (value: string) => is.string(value),
-      message: 'Descrição inválida. Informe uma descrição válida!'
-    })
-
-    this.validator.addRule('appAccess', {
-      validator: (value: string) => is.boolean(value),
-      message: 'Acesso ao App inválido!'
+      message: 'IP do equipamento inválido. Informe um IP válido!'
     })
   }
 }

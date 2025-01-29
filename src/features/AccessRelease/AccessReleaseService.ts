@@ -6,6 +6,7 @@ import { IAccessPoint } from '../../models/AccessPoint/AccessPointModel'
 import { AccessReleaseModel, IAccessRelease, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import { PersonModel } from '../../models/Person/PersonModel'
+import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { AccessControlServiceImp } from '../AccessControl/AccessControlController'
@@ -153,16 +154,16 @@ export class AccessReleaseService {
         const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
         console.log({ equipment: equipment.show })
 
-        // await EquipmentServer.addAccess({
-        //   equipmentIp: equipment.ip,
-        //   personCode: person._id!,
-        //   personId: person._id!,
-        //   personName: person.name,
-        //   personPictureUrl: person.object.picture!,
-        //   initDate: DateUtils.getCurrent(),
-        //   endDate: DateUtils.getDefaultEndDate(),
-        //   schedules: []
-        // })
+        await EquipmentServer.addAccess({
+          equipmentIp: equipment.ip,
+          personCode: person._id!,
+          personId: person._id!,
+          personName: person.name,
+          personPictureUrl: person.object.picture!,
+          initDate: DateUtils.getCurrent(),
+          endDate: DateUtils.getDefaultEndDate(),
+          schedules: []
+        })
       })
     )
   }
