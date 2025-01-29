@@ -1,17 +1,17 @@
 import to from 'await-to-js'
 import { fork } from 'child_process'
 import path from 'path'
-import { AccessReleaseServiceImp } from 'src/features/AccessRelease/AccessReleaseController'
-import { EquipmentServiceImp } from 'src/features/Equipment/EquipmentController'
-import { IAccessRelease } from 'src/models/AccessRelease/AccessReleaseModel'
-import EquipmentServer from 'src/services/EquipmentServer'
-import { DateUtils } from 'src/utils/Date'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
+import { IAccessRelease } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessSynchronizationModel, IAccessSynchronization, IListAccessSynchronizationsFilters, ISynchronizeProps } from '../../models/AccessSynchronization/AccessSynchronizationModel'
 import { AccessSynchronizationRepositoryImp } from '../../models/AccessSynchronization/AccessSynchronizationMongoDB'
+import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
+import { DateUtils } from '../../utils/Date'
+import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
+import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 
 export class AccessSynchronizationService {
   constructor (

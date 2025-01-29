@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response, Router } from 'express'
-import AccessSynchronizationController from 'src/features/AccessSynchronization/AccessSynchronizationController'
 
 import multer from '../config/multer'
 import AccessAreaController from '../features/AccessArea/AccessAreaController'
@@ -7,6 +6,7 @@ import AccessControlController from '../features/AccessControl/AccessControlCont
 import AccessGroupController from '../features/AccessGroup/AccessGroupController'
 import AccessPointController from '../features/AccessPoint/AccessPointController'
 import AccessReleaseController from '../features/AccessRelease/AccessReleaseController'
+import AccessSynchronizationController from '../features/AccessSynchronization/AccessSynchronizationController'
 import AreaController from '../features/Area/AreaController'
 import EquipmentController from '../features/Equipment/EquipmentController'
 import PersonController from '../features/Person/PersonController'
@@ -54,7 +54,7 @@ class AuthRouter {
     this.authRouter.use('/person-type-categories', moduleAuthMiddleware('B-02'), PersonTypeCategoryController)
     this.authRouter.use('/work-schedules', moduleAuthMiddleware('B-04'), WorkScheduleController)
     this.authRouter.use('/equipments', moduleAuthMiddleware('C-01'), EquipmentController)
-    this.authRouter.use('/access-synchronizations', moduleAuthMiddleware('C-01'), AccessSynchronizationController)
+    this.authRouter.use('/F', moduleAuthMiddleware('C-01'), AccessSynchronizationController)
     this.authRouter.use('/access-areas', moduleAuthMiddleware('C-02'), AccessAreaController)
     this.authRouter.use('/access-points', moduleAuthMiddleware('C-02'), AccessPointController)
     this.authRouter.use('/areas', moduleAuthMiddleware('C-02'), AreaController)

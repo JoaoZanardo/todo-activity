@@ -1,9 +1,9 @@
 import { Types } from 'mongoose'
-import { IAccessRelease } from 'src/models/AccessRelease/AccessReleaseModel'
-import { IEquipment } from 'src/models/Equipment/EquipmentModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
+import { IAccessRelease } from '../../models/AccessRelease/AccessReleaseModel'
+import { IEquipment } from '../../models/Equipment/EquipmentModel'
 import ObjectId from '../../utils/ObjectId'
 
 export interface IListAccessSynchronizationsFilters extends IListModelsFilters {}
