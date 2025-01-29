@@ -1,4 +1,5 @@
 import { Types } from 'mongoose'
+import { IPerson } from 'src/models/Person/PersonModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -23,6 +24,11 @@ export interface IDisableAccessReleaseProps {
   tenantId: Types.ObjectId
 }
 
+export interface IFindAllAccessReleaseByPersonTypeId {
+  personTypeId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
 export interface IFindLastAccessReleaseByPersonId {
   personId: Types.ObjectId
   tenantId: Types.ObjectId
@@ -43,6 +49,8 @@ export interface IAccessRelease extends IModel {
   expiringTime?: ExpiringTime
   singleAccess?: boolean
   endDate?: Date
+  person?: IPerson
+  responsible?: IPerson
 
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
@@ -58,6 +66,8 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _expiringTime?: IAccessRelease['expiringTime']
   private _singleAccess?: IAccessRelease['singleAccess']
   private _endDate?: IAccessRelease['endDate']
+  private _person?: IAccessRelease['person']
+  private _responsible?: IAccessRelease['responsible']
 
   private _personId: IAccessRelease['personId']
   private _personTypeId: IAccessRelease['personTypeId']
@@ -73,6 +83,8 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._expiringTime = accessRelease.expiringTime
     this._singleAccess = accessRelease.singleAccess
     this._endDate = this._expiringTime ? addExpiringTime(this._expiringTime) : accessRelease.endDate
+    this._person = accessRelease.person
+    this._responsible = accessRelease.responsible
 
     this._accessPointId = ObjectId(accessRelease.accessPointId)
     this._type = accessRelease.type
@@ -122,7 +134,11 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   }
 
   get show () {
-    return this.object
+    return {
+      ...this.object,
+      person: this._person,
+      responsible: this._responsible
+    }
   }
 
   static listFilters (

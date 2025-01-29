@@ -35,6 +35,19 @@ export class EquipmentService {
     return equipment
   }
 
+  async findByIp ({
+    ip,
+    tenantId
+  }: IFindEquipmentByIpProps): Promise<EquipmentModel> {
+    const equipment = await this.equipmentRepositoryImp.findByIp({
+      ip,
+      tenantId
+    })
+    if (!equipment) throw CustomResponse.NOT_FOUND('Equipamento não cadastrado!')
+
+    return equipment
+  }
+
   async create (equipment: EquipmentModel): Promise<EquipmentModel> {
     await this.validateDuplicatedIp(equipment)
 

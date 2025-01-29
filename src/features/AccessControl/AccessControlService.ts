@@ -2,7 +2,7 @@ import { Types } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessControlModel, AccessControlType, IAccessControl, ICreateAccessControlByEquipmentIdProps, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
+import { AccessControlModel, AccessControlType, IAccessControl, ICreateAccessControlByEquipmentIpProps, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import { PersonModel } from '../../models/Person/PersonModel'
@@ -37,12 +37,17 @@ export class AccessControlService {
   }
 
   async createByEquipmentId ({
-    equipmentId,
+    equipmentIp,
     personId,
     tenantId
-  }: ICreateAccessControlByEquipmentIdProps): Promise<AccessControlModel> {
+  }: ICreateAccessControlByEquipmentIpProps): Promise<AccessControlModel> {
+    const equipment = await EquipmentServiceImp.findByIp({
+      ip: equipmentIp,
+      tenantId
+    })
+
     const accessPoint = await AccessPointServiceImp.findByEquipmentId({
-      equipmentId,
+      equipmentId: equipment._id!,
       tenantId
     })
 

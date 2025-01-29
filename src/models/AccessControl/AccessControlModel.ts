@@ -15,8 +15,8 @@ export interface IUpdateAccessControlProps extends IUpdateModelProps<IAccessCont
 
 export interface IDeleteAccessControlProps extends IDeleteModelProps { }
 
-export interface ICreateAccessControlByEquipmentIdProps {
-  equipmentId: Types.ObjectId
+export interface ICreateAccessControlByEquipmentIpProps {
+  equipmentIp: string
   personId: Types.ObjectId
   tenantId: Types.ObjectId
 }

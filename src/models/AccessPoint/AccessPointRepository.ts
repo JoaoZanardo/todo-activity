@@ -197,7 +197,7 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
       }
     ])
 
-    return await this.mongoDB.aggregatePaginate(aggregationStages)
+    return await this.mongoDB.aggregatePaginate(aggregationStages, { limit: 1000 })
   }
 
   async create (AccessPoint: AccessPointModel): Promise < AccessPointModel > {

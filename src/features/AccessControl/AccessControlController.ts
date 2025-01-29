@@ -7,7 +7,6 @@ import Rules from '../../core/Rules'
 import { AccessControlModel } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
 import { DateUtils } from '../../utils/Date'
-import ObjectId from '../../utils/ObjectId'
 import { AccessControlRules } from './AccessControlRules'
 import { AccessControlService } from './AccessControlService'
 
@@ -83,45 +82,6 @@ class AccessControlController extends Controller {
           })
 
           const accessControl = await AccessControlServiceImp.create(accessControlModel)
-
-          await session.commitTransaction()
-          session.endSession()
-
-          response.CREATED('Controle de acesso cadastrado com sucesso!', {
-            accessControl: accessControl.show
-          })
-        } catch (error) {
-          session.endSession()
-
-          next(error)
-        }
-      })
-
-    this.router.post(
-      '/equipment',
-      // permissionAuthMiddleware(Permission.create),
-      async (request: Request, response: Response, next: NextFunction) => {
-        const session = await database.startSession()
-        session.startTransaction()
-
-        try {
-          const { tenantId } = request
-
-          const {
-            equipmentId,
-            personId
-          } = request.body
-
-          this.rules.validate(
-            { equipmentId },
-            { personId }
-          )
-
-          const accessControl = await AccessControlServiceImp.createByEquipmentId({
-            equipmentId: ObjectId(equipmentId),
-            personId: ObjectId(personId),
-            tenantId
-          })
 
           await session.commitTransaction()
           session.endSession()
