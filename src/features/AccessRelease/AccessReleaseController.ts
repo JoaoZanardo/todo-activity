@@ -84,7 +84,8 @@ class AccessReleaseController extends Controller {
             picture,
             expiringTime,
             singleAccess,
-            personTypeCategoryId
+            personTypeCategoryId,
+            initDate
           } = request.body
 
           this.rules.validate(
@@ -96,6 +97,7 @@ class AccessReleaseController extends Controller {
             { expiringTime, isRequiredField: false },
             { singleAccess, isRequiredField: false },
             { personTypeCategoryId, isRequiredField: false },
+            { initDate, isRequiredField: false },
             { personId },
             { personTypeId },
             { type }
@@ -118,7 +120,8 @@ class AccessReleaseController extends Controller {
             }],
             personId,
             personTypeId,
-            type
+            type,
+            initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined
           })
 
           const accessRelease = await AccessReleaseServiceImp.create(accessReleaseModel)

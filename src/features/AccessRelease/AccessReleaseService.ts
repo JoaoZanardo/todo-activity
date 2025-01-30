@@ -138,7 +138,7 @@ export class AccessReleaseService {
     tenantId,
     responsibleId,
     status
-  }: IDisableAccessReleaseProps): Promise<AccessReleaseModel> {
+  }: IDisableAccessReleaseProps): Promise<void> {
     const accessRelease = await this.findById({
       id,
       tenantId
@@ -173,8 +173,6 @@ export class AccessReleaseService {
         accessReleaseId: id
       })
     }
-
-    return await this.accessReleaseRepositoryImp.create(accessRelease)
   }
 
   async scheduleDisable ({
