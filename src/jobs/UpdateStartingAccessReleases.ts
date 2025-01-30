@@ -1,10 +1,9 @@
-import { AccessReleaseStatus } from 'src/models/AccessRelease/AccessReleaseModel'
-import { AccessReleaseRepositoryImp } from 'src/models/AccessRelease/AccessReleaseMongoDB'
-import CustomResponse from 'src/utils/CustomResponse'
-
 import { AccessPointServiceImp } from '../features/AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../features/AccessRelease/AccessReleaseController'
 import { PersonServiceImp } from '../features/Person/PersonController'
+import { AccessReleaseStatus } from '../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseRepositoryImp } from '../models/AccessRelease/AccessReleaseMongoDB'
+import CustomResponse from '../utils/CustomResponse'
 
 export const UpdateStartingAccessReleases = async () => {
   try {
