@@ -56,6 +56,22 @@ export enum AccessReleaseType {
 
 export const AccessReleaseTypeValues = Object.values(AccessReleaseType)
 
+export enum AccessReleaseStatus {
+  actived = 'actived',
+  disabled = 'disabled',
+  expired = 'expired',
+  scheduled = 'scheduled'
+}
+
+// initDate, status
+
+// Job to start the AccessRelease
+// job to expires the AccessRelease
+
+// When the resident person generates an invitation, the system must generate an AccessRealease with the status of "schedule"
+// and sets the initDate of that AccessRelease. when the day comes, the job must update the status to actived and create
+// access to all equipments
+
 export interface IAccessRelease extends IModel {
   responsibleId?: Types.ObjectId
   observation?: string
@@ -63,8 +79,11 @@ export interface IAccessRelease extends IModel {
   type?: AccessReleaseType
   expiringTime?: ExpiringTime
   singleAccess?: boolean
-  endDate?: Date
   personTypeCategoryId?: Types.ObjectId
+  status?: AccessReleaseStatus
+  initDate?: Date
+  endDate?: Date
+
   person?: IPerson
   responsible?: IPerson
 
@@ -81,8 +100,11 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _type?: IAccessRelease['type']
   private _expiringTime?: IAccessRelease['expiringTime']
   private _singleAccess?: IAccessRelease['singleAccess']
-  private _endDate?: IAccessRelease['endDate']
   private _personTypeCategoryId?: IAccessRelease['personTypeCategoryId']
+  private _status?: IAccessRelease['status']
+  private _initDate?: IAccessRelease['initDate']
+  private _endDate?: IAccessRelease['endDate']
+
   private _person?: IAccessRelease['person']
   private _responsible?: IAccessRelease['responsible']
 
@@ -99,8 +121,11 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._picture = accessRelease.picture
     this._expiringTime = accessRelease.expiringTime
     this._singleAccess = accessRelease.singleAccess
-    this._endDate = this._expiringTime ? addExpiringTime(this._expiringTime) : accessRelease.endDate
     this._personTypeCategoryId = accessRelease.personTypeCategoryId ? ObjectId(accessRelease.personTypeCategoryId) : undefined
+    this._status = accessRelease.status ?? AccessReleaseStatus.actived
+    this._initDate = accessRelease.initDate ?? DateUtils.getCurrent()
+    this._endDate = this._expiringTime ? addExpiringTime(this._expiringTime) : accessRelease.endDate
+
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
 
@@ -155,8 +180,10 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       picture: this._picture,
       expiringTime: this._expiringTime,
       singleAccess: this._singleAccess,
-      endDate: this._endDate,
       personTypeCategoryId: this._personTypeCategoryId,
+      status: this._status,
+      initDate: this._initDate,
+      endDate: this._endDate,
 
       type: this._type,
       personId: this._personId,
