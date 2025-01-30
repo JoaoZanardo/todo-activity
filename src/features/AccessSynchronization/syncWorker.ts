@@ -27,7 +27,7 @@ process.on('message', async ({
         tenantId
       })
 
-      await AccessSynchronizationRepositoryImp.updateExecutedsNumber({
+      await AccessSynchronizationRepositoryImp.updateExecutedNumbers({
         id: accessSynchronizationId,
         tenantId,
         number: 25

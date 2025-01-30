@@ -1,4 +1,4 @@
-import { Aggregate, Types } from 'mongoose'
+import { Aggregate, ClientSession, Types } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
@@ -21,10 +21,12 @@ export class AccessSynchronizationRepository extends Repository<IAccessSynchroni
     return new AccessSynchronizationModel(document)
   }
 
-  async create (accessSynchronization: AccessSynchronizationModel): Promise<AccessSynchronizationModel> {
-    const document = await this.mongoDB.create(accessSynchronization.object)
+  async create (accessSynchronization: AccessSynchronizationModel, session: ClientSession): Promise<AccessSynchronizationModel> {
+    const document = await this.mongoDB.create([accessSynchronization.object], {
+      session
+    })
 
-    return new AccessSynchronizationModel(document)
+    return new AccessSynchronizationModel(document[0])
   }
 
   async findAllForToday (): Promise<Array<AccessSynchronizationModel>> {
@@ -48,13 +50,16 @@ export class AccessSynchronizationRepository extends Repository<IAccessSynchroni
   async update ({
     id,
     data,
-    tenantId
+    tenantId,
+    session
   }: IUpdateProps<IAccessSynchronization>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
     }, {
       $set: data
+    }, {
+      session
     })
 
     return !!updated.modifiedCount
@@ -77,7 +82,7 @@ export class AccessSynchronizationRepository extends Repository<IAccessSynchroni
     return !!updated.modifiedCount
   }
 
-  async updateExecutedsNumber ({
+  async updateExecutedNumbers ({
     id,
     number,
     tenantId
@@ -87,7 +92,7 @@ export class AccessSynchronizationRepository extends Repository<IAccessSynchroni
       tenantId
     }, {
       $inc: {
-        executedsNumber: number
+        executedNumbers: number
       }
     })
 

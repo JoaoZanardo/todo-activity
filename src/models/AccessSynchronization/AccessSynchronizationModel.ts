@@ -41,7 +41,7 @@ export interface IAccessSynchronization extends IModel {
   finished?: boolean
   endDate?: Date
   syncErrors?: Array<ISyncError>
-  executedsNumber?: number
+  executedNumbers?: number
   totalDocs?: number
 
   personTypesIds: Array<Types.ObjectId>
@@ -49,7 +49,7 @@ export interface IAccessSynchronization extends IModel {
 }
 
 export class AccessSynchronizationModel extends Model<IAccessSynchronization> {
-  private _executedsNumber: IAccessSynchronization['executedsNumber']
+  private eExecutedNumbers: IAccessSynchronization['executedNumbers']
   private _finished?: IAccessSynchronization['finished']
   private _endDate?: IAccessSynchronization['endDate']
   private _syncErrors?: IAccessSynchronization['syncErrors']
@@ -64,11 +64,11 @@ export class AccessSynchronizationModel extends Model<IAccessSynchronization> {
     this._finished = accessSynchronization.finished
     this._endDate = accessSynchronization.endDate
     this._syncErrors = accessSynchronization.syncErrors
-    this._executedsNumber = accessSynchronization.executedsNumber
+    this.eExecutedNumbers = accessSynchronization.executedNumbers
     this._totalDocs = accessSynchronization.totalDocs
 
-    this._personTypesIds = accessSynchronization.personTypesIds
-    this._equipmentId = accessSynchronization.equipmentId
+    this._personTypesIds = accessSynchronization.personTypesIds.map(personTypeId => ObjectId(personTypeId))
+    this._equipmentId = ObjectId(accessSynchronization.equipmentId)
   }
 
   get personTypesIds (): IAccessSynchronization['personTypesIds'] {
@@ -83,8 +83,8 @@ export class AccessSynchronizationModel extends Model<IAccessSynchronization> {
     return this._totalDocs
   }
 
-  get executedsNumber (): IAccessSynchronization['executedsNumber'] {
-    return this._executedsNumber
+  get executedNumbers (): IAccessSynchronization['executedNumbers'] {
+    return this.eExecutedNumbers
   }
 
   get object (): IAccessSynchronization {
@@ -99,7 +99,7 @@ export class AccessSynchronizationModel extends Model<IAccessSynchronization> {
       endDate: this._endDate,
       syncErrors: this._syncErrors,
       totalDocs: this._totalDocs,
-      executedsNumber: this._executedsNumber,
+      executedNumbers: this.eExecutedNumbers,
       personTypesIds: this._personTypesIds,
       equipmentId: this._equipmentId
     }

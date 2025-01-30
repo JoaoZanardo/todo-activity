@@ -54,7 +54,7 @@ class AuthRouter {
     this.authRouter.use('/person-type-categories', moduleAuthMiddleware('B-02'), PersonTypeCategoryController)
     this.authRouter.use('/work-schedules', moduleAuthMiddleware('B-04'), WorkScheduleController)
     this.authRouter.use('/equipments', moduleAuthMiddleware('C-01'), EquipmentController)
-    this.authRouter.use('/F', moduleAuthMiddleware('C-01'), AccessSynchronizationController)
+    this.authRouter.use('/access-synchronizations', moduleAuthMiddleware('C-01'), AccessSynchronizationController)
     this.authRouter.use('/access-areas', moduleAuthMiddleware('C-02'), AccessAreaController)
     this.authRouter.use('/access-points', moduleAuthMiddleware('C-02'), AccessPointController)
     this.authRouter.use('/areas', moduleAuthMiddleware('C-02'), AreaController)

@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express'
 
+import database from '../../config/database'
 import { Controller } from '../../core/Controller'
 import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
@@ -8,6 +9,7 @@ import { Permission } from '../../models/AccessGroup/AccessGroupModel'
 import { AccessSynchronizationModel } from '../../models/AccessSynchronization/AccessSynchronizationModel'
 import { AccessSynchronizationRepositoryImp } from '../../models/AccessSynchronization/AccessSynchronizationMongoDB'
 import { DateUtils } from '../../utils/Date'
+import ObjectId from '../../utils/ObjectId'
 import { AccessSynchronizationRules } from './AccessSynchronizationRules'
 import { AccessSynchronizationService } from './AccessSynchronizationService'
 
@@ -39,10 +41,39 @@ class AccessSynchronizationController extends Controller {
         }
       })
 
+    this.router.get(
+      '/one/:accessSynchronizationId',
+      permissionAuthMiddleware(Permission.read),
+      async (request: Request, response: Response, next: NextFunction) => {
+        try {
+          const { tenantId } = request
+
+          const { accessSynchronizationId } = request.params
+
+          this.rules.validate(
+            { accessSynchronizationId }
+          )
+
+          const accessSynchronization = await AccessSynchronizationServiceImp.findById({
+            id: ObjectId(accessSynchronizationId),
+            tenantId
+          })
+
+          response.OK('Sincronização de acesso encontrada com sucesso!', {
+            accessSynchronization: accessSynchronization.show
+          })
+        } catch (error) {
+          next(error)
+        }
+      })
+
     this.router.post(
       '/',
       permissionAuthMiddleware(Permission.create),
       async (request: Request, response: Response, next: NextFunction) => {
+        const session = await database.startSession()
+        session.startTransaction()
+
         try {
           const { tenantId, userId } = request
 
@@ -67,12 +98,20 @@ class AccessSynchronizationController extends Controller {
             personTypesIds
           })
 
-          const accessSynchronization = await AccessSynchronizationServiceImp.create(accessSynchronizationModel)
+          const accessSynchronization = await AccessSynchronizationServiceImp.create(
+            accessSynchronizationModel,
+            session
+          )
+
+          await session.commitTransaction()
+          session.endSession()
 
           response.CREATED('Sincronização de acesso cadastrada com sucesso!', {
             accessSynchronization: accessSynchronization.show
           })
         } catch (error) {
+          session.endSession()
+
           next(error)
         }
       })
