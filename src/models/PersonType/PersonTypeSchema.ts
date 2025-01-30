@@ -19,7 +19,7 @@ class PersonTypeSchema extends Schema<IPersonTypeDocument> {
       expiringTime: {
         value: String,
         unit: {
-          type: String,
+          type: Number,
           enum: TimeUnit
         }
       },

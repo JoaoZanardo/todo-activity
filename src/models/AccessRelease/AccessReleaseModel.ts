@@ -124,7 +124,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._personTypeCategoryId = accessRelease.personTypeCategoryId ? ObjectId(accessRelease.personTypeCategoryId) : undefined
     this._initDate = accessRelease.initDate ?? DateUtils.getCurrent()
     this._endDate = this._expiringTime ? addExpiringTime(this._expiringTime) : accessRelease.endDate
-    this._status = DateUtils.isToday(this._initDate) ? AccessReleaseStatus.active : AccessReleaseStatus.scheduled
+    this._status = accessRelease.status ?? (DateUtils.isToday(this._initDate) ? AccessReleaseStatus.active : AccessReleaseStatus.scheduled)
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
