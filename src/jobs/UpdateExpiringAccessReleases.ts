@@ -1,4 +1,5 @@
 import { AccessReleaseServiceImp } from '../features/AccessRelease/AccessReleaseController'
+import { AccessReleaseStatus } from '../models/AccessRelease/AccessReleaseModel'
 
 export const UpdateExpiringAccessReleases = async () => {
   try {
@@ -12,7 +13,8 @@ export const UpdateExpiringAccessReleases = async () => {
           await AccessReleaseServiceImp.scheduleDisable({
             accessReleaseId: accessRelease._id!,
             endDate: accessRelease.endDate!,
-            tenantId: accessRelease.tenantId!
+            tenantId: accessRelease.tenantId!,
+            status: AccessReleaseStatus.expired
           })
         })
       ])

@@ -23,6 +23,7 @@ export interface IDisableAccessReleaseProps {
 
   id: Types.ObjectId
   tenantId: Types.ObjectId
+  status: AccessReleaseStatus
 }
 
 export interface IFindAllAccessReleaseByPersonTypeId {
@@ -53,6 +54,7 @@ export interface IScheduleDisableProps {
   endDate: Date
   accessReleaseId: Types.ObjectId
   tenantId: Types.ObjectId
+  status: AccessReleaseStatus
 }
 
 export enum AccessReleaseType {
@@ -63,20 +65,12 @@ export enum AccessReleaseType {
 export const AccessReleaseTypeValues = Object.values(AccessReleaseType)
 
 export enum AccessReleaseStatus {
-  actived = 'actived',
+  active = 'active',
   disabled = 'disabled',
   expired = 'expired',
-  scheduled = 'scheduled'
+  scheduled = 'scheduled',
+  conflict = 'conflict'
 }
-
-// initDate, status
-
-// Job to start the AccessRelease
-// job to expires the AccessRelease
-
-// When the resident person generates an invitation, the system must generate an AccessRealease with the status of "schedule"
-// and sets the initDate of that AccessRelease. when the day comes, the job must update the status to actived and create
-// access to all equipments
 
 export interface IAccessRelease extends IModel {
   responsibleId?: Types.ObjectId
@@ -128,9 +122,9 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._expiringTime = accessRelease.expiringTime
     this._singleAccess = accessRelease.singleAccess
     this._personTypeCategoryId = accessRelease.personTypeCategoryId ? ObjectId(accessRelease.personTypeCategoryId) : undefined
-    this._status = accessRelease.status ?? AccessReleaseStatus.actived
     this._initDate = accessRelease.initDate ?? DateUtils.getCurrent()
     this._endDate = this._expiringTime ? addExpiringTime(this._expiringTime) : accessRelease.endDate
+    this._status = DateUtils.isToday(this._initDate) ? AccessReleaseStatus.active : AccessReleaseStatus.scheduled
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
@@ -145,6 +139,10 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       action: ModelAction.create,
       date: DateUtils.getCurrent()
     }]
+  }
+
+  get status (): IAccessRelease['status'] {
+    return this._status
   }
 
   get expiringTime (): IAccessRelease['expiringTime'] {
