@@ -120,6 +120,26 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
       },
       {
         $lookup: {
+          from: 'accessreleases',
+          localField: '_id',
+          foreignField: 'personId',
+          as: 'lastAccessRelease'
+        }
+      },
+      {
+        $set: {
+          lastAccessRelease: {
+            $arrayElemAt: [
+              {
+                $sortArray: { input: '$lastAccessRelease', sortBy: { _id: -1 } }
+              },
+              0
+            ]
+          }
+        }
+      },
+      {
+        $lookup: {
           from: 'accesscontrols',
           localField: '_id',
           foreignField: 'personId',

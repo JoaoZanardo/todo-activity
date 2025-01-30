@@ -13,7 +13,7 @@ export class EquipmentRules extends Rules {
 
     this.validator.addRule('ip', {
       validator: (value: string) => is.string(value),
-      message: 'Ip inálido. Informe uma ip válido!'
+      message: 'Ip inválido. Informe um ip válido!'
     })
 
     this.validator.addRule('description', {

@@ -88,8 +88,7 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         $match: {
           personId,
           tenantId,
-          deletionDate: null,
-          active: true
+          deletionDate: null
         }
       },
       {

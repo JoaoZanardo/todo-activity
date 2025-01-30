@@ -58,6 +58,7 @@ export interface IPerson extends IModel {
   lastAccessControl?: IAccessControl
   lastAccessPoint?: IAccessPoint
   lastAccessArea?: IAccessArea
+  bondAreaId?: string
 
   personTypeId: Types.ObjectId
   name: string
@@ -85,6 +86,7 @@ export class PersonModel extends Model<IPerson> {
   private _lastAccessControl?: IPerson['lastAccessControl']
   private _lastAccessPoint?: IPerson['lastAccessPoint']
   private _lastAccessArea?: IPerson['lastAccessArea']
+  private _bondAreaId?: IPerson['bondAreaId']
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
@@ -112,6 +114,7 @@ export class PersonModel extends Model<IPerson> {
     this._lastAccessControl = person.lastAccessControl
     this._lastAccessPoint = person.lastAccessPoint
     this._lastAccessArea = person.lastAccessArea
+    this._bondAreaId = person.bondAreaId
 
     this._personTypeId = person.personTypeId
     this._name = person.name
@@ -157,7 +160,8 @@ export class PersonModel extends Model<IPerson> {
       passport: this._passport,
       cpf: this._cpf,
       picture: this._picture,
-      personTypeCategoryId: this._personTypeCategoryId
+      personTypeCategoryId: this._personTypeCategoryId,
+      bondAreaId: this._bondAreaId
     }
   }
 

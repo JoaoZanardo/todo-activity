@@ -96,7 +96,8 @@ class PersonController extends Controller {
             passport,
             cpf,
             picture,
-            personTypeCategoryId
+            personTypeCategoryId,
+            bondAreaId
           } = request.body
 
           this.rules.validate(
@@ -119,7 +120,8 @@ class PersonController extends Controller {
             { passport, isRequiredField: false },
             { cpf, isRequiredField: false },
             { picture, isRequiredField: false },
-            { personTypeCategoryId, isRequiredField: false }
+            { personTypeCategoryId, isRequiredField: false },
+            { bondAreaId, isRequiredField: false }
           )
 
           const personModel = new PersonModel({
@@ -147,7 +149,8 @@ class PersonController extends Controller {
             passport,
             cpf,
             picture,
-            personTypeCategoryId
+            personTypeCategoryId,
+            bondAreaId
           })
 
           const person = await PersonServiceImp.create(personModel)
@@ -189,7 +192,8 @@ class PersonController extends Controller {
             cpf,
             picture,
             personTypeCategoryId,
-            personTypeId
+            personTypeId,
+            bondAreaId
           } = request.body
 
           this.rules.validate(
@@ -213,6 +217,7 @@ class PersonController extends Controller {
             { picture, isRequiredField: false },
             { personTypeCategoryId, isRequiredField: false },
             { personTypeId, isRequiredField: false },
+            { bondAreaId, isRequiredField: false },
             { personId }
           )
 
@@ -238,7 +243,8 @@ class PersonController extends Controller {
               cpf,
               picture,
               personTypeCategoryId,
-              personTypeId
+              personTypeId,
+              bondAreaId
             },
             responsibleId: userId
           })
