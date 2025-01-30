@@ -44,5 +44,14 @@ export const DateUtils = {
     date.setDate(date.getDate() + 7)
 
     return date
+  },
+  isToday: (date: Date): boolean => {
+    const currentDate = DateUtils.getCurrent()
+
+    return (
+      currentDate.getUTCFullYear() === date.getUTCFullYear() &&
+      currentDate.getUTCMonth() === date.getUTCMonth() &&
+      currentDate.getUTCDate() === date.getUTCDate()
+    )
   }
 }

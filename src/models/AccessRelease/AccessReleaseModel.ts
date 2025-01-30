@@ -49,6 +49,12 @@ export interface IProcessEquipments {
   endDate: Date
 }
 
+export interface IScheduleDisableProps {
+  endDate: Date
+  accessReleaseId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
 export enum AccessReleaseType {
   manually = 'manually',
   invite = 'invite'

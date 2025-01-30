@@ -1,8 +1,9 @@
 import to from 'await-to-js'
+import schedule from 'node-schedule'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessReleaseModel, IAccessRelease, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, IAccessRelease, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IScheduleDisableProps } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
@@ -81,6 +82,14 @@ export class AccessReleaseService {
       accessRelease.endDate = DateUtils.getDefaultEndDate()
     }
 
+    if (DateUtils.isToday(accessRelease.endDate!)) {
+      this.scheduleDisable({
+        endDate: accessRelease.endDate!,
+        accessReleaseId: accessRelease._id!,
+        tenantId
+      })
+    }
+
     const createdAccessRelease = await this.accessReleaseRepositoryImp.create(accessRelease)
 
     await this.processAreaAccessPoints({
@@ -148,6 +157,22 @@ export class AccessReleaseService {
     }
 
     return await this.accessReleaseRepositoryImp.create(accessRelease)
+  }
+
+  async scheduleDisable ({
+    endDate,
+    accessReleaseId,
+    tenantId
+  }: IScheduleDisableProps): Promise<void> {
+    const adjustedExecutionDate = new Date(endDate)
+    adjustedExecutionDate.setHours(endDate.getHours() + 3)
+
+    schedule.scheduleJob(adjustedExecutionDate, async () => {
+      await AccessReleaseServiceImp.disable({
+        id: accessReleaseId,
+        tenantId
+      })
+    })
   }
 
   private async processAreaAccessPoints ({
