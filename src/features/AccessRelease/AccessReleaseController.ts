@@ -6,7 +6,7 @@ import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
 import { permissionAuthMiddleware } from '../../middlewares/permissionAuth'
 import { Permission } from '../../models/AccessGroup/AccessGroupModel'
-import { AccessReleaseModel } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
@@ -152,7 +152,8 @@ class AccessReleaseController extends Controller {
           await AccessReleaseServiceImp.disable({
             id: ObjectId(accessReleaseId),
             tenantId,
-            responsibleId: userId
+            responsibleId: userId,
+            status: AccessReleaseStatus.disabled
           })
 
           response.OK('Liberação de acesso desativado com sucesso!')

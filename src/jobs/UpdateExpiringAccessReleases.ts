@@ -1,6 +1,5 @@
-import schedule from 'node-schedule'
-
 import { AccessReleaseServiceImp } from '../features/AccessRelease/AccessReleaseController'
+import { AccessReleaseStatus } from '../models/AccessRelease/AccessReleaseModel'
 
 export const UpdateExpiringAccessReleases = async () => {
   try {
@@ -11,16 +10,11 @@ export const UpdateExpiringAccessReleases = async () => {
     if (accessReleases.length) {
       await Promise.all([
         accessReleases.forEach(async accessRelease => {
-          const endDate = accessRelease.endDate!
-
-          const adjustedExecutionDate = new Date(endDate)
-          adjustedExecutionDate.setHours(endDate.getHours() + 3)
-
-          schedule.scheduleJob(adjustedExecutionDate, async () => {
-            await AccessReleaseServiceImp.disable({
-              id: accessRelease._id!,
-              tenantId: accessRelease.tenantId!
-            })
+          await AccessReleaseServiceImp.scheduleDisable({
+            accessReleaseId: accessRelease._id!,
+            endDate: accessRelease.endDate!,
+            tenantId: accessRelease.tenantId!,
+            status: AccessReleaseStatus.expired
           })
         })
       ])
