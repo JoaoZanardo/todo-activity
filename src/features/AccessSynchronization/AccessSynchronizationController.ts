@@ -84,9 +84,9 @@ class AccessSynchronizationController extends Controller {
           } = request.body
 
           this.rules.validate(
-            { equipmentId, isRequiredField: false },
-            { personTypesIds, isRequiredField: false },
-            { accessPointId, isRequiredField: false }
+            { equipmentId },
+            { personTypesIds },
+            { accessPointId }
           )
 
           const accessSynchronizationModel = new AccessSynchronizationModel({
