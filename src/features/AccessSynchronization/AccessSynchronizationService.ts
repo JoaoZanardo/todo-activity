@@ -61,6 +61,8 @@ export class AccessSynchronizationService {
       })
     )
 
+    console.log(accessReleases, accessReleases.length)
+
     if (accessReleases.length) {
       await this.accessSynchronizationRepositoryImp.update({
         id: createdAccessSynchronization._id!,
@@ -69,6 +71,10 @@ export class AccessSynchronizationService {
           totalDocs: accessReleases.length
         },
         session
+      })
+
+      console.log(data: {
+        totalDocs: accessReleases.length
       })
 
       const worker = fork(path.resolve(__dirname, './syncWorker.js'))
