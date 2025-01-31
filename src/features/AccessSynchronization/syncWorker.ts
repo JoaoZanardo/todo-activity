@@ -30,7 +30,7 @@ process.on('message', async ({
       await AccessSynchronizationRepositoryImp.updateExecutedNumbers({
         id: accessSynchronizationId,
         tenantId,
-        number: 25
+        number: batch.length
       })
     }
 
