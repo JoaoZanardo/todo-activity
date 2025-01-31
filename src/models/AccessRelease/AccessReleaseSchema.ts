@@ -2,7 +2,7 @@ import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
 import { TimeUnit } from '../PersonType/PersonTypeModel'
-import { AccessReleaseType, IAccessRelease } from './AccessReleaseModel'
+import { AccessReleaseStatus, AccessReleaseType, IAccessRelease } from './AccessReleaseModel'
 
 export interface IAccessReleaseDocument extends Document, Omit<IAccessRelease, '_id'> { }
 
@@ -26,8 +26,13 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         type: Boolean,
         default: true
       },
-      endDate: Date,
       personTypeCategoryId: Types.ObjectId,
+      status: {
+        type: String,
+        enum: AccessReleaseStatus
+      },
+      initDate: Date,
+      endDate: Date,
 
       type: {
         type: String,

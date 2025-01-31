@@ -1,5 +1,6 @@
 import to from 'await-to-js'
 import { fork } from 'child_process'
+import { ClientSession } from 'mongoose'
 import path from 'path'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
@@ -37,7 +38,7 @@ export class AccessSynchronizationService {
     return accessSynchronization
   }
 
-  async create (accessSynchronization: AccessSynchronizationModel): Promise<AccessSynchronizationModel> {
+  async create (accessSynchronization: AccessSynchronizationModel, session: ClientSession): Promise<AccessSynchronizationModel> {
     const tenantId = accessSynchronization.tenantId
 
     const equipment = await EquipmentServiceImp.findById({
@@ -45,7 +46,7 @@ export class AccessSynchronizationService {
       tenantId
     })
 
-    const createdAccessSynchronization = await this.accessSynchronizationRepositoryImp.create(accessSynchronization)
+    const createdAccessSynchronization = await this.accessSynchronizationRepositoryImp.create(accessSynchronization, session)
 
     const accessReleases: Array<Partial<IAccessRelease>> = []
 
@@ -66,7 +67,8 @@ export class AccessSynchronizationService {
         tenantId,
         data: {
           totalDocs: accessReleases.length
-        }
+        },
+        session
       })
 
       const worker = fork(path.resolve(__dirname, './syncWorker.js'))

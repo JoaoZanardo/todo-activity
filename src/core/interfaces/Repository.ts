@@ -1,4 +1,4 @@
-import { Types } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
 interface IAggregatePaginate<T> {
   hasPrevPage: boolean
@@ -11,6 +11,8 @@ interface IAggregatePaginate<T> {
 }
 
 interface IUpdateProps<T = any> {
+  session?: ClientSession
+
   id: Types.ObjectId
   tenantId: Types.ObjectId
   data: Partial<T>

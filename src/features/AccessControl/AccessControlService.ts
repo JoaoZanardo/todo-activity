@@ -5,6 +5,7 @@ import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AccessControlModel, AccessControlType, IAccessControl, ICreateAccessControlByEquipmentIpProps, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
+import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import { PersonModel } from '../../models/Person/PersonModel'
 import EquipmentServer from '../../services/EquipmentServer'
@@ -73,7 +74,8 @@ export class AccessControlService {
       await Promise.all([
         AccessReleaseServiceImp.disable({
           id: accessRelease._id!,
-          tenantId
+          tenantId,
+          status: AccessReleaseStatus.disabled
         }),
         this.removeAllAccessFromPerson(person, tenantId)
       ])

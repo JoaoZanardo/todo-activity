@@ -15,7 +15,7 @@ class AccessSynchronizationSchema extends Schema<IAccessSynchronizationDocument>
         type: Boolean,
         default: false
       },
-      executedsNumber: {
+      executedNumbers: {
         type: Number,
         default: 0
       },

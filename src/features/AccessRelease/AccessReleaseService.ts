@@ -1,8 +1,9 @@
 import to from 'await-to-js'
+import schedule from 'node-schedule'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessReleaseModel, IAccessRelease, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IScheduleDisableProps } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
@@ -53,6 +54,10 @@ export class AccessReleaseService {
     return await this.accessReleaseRepositoryImp.findAllExpiringToday()
   }
 
+  async findAllStartingToday (): Promise<Array<Partial<IAccessRelease>>> {
+    return await this.accessReleaseRepositoryImp.findAllStartingToday()
+  }
+
   async findAllByPersonTypeId ({
     personTypeId,
     tenantId
@@ -64,46 +69,66 @@ export class AccessReleaseService {
   }
 
   async create (accessRelease: AccessReleaseModel): Promise<AccessReleaseModel> {
-    const { tenantId, accessPointId, personId, areasIds } = accessRelease
+    const { tenantId, personId, areasIds } = accessRelease
 
     const lastAccessRelease = await AccessReleaseServiceImp.findLastByPersonId({
       personId,
       tenantId
     })
 
-    if (lastAccessRelease) throw CustomResponse.CONFLICT('Essa pessoa já possui uma liberação de acesso!')
+    if (
+      lastAccessRelease &&
+      lastAccessRelease.status === AccessReleaseStatus.active
+    ) throw CustomResponse.CONFLICT('Essa pessoa já possui uma liberação de acesso!')
 
     const person = await PersonServiceImp.findById({ id: personId, tenantId })
 
-    const accessPoint = await AccessPointServiceImp.findById({ id: accessPointId, tenantId })
+    // const accessPoint = await AccessPointServiceImp.findById({ id: accessPointId, tenantId })
 
     if (!accessRelease.expiringTime) {
       accessRelease.endDate = DateUtils.getDefaultEndDate()
     }
 
+    const { initDate, endDate } = accessRelease.object
+
+    console.log({ initDate, endDate })
+
+    if (endDate! < initDate!) throw CustomResponse.UNPROCESSABLE_ENTITY('A data de término deve ser maior que a data de início!')
+
     const createdAccessRelease = await this.accessReleaseRepositoryImp.create(accessRelease)
 
-    await this.processAreaAccessPoints({
-      accessPoints: [accessPoint.object],
-      endDate: accessRelease.endDate!,
-      person,
-      tenantId
-    })
-
-    await Promise.all(
-      areasIds.map(async areaId => {
-        const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
-
-        if (accessPoints.length) {
-          await this.processAreaAccessPoints({
-            accessPoints,
-            endDate: accessRelease.endDate!,
-            person,
-            tenantId
-          })
-        }
+    if (DateUtils.isToday(createdAccessRelease.endDate!)) {
+      this.scheduleDisable({
+        endDate: createdAccessRelease.endDate!,
+        accessReleaseId: createdAccessRelease._id!,
+        tenantId,
+        status: AccessReleaseStatus.expired
       })
-    )
+    }
+
+    if (DateUtils.isToday(createdAccessRelease.object.initDate!)) {
+      // await this.processAreaAccessPoints({
+      //   accessPoints: [accessPoint.object],
+      //   endDate: accessRelease.endDate!,
+      //   person,
+      //   tenantId
+      // })
+
+      await Promise.all(
+        areasIds.map(async areaId => {
+          const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
+
+          if (accessPoints.length) {
+            await this.processAreaAccessPoints({
+              accessPoints,
+              endDate: accessRelease.endDate!,
+              person,
+              tenantId
+            })
+          }
+        })
+      )
+    }
 
     return createdAccessRelease
   }
@@ -111,8 +136,9 @@ export class AccessReleaseService {
   async disable ({
     id,
     tenantId,
-    responsibleId
-  }: IDisableAccessReleaseProps): Promise<AccessReleaseModel> {
+    responsibleId,
+    status
+  }: IDisableAccessReleaseProps): Promise<void> {
     const accessRelease = await this.findById({
       id,
       tenantId
@@ -130,6 +156,7 @@ export class AccessReleaseService {
       tenantId,
       data: {
         active: false,
+        status,
         actions: [
           ...accessRelease.actions!,
           {
@@ -146,11 +173,27 @@ export class AccessReleaseService {
         accessReleaseId: id
       })
     }
-
-    return await this.accessReleaseRepositoryImp.create(accessRelease)
   }
 
-  private async processAreaAccessPoints ({
+  async scheduleDisable ({
+    endDate,
+    accessReleaseId,
+    tenantId,
+    status
+  }: IScheduleDisableProps): Promise<void> {
+    const adjustedExecutionDate = new Date(endDate)
+    adjustedExecutionDate.setHours(endDate.getHours() + 3)
+
+    schedule.scheduleJob(adjustedExecutionDate, async () => {
+      await AccessReleaseServiceImp.disable({
+        id: accessReleaseId,
+        tenantId,
+        status
+      })
+    })
+  }
+
+  async processAreaAccessPoints ({
     accessPoints,
     endDate,
     person,

@@ -6,16 +6,16 @@ export const addExpiringTime = (expiringTime: ExpiringTime): Date => {
 
   switch (expiringTime.unit) {
     case TimeUnit.hour:
-      now.setHours(now.getHours() + expiringTime.value)
+      now.setHours(now.getHours() + Number(expiringTime.value))
       break
     case TimeUnit.day:
-      now.setDate(now.getDate() + expiringTime.value)
+      now.setDate(now.getDate() + Number(expiringTime.value))
       break
     case TimeUnit.month:
-      now.setMonth(now.getMonth() + expiringTime.value)
+      now.setMonth(now.getMonth() + Number(expiringTime.value))
       break
     case TimeUnit.year:
-      now.setFullYear(now.getFullYear() + expiringTime.value)
+      now.setFullYear(now.getFullYear() + Number(expiringTime.value))
       break
   }
 

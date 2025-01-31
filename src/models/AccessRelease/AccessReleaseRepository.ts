@@ -3,7 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AccessReleaseModel, IAccessRelease, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from './AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from './AccessReleaseModel'
 import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
 export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, AccessReleaseModel> {
@@ -36,8 +36,29 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         $gte: startOfDay,
         $lte: endOfDay
       },
-      active: true
+      active: true,
+      status: AccessReleaseStatus.active
     }, ['_id', 'tenantId', 'endDate'])
+
+    return documents
+  }
+
+  async findAllStartingToday (): Promise<Array<Partial<IAccessRelease>>> {
+    const startOfDay = new Date()
+    startOfDay.setHours(0, 0, 0, 0)
+
+    const endOfDay = new Date()
+    endOfDay.setHours(23, 59, 59, 999)
+
+    const documents = await this.mongoDB.find({
+      deletionDate: null,
+      initDate: {
+        $gte: startOfDay,
+        $lte: endOfDay
+      },
+      active: true,
+      status: AccessReleaseStatus.scheduled
+    }, ['_id', 'tenantId', 'initDate', 'areasIds', 'personId'])
 
     return documents
   }

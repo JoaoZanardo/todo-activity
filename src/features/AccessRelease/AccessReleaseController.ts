@@ -6,7 +6,7 @@ import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
 import { permissionAuthMiddleware } from '../../middlewares/permissionAuth'
 import { Permission } from '../../models/AccessGroup/AccessGroupModel'
-import { AccessReleaseModel } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
@@ -84,7 +84,8 @@ class AccessReleaseController extends Controller {
             picture,
             expiringTime,
             singleAccess,
-            personTypeCategoryId
+            personTypeCategoryId,
+            initDate
           } = request.body
 
           this.rules.validate(
@@ -96,6 +97,7 @@ class AccessReleaseController extends Controller {
             { expiringTime, isRequiredField: false },
             { singleAccess, isRequiredField: false },
             { personTypeCategoryId, isRequiredField: false },
+            { initDate, isRequiredField: false },
             { personId },
             { personTypeId },
             { type }
@@ -118,7 +120,8 @@ class AccessReleaseController extends Controller {
             }],
             personId,
             personTypeId,
-            type
+            type,
+            initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined
           })
 
           const accessRelease = await AccessReleaseServiceImp.create(accessReleaseModel)
@@ -152,7 +155,8 @@ class AccessReleaseController extends Controller {
           await AccessReleaseServiceImp.disable({
             id: ObjectId(accessReleaseId),
             tenantId,
-            responsibleId: userId
+            responsibleId: userId,
+            status: AccessReleaseStatus.disabled
           })
 
           response.OK('Liberação de acesso desativado com sucesso!')
