@@ -48,12 +48,14 @@ class AccessSynchronizationController extends Controller {
 
           const {
             equipmentId,
+            accessPointId,
             personTypesIds
           } = request.body
 
           this.rules.validate(
             { equipmentId, isRequiredField: false },
-            { personTypesIds, isRequiredField: false }
+            { personTypesIds, isRequiredField: false },
+            { accessPointId, isRequiredField: false }
           )
 
           const accessSynchronizationModel = new AccessSynchronizationModel({
@@ -64,7 +66,8 @@ class AccessSynchronizationController extends Controller {
               userId
             }],
             equipmentId,
-            personTypesIds
+            personTypesIds,
+            accessPointId
           })
 
           const accessSynchronization = await AccessSynchronizationServiceImp.create(accessSynchronizationModel)

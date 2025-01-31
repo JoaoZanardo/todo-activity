@@ -105,6 +105,44 @@ export class AccessSynchronizationRepository extends Repository<IAccessSynchroni
   async list ({ limit, page, ...filters }: IListAccessSynchronizationsFilters): Promise<IAggregatePaginate<IAccessSynchronization>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
+      {
+        $lookup: {
+          from: 'persontypes',
+          let: { personTypesIds: '$personTypesIds' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ['$_id', '$$personTypesIds']
+                }
+              }
+            }
+          ],
+          as: 'personTypes'
+        }
+      },
+      {
+        $lookup: {
+          from: 'equipments',
+          localField: 'equipmentId',
+          foreignField: '_id',
+          as: 'area'
+        }
+      },
+      {
+        $lookup: {
+          from: 'accesspoints',
+          localField: 'accessPointId',
+          foreignField: '_id',
+          as: 'accessPoint'
+        }
+      },
+      {
+        $unwind: '$equipment'
+      },
+      {
+        $unwind: '$accessPoint'
+      },
       { $sort: { _id: -1 } }
     ])
 

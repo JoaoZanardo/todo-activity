@@ -46,6 +46,7 @@ export interface IAccessSynchronization extends IModel {
 
   personTypesIds: Array<Types.ObjectId>
   equipmentId: Types.ObjectId
+  accessPointId: Types.ObjectId
 }
 
 export class AccessSynchronizationModel extends Model<IAccessSynchronization> {
@@ -57,6 +58,7 @@ export class AccessSynchronizationModel extends Model<IAccessSynchronization> {
 
   private _personTypesIds: IAccessSynchronization['personTypesIds']
   private _equipmentId: IAccessSynchronization['equipmentId']
+  private _accessPointId: IAccessSynchronization['accessPointId']
 
   constructor (accessSynchronization: IAccessSynchronization) {
     super(accessSynchronization)
@@ -67,8 +69,9 @@ export class AccessSynchronizationModel extends Model<IAccessSynchronization> {
     this._executedsNumber = accessSynchronization.executedsNumber
     this._totalDocs = accessSynchronization.totalDocs
 
-    this._personTypesIds = accessSynchronization.personTypesIds
-    this._equipmentId = accessSynchronization.equipmentId
+    this._personTypesIds = accessSynchronization.personTypesIds.map(personTypeId => ObjectId(personTypeId))
+    this._equipmentId = ObjectId(accessSynchronization.equipmentId)
+    this._accessPointId = ObjectId(accessSynchronization.accessPointId)
   }
 
   get personTypesIds (): IAccessSynchronization['personTypesIds'] {
@@ -101,7 +104,8 @@ export class AccessSynchronizationModel extends Model<IAccessSynchronization> {
       totalDocs: this._totalDocs,
       executedsNumber: this._executedsNumber,
       personTypesIds: this._personTypesIds,
-      equipmentId: this._equipmentId
+      equipmentId: this._equipmentId,
+      accessPointId: this._accessPointId
     }
   }
 

@@ -33,6 +33,10 @@ class AccessSynchronizationSchema extends Schema<IAccessSynchronizationDocument>
       equipmentId: {
         type: Types.ObjectId,
         required: true
+      },
+      accessPointId: {
+        type: Types.ObjectId,
+        required: true
       }
     })
 
