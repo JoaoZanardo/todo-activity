@@ -73,7 +73,7 @@ export class AccessSynchronizationService {
         session
       })
 
-      console.log(data: {
+      console.log({
         totalDocs: accessReleases.length
       })
 
