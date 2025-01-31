@@ -52,14 +52,16 @@ export class AccessSynchronizationService {
 
     await Promise.all(
       accessSynchronization.personTypesIds.map(async personTypeId => {
-        const accessReleases = await AccessReleaseServiceImp.findAllByPersonTypeId({
+        const accessReleasesDocs = await AccessReleaseServiceImp.findAllByPersonTypeId({
           personTypeId,
           tenantId
         })
 
-        console.log({ accessReleases })
+        console.log({ accessReleasesDocs })
 
-        accessReleases.push(...accessReleases)
+        accessReleases.push(...accessReleasesDocs)
+
+        return accessReleasesDocs
       })
     )
 
