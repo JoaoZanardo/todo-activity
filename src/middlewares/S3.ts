@@ -25,7 +25,6 @@ export const S3Middleware = async (request: Request, response: Response, next: N
     let quality = 90
 
     while (compressedImageBuffer.length > MAX_IMAGE_SIZE && quality > 10) {
-      console.log(compressedImageBuffer.length, MAX_IMAGE_SIZE, compressedImageBuffer.length > MAX_IMAGE_SIZE)
       compressedImageBuffer = await sharp(compressedImageBuffer)
         .jpeg({ quality })
         .toBuffer()

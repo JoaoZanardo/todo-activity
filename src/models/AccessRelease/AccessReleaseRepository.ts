@@ -67,10 +67,6 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
     personTypeId,
     tenantId
   }: IFindAllAccessReleaseByPersonTypeId): Promise<Array<Partial<IAccessRelease>>> {
-    console.log({
-      personTypeId,
-      tenantId
-    })
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       {
         $match: {
@@ -101,8 +97,6 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
     const documents = await this.mongoDB.aggregatePaginate(aggregationStages, {
       limit: 5000
     })
-
-    console.log({ documents })
 
     return documents.docs
   }

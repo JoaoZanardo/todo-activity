@@ -3,7 +3,6 @@ import { Types } from 'mongoose'
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { IAccessRelease } from '../../models/AccessRelease/AccessReleaseModel'
-import { IEquipment } from '../../models/Equipment/EquipmentModel'
 import ObjectId from '../../utils/ObjectId'
 
 export interface IListAccessSynchronizationsFilters extends IListModelsFilters {}
@@ -28,7 +27,10 @@ export interface ISynchronizeProps {
   accessSynchronizationId: Types.ObjectId
   accessReleases: Array<Partial<IAccessRelease>>
   tenantId: Types.ObjectId
-  equipment: IEquipment
+  equipment: {
+    id: Types.ObjectId
+    ip: string
+  }
 }
 
 export interface ISyncError {

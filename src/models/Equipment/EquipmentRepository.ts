@@ -11,13 +11,11 @@ export class EquipmentRepository extends Repository<IEquipmentMongoDB, Equipment
     id,
     tenantId
   }: IFindModelByIdProps): Promise<EquipmentModel | null> {
-    const match: FilterQuery<IEquipment> = {
+    const document = await this.mongoDB.findOne({
       _id: id,
       tenantId,
       deletionDate: null
-    }
-
-    const document = await this.mongoDB.findOne(match).lean()
+    })
     if (!document) return null
 
     return new EquipmentModel(document)

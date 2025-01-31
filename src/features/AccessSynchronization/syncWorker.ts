@@ -12,8 +12,8 @@ process.on('message', async ({
   console.log('Starting Equipment Synchronization', {
     accessReleases: accessReleases.length,
     accessSynchronizationId,
-    equipment,
-    tenantId
+    tenantId,
+    equipment
   })
 
   try {

@@ -91,8 +91,6 @@ export class AccessReleaseService {
 
     const { initDate, endDate } = accessRelease.object
 
-    console.log({ initDate, endDate })
-
     if (endDate! < initDate!) throw CustomResponse.UNPROCESSABLE_ENTITY('A data de término deve ser maior que a data de início!')
 
     const createdAccessRelease = await this.accessReleaseRepositoryImp.create(accessRelease)

@@ -57,15 +57,11 @@ export class AccessSynchronizationService {
           tenantId
         })
 
-        console.log({ accessReleasesDocs })
-
         accessReleases.push(...accessReleasesDocs)
 
         return accessReleasesDocs
       })
     )
-
-    console.log(accessReleases, accessReleases.length)
 
     if (accessReleases.length) {
       await this.accessSynchronizationRepositoryImp.update({
@@ -77,16 +73,15 @@ export class AccessSynchronizationService {
         session
       })
 
-      console.log({
-        totalDocs: accessReleases.length
-      })
-
       const worker = fork(path.resolve(__dirname, './syncWorker.js'))
 
       worker.send({
         accessReleases,
         accessSynchronizationId: createdAccessSynchronization._id,
-        equipment,
+        equipment: {
+          id: equipment._id,
+          ip: equipment.ip
+        },
         tenantId
       })
     }
@@ -123,7 +118,7 @@ export class AccessSynchronizationService {
             id: accessSynchronizationId!,
             tenantId,
             syncError: {
-              equipmentId: equipment._id!,
+              equipmentId: equipment.id!,
               equipmentIp: equipment.ip,
               message: error.message
             }
