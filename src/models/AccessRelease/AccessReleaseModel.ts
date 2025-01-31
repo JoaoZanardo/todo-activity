@@ -1,4 +1,5 @@
 import { Types } from 'mongoose'
+import { IPersonTypeCategory } from 'src/models/PersonTypeCategory/PersonTypeCategoryModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -7,7 +8,7 @@ import { addExpiringTime } from '../../utils/addExpiringTime'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
 import { IAccessPoint } from '../AccessPoint/AccessPointModel'
-import { ExpiringTime } from '../PersonType/PersonTypeModel'
+import { ExpiringTime, IPersonType } from '../PersonType/PersonTypeModel'
 
 export interface IListAccessReleasesFilters extends IListModelsFilters {
   personId?: Types.ObjectId
@@ -85,7 +86,10 @@ export interface IAccessRelease extends IModel {
   endDate?: Date
 
   person?: IPerson
+  personType?: IPersonType
+  personTypeCategory?: IPersonTypeCategory
   responsible?: IPerson
+  accessPoint?: IAccessPoint
 
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
@@ -107,6 +111,9 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
 
   private _person?: IAccessRelease['person']
   private _responsible?: IAccessRelease['responsible']
+  private _personType?: IAccessRelease['personType']
+  private _personTypeCategory?: IAccessRelease['personTypeCategory']
+  private _accessPoint?: IAccessRelease['accessPoint']
 
   private _personId: IAccessRelease['personId']
   private _personTypeId: IAccessRelease['personTypeId']
@@ -128,6 +135,9 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
+    this._personType = accessRelease.personType
+    this._personTypeCategory = accessRelease.personTypeCategory
+    this._accessPoint = accessRelease.accessPoint
 
     this._accessPointId = ObjectId(accessRelease.accessPointId)
     this._type = accessRelease.type
@@ -199,7 +209,10 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     return {
       ...this.object,
       person: this._person,
-      responsible: this._responsible
+      personType: this._personType,
+      personTypeCategory: this._personTypeCategory,
+      responsible: this._responsible,
+      accessPoint: this._accessPoint
     }
   }
 

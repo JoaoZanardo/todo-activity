@@ -122,10 +122,57 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         }
       },
       {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
+        }
+      },
+      {
+        $lookup: {
+          from: 'persontypes',
+          localField: 'personTypeId',
+          foreignField: '_id',
+          as: 'personType'
+        }
+      },
+      {
+        $lookup: {
+          from: 'persontypescategories',
+          localField: 'personTypeCategoryId',
+          foreignField: '_id',
+          as: 'personTypeCategory'
+        }
+      },
+      {
+        $lookup: {
+          from: 'accesspoints',
+          localField: 'accessPointId',
+          foreignField: '_id',
+          as: 'accessPoint'
+        }
+      },
+      {
         $unwind: {
           path: '$responsible',
           preserveNullAndEmptyArrays: true
         }
+      },
+      {
+        $unwind: {
+          path: '$personTypeCategory',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: '$person'
+      },
+      {
+        $unwind: '$personType'
+      },
+      {
+        $unwind: '$accesspoint'
       },
       { $sort: { _id: -1 } }
     ])
