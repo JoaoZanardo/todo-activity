@@ -172,7 +172,7 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         $unwind: '$personType'
       },
       {
-        $unwind: '$accesspoint'
+        $unwind: '$accessPoint'
       },
       { $sort: { _id: -1 } }
     ])
