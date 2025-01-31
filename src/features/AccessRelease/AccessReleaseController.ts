@@ -33,7 +33,7 @@ class AccessReleaseController extends Controller {
 
           const accessReleases = await AccessReleaseServiceImp.list(filters)
 
-          response.OK('Liberações de acessos encontrados com sucesso!', {
+          response.OK('Liberações de acessos encontradas com sucesso!', {
             accessReleases
           })
         } catch (error) {
@@ -55,8 +55,8 @@ class AccessReleaseController extends Controller {
             tenantId
           })
 
-          response.OK('Liberação de acesso encontrado com sucesso!', {
-            accessRelease
+          response.OK('Liberação de acesso encontrada com sucesso!', {
+            accessRelease: accessRelease?.show
           })
         } catch (error) {
           next(error)
@@ -129,7 +129,7 @@ class AccessReleaseController extends Controller {
           await session.commitTransaction()
           session.endSession()
 
-          response.CREATED('Liberação de acesso cadastrado com sucesso!', {
+          response.CREATED('Liberação de acesso cadastrada com sucesso!', {
             accessRelease: accessRelease.show
           })
         } catch (error) {
@@ -159,7 +159,7 @@ class AccessReleaseController extends Controller {
             status: AccessReleaseStatus.disabled
           })
 
-          response.OK('Liberação de acesso desativado com sucesso!')
+          response.OK('Liberação de acesso desativada com sucesso!')
         } catch (error) {
           next(error)
         }
