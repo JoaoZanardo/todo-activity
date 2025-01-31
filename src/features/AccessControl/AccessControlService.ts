@@ -6,7 +6,6 @@ import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AccessControlModel, AccessControlType, IAccessControl, ICreateAccessControlByEquipmentIpProps, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
 import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
-import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import { PersonModel } from '../../models/Person/PersonModel'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
@@ -59,21 +58,23 @@ export class AccessControlService {
       tenantId
     })
 
-    const accessRelease = await AccessReleaseRepositoryImp.findLastByPersonId({
+    const lastAccessRelease = await AccessReleaseServiceImp.findLastByPersonId({
       personId,
       tenantId
     })
 
-    if (!accessRelease) throw CustomResponse.BAD_REQUEST('Pessoa não possui liberação de acesso!')
-
+    if (
+      !lastAccessRelease ||
+      lastAccessRelease.status !== AccessReleaseStatus.active
+    ) throw CustomResponse.CONFLICT('Essa pessoa não possui uma liberação de acesso!')
     let accessType = AccessControlType.entry
 
-    if (accessPoint.object.generalExit && accessRelease.object.singleAccess) {
+    if (accessPoint.object.generalExit && lastAccessRelease.object.singleAccess) {
       accessType = AccessControlType.exit
 
       await Promise.all([
         AccessReleaseServiceImp.disable({
-          id: accessRelease._id!,
+          id: lastAccessRelease._id!,
           tenantId,
           status: AccessReleaseStatus.disabled
         }),
@@ -87,7 +88,7 @@ export class AccessControlService {
       personTypeId: person.personTypeId,
       tenantId,
       type: accessType, // mocked one
-      accessReleaseId: accessRelease._id!
+      accessReleaseId: lastAccessRelease._id!
     })
 
     return await this.accessControlRepositoryImp.create(accessControlModel)
