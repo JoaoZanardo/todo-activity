@@ -128,7 +128,7 @@ export class AccessSynchronizationRepository extends Repository<IAccessSynchroni
       },
       {
         $lookup: {
-          from: 'equipments',
+          from: 'equipment',
           localField: 'equipmentId',
           foreignField: '_id',
           as: 'equipment'
