@@ -57,6 +57,8 @@ export class AccessSynchronizationService {
           tenantId
         })
 
+        console.log({ accessReleases })
+
         accessReleases.push(...accessReleases)
       })
     )
