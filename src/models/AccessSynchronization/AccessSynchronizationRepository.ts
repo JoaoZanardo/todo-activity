@@ -131,7 +131,7 @@ export class AccessSynchronizationRepository extends Repository<IAccessSynchroni
           from: 'equipments',
           localField: 'equipmentId',
           foreignField: '_id',
-          as: 'area'
+          as: 'equipment'
         }
       },
       {
