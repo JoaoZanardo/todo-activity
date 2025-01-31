@@ -24,7 +24,10 @@ class AccessSynchronizationSchema extends Schema<IAccessSynchronizationDocument>
         default: []
       },
       endDate: Date,
-      totalDocs: Number,
+      totalDocs: {
+        type: Number,
+        default: 0
+      },
 
       personTypesIds: {
         type: Array<Types.ObjectId>,

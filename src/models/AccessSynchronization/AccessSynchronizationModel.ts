@@ -67,7 +67,7 @@ export class AccessSynchronizationModel extends Model<IAccessSynchronization> {
     this._endDate = accessSynchronization.endDate
     this._syncErrors = accessSynchronization.syncErrors
     this.eExecutedNumbers = accessSynchronization.executedNumbers
-    this._totalDocs = accessSynchronization.totalDocs
+    this._totalDocs = accessSynchronization.totalDocs ?? 0
 
     this._personTypesIds = accessSynchronization.personTypesIds.map(personTypeId => ObjectId(personTypeId))
     this._equipmentId = ObjectId(accessSynchronization.equipmentId)
