@@ -8,6 +8,7 @@ import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessRel
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { getPersonCodeByPersonId } from '../../utils/getPersonCodeByPersonId'
 import { AccessControlServiceImp } from '../AccessControl/AccessControlController'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
@@ -230,7 +231,7 @@ export class AccessReleaseService {
         const [error, _] = await to(
           EquipmentServer.addAccess({
             equipmentIp: equipment.ip,
-            personCode: person._id!,
+            personCode: getPersonCodeByPersonId(person._id!),
             personId: person._id!,
             personName: person.name,
             personPictureUrl: person.object.picture!,

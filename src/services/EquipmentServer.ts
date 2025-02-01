@@ -11,7 +11,7 @@ interface IAddAccessToEquipmentProps {
   endDate?: Date
 
   personId: Types.ObjectId
-  personCode: Types.ObjectId
+  personCode: number
   personName: string
   personPictureUrl: string
   equipmentIp: string
