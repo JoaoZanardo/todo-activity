@@ -105,13 +105,6 @@ export class AccessReleaseService {
     }
 
     if (DateUtils.isToday(createdAccessRelease.object.initDate!)) {
-      // await this.processAreaAccessPoints({
-      //   accessPoints: [accessPoint.object],
-      //   endDate: accessRelease.endDate!,
-      //   person,
-      //   tenantId
-      // })
-
       await Promise.all(
         areasIds.map(async areaId => {
           const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
@@ -121,7 +114,8 @@ export class AccessReleaseService {
               accessPoints,
               endDate: accessRelease.endDate!,
               person,
-              tenantId
+              tenantId,
+              accessRelease: createdAccessRelease.object
             })
           }
         })
@@ -195,7 +189,8 @@ export class AccessReleaseService {
     accessPoints,
     endDate,
     person,
-    tenantId
+    tenantId,
+    accessRelease
   }: IProcessAreaAccessPointsProps) {
     const personTypeId = person.personTypeId
 
@@ -210,7 +205,8 @@ export class AccessReleaseService {
             endDate,
             equipmentsIds,
             person,
-            tenantId
+            tenantId,
+            accessRelease
           })
         }
       })
@@ -221,7 +217,8 @@ export class AccessReleaseService {
     endDate,
     equipmentsIds,
     person,
-    tenantId
+    tenantId,
+    accessRelease
   }: IProcessEquipments) {
     await Promise.all(
       equipmentsIds.map(async (equipmentId) => {
@@ -243,7 +240,36 @@ export class AccessReleaseService {
           })
         )
 
-        if (error) console.log({ error: error.message })
+        let errorMessage
+
+        if (error) {
+          errorMessage = error.message
+
+          console.log({ errorMessage })
+        }
+
+        await this.accessReleaseRepositoryImp.update({
+          id: accessRelease._id!,
+          tenantId,
+          data: {
+            actions: [
+              ...accessRelease.actions!,
+              {
+                action: ModelAction.update,
+                date: DateUtils.getCurrent()
+              }
+            ],
+            synchronizations: [
+              ...accessRelease.synchronizations!,
+              {
+                equipmentId,
+                equipmentIp: equipment.ip,
+                error: !!errorMessage,
+                errorMessage
+              }
+            ]
+          }
+        })
       })
     )
   }

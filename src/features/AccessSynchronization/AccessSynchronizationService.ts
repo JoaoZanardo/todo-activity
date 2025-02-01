@@ -118,8 +118,7 @@ export class AccessSynchronizationService {
             id: accessSynchronizationId!,
             tenantId,
             syncError: {
-              equipmentId: equipment.id!,
-              equipmentIp: equipment.ip,
+              person,
               message: error.message
             }
           })

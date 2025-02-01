@@ -1,5 +1,4 @@
 import { Types } from 'mongoose'
-import { IPersonTypeCategory } from 'src/models/PersonTypeCategory/PersonTypeCategoryModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -9,6 +8,7 @@ import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
 import { IAccessPoint } from '../AccessPoint/AccessPointModel'
 import { ExpiringTime, IPersonType } from '../PersonType/PersonTypeModel'
+import { IPersonTypeCategory } from '../PersonTypeCategory/PersonTypeCategoryModel'
 
 export interface IListAccessReleasesFilters extends IListModelsFilters {
   personId?: Types.ObjectId
@@ -41,6 +41,7 @@ export interface IProcessAreaAccessPointsProps {
   accessPoints: Array<Partial<IAccessPoint>>
   person: PersonModel
   tenantId: Types.ObjectId
+  accessRelease: IAccessRelease
   endDate: Date
 }
 
@@ -48,6 +49,7 @@ export interface IProcessEquipments {
   equipmentsIds: Array<Types.ObjectId>
   person: PersonModel
   tenantId: Types.ObjectId
+  accessRelease: IAccessRelease
   endDate: Date
 }
 
@@ -73,6 +75,14 @@ export enum AccessReleaseStatus {
   conflict = 'conflict'
 }
 
+export interface IAccessReleaseSynchronization {
+  error?: boolean
+  errorMessage?: string
+
+  equipmentId: Types.ObjectId
+  equipmentIp: string
+}
+
 export interface IAccessRelease extends IModel {
   responsibleId?: Types.ObjectId
   observation?: string
@@ -84,6 +94,7 @@ export interface IAccessRelease extends IModel {
   status?: AccessReleaseStatus
   initDate?: Date
   endDate?: Date
+  synchronizations?: Array<IAccessReleaseSynchronization>
 
   person?: IPerson
   personType?: IPersonType
@@ -108,6 +119,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _status?: IAccessRelease['status']
   private _initDate?: IAccessRelease['initDate']
   private _endDate?: IAccessRelease['endDate']
+  private _synchronizations?: IAccessRelease['synchronizations']
 
   private _person?: IAccessRelease['person']
   private _responsible?: IAccessRelease['responsible']
@@ -132,6 +144,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._initDate = accessRelease.initDate ?? DateUtils.getCurrent()
     this._endDate = this._expiringTime ? addExpiringTime(this._expiringTime) : accessRelease.endDate
     this._status = accessRelease.status ?? (DateUtils.isToday(this._initDate) ? AccessReleaseStatus.active : AccessReleaseStatus.scheduled)
+    this._synchronizations = accessRelease.synchronizations ?? []
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
@@ -198,6 +211,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       status: this._status,
       initDate: this._initDate,
       endDate: this._endDate,
+      synchronizations: this._synchronizations,
 
       type: this._type,
       personId: this._personId,

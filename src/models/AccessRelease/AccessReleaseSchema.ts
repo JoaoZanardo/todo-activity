@@ -33,6 +33,27 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
       },
       initDate: Date,
       endDate: Date,
+      synchronizations: {
+        type: [
+          {
+            error: Boolean,
+            errorMessage: String,
+            accessPointId: {
+              type: Types.ObjectId,
+              required: true
+            },
+            equipmentId: {
+              type: Types.ObjectId,
+              required: true
+            },
+            equipmentIp: {
+              type: String,
+              required: true
+            }
+          }
+        ],
+        default: []
+      },
 
       type: {
         type: String,

@@ -4,6 +4,7 @@ import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps } from
 import Model from '../../core/Model'
 import { IAccessRelease } from '../../models/AccessRelease/AccessReleaseModel'
 import ObjectId from '../../utils/ObjectId'
+import { IPerson } from '../Person/PersonModel'
 
 export interface IListAccessSynchronizationsFilters extends IListModelsFilters {}
 
@@ -34,8 +35,7 @@ export interface ISynchronizeProps {
 }
 
 export interface ISyncError {
-  equipmentId: Types.ObjectId
-  equipmentIp: string
+  person: IPerson
   message: string
 }
 
