@@ -75,6 +75,10 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
       areasIds: {
         type: Array<Types.ObjectId>,
         required: true
+      },
+      finalAreaId: {
+        type: Types.ObjectId,
+        required: true
       }
     })
 

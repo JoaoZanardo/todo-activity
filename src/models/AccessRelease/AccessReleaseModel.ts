@@ -19,6 +19,12 @@ export interface IUpdateAccessReleaseProps extends IUpdateModelProps<IAccessRele
 
 export interface IDeleteAccessReleaseProps extends IDeleteModelProps { }
 
+export interface IUpdateAccessReleaseSynchronizationsProps {
+  id: Types.ObjectId
+  synchronization: IAccessReleaseSynchronization
+  tenantId: Types.ObjectId
+}
+
 export interface IDisableAccessReleaseProps {
   responsibleId?: Types.ObjectId
 
@@ -106,6 +112,7 @@ export interface IAccessRelease extends IModel {
   personTypeId: Types.ObjectId
   areasIds: Array<Types.ObjectId>
   accessPointId: Types.ObjectId
+  finalAreaId: Types.ObjectId
 }
 
 export class AccessReleaseModel extends Model<IAccessRelease> {
@@ -131,6 +138,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _personTypeId: IAccessRelease['personTypeId']
   private _areasIds: IAccessRelease['areasIds']
   private _accessPointId: IAccessRelease['accessPointId']
+  private _finalAreaId: IAccessRelease['finalAreaId']
 
   constructor (accessRelease: IAccessRelease) {
     super(accessRelease)
@@ -144,6 +152,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._initDate = accessRelease.initDate ?? DateUtils.getCurrent()
     this._endDate = this._expiringTime ? addExpiringTime(this._expiringTime) : accessRelease.endDate
     this._status = accessRelease.status ?? (DateUtils.isToday(this._initDate) ? AccessReleaseStatus.active : AccessReleaseStatus.scheduled)
+    this._observation = accessRelease.observation
     this._synchronizations = accessRelease.synchronizations ?? []
 
     this._person = accessRelease.person
@@ -156,8 +165,8 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._type = accessRelease.type
     this._personId = ObjectId(accessRelease.personId)
     this._personTypeId = ObjectId(accessRelease.personTypeId)
+    this._finalAreaId = ObjectId(accessRelease.finalAreaId)
     this._areasIds = accessRelease.areasIds.map(areaId => ObjectId(areaId))
-    this._observation = accessRelease.observation
     this.actions = accessRelease.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
@@ -215,7 +224,8 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
 
       type: this._type,
       personId: this._personId,
-      personTypeId: this._personTypeId
+      personTypeId: this._personTypeId,
+      finalAreaId: this._finalAreaId
     }
   }
 

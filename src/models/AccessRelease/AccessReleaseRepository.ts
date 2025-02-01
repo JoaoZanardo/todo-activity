@@ -3,7 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters } from './AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
 import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
 export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, AccessReleaseModel> {
@@ -213,6 +213,23 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       tenantId
     }, {
       $set: data
+    })
+
+    return !!updated.modifiedCount
+  }
+
+  async updateSynchronizations ({
+    id,
+    synchronization,
+    tenantId
+  }: IUpdateAccessReleaseSynchronizationsProps): Promise<boolean> {
+    const updated = await this.mongoDB.updateOne({
+      _id: id,
+      tenantId
+    }, {
+      $push: {
+        synchronizations: synchronization
+      }
     })
 
     return !!updated.modifiedCount

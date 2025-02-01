@@ -85,7 +85,8 @@ class AccessReleaseController extends Controller {
             expiringTime,
             singleAccess,
             personTypeCategoryId,
-            initDate
+            initDate,
+            finalAreaId
           } = request.body
 
           this.rules.validate(
@@ -100,7 +101,8 @@ class AccessReleaseController extends Controller {
             { initDate, isRequiredField: false },
             { personId },
             { personTypeId },
-            { type }
+            { type },
+            { areaId: finalAreaId }
           )
 
           const accessReleaseModel = new AccessReleaseModel({
@@ -121,6 +123,7 @@ class AccessReleaseController extends Controller {
             personId,
             personTypeId,
             type,
+            finalAreaId,
             initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined
           })
 

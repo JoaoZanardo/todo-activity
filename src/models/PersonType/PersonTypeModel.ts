@@ -10,6 +10,7 @@ export interface IUpdatePersonTypeProps extends IUpdateModelProps<IPersonType> {
 export interface IDeletePersonTypeProps extends IDeleteModelProps {}
 
 export enum TimeUnit {
+  minute = 'minute',
   hour = 'hour',
   day = 'day',
   month = 'month',

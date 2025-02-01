@@ -248,26 +248,14 @@ export class AccessReleaseService {
           console.log({ errorMessage })
         }
 
-        await this.accessReleaseRepositoryImp.update({
+        await this.accessReleaseRepositoryImp.updateSynchronizations({
           id: accessRelease._id!,
           tenantId,
-          data: {
-            actions: [
-              ...accessRelease.actions!,
-              {
-                action: ModelAction.update,
-                date: DateUtils.getCurrent()
-              }
-            ],
-            synchronizations: [
-              ...accessRelease.synchronizations!,
-              {
-                equipmentId,
-                equipmentIp: equipment.ip,
-                error: !!errorMessage,
-                errorMessage
-              }
-            ]
+          synchronization: {
+            equipmentId,
+            equipmentIp: equipment.ip,
+            error: !!errorMessage,
+            errorMessage
           }
         })
       })
