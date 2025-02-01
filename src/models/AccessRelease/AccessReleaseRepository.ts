@@ -88,6 +88,17 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       {
         $unwind: '$person'
       },
+      {
+        $lookup: {
+          from: 'persontypes',
+          localField: 'person.personTypeId',
+          foreignField: '_id',
+          as: 'person.personType'
+        }
+      },
+      {
+        $unwind: '$person.personType'
+      },
       // {
       //   $project
       // }
