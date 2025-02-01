@@ -25,7 +25,7 @@ export class PersonTypeService {
   async findAll ({
     tenantId,
     select
-  }: IFindAllModelsProps): Promise<Array<Partial<PersonTypeModel>>> {
+  }: IFindAllModelsProps): Promise<Array<Partial<IPersonType>>> {
     return await this.personTypeRepositoryImp.findAll({
       tenantId,
       select

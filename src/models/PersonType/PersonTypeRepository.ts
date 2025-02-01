@@ -42,11 +42,13 @@ export class PersonTypeRepository extends Repository<IPersonTypeMongoDB, PersonT
   async findAll ({
     tenantId,
     select
-  }: IFindAllModelsProps): Promise<Array<Partial<PersonTypeModel>>> {
-    return await this.mongoDB.find({
+  }: IFindAllModelsProps): Promise<Array<Partial<IPersonType>>> {
+    const documents = await this.mongoDB.find({
       tenantId,
       deletionDate: null
     }, select)
+
+    return documents
   }
 
   async create (personType: PersonTypeModel, session: ClientSession): Promise<PersonTypeModel> {
