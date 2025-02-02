@@ -28,6 +28,7 @@ export enum AccessControlType {
 
 export interface IAccessControl extends IModel {
   picture?: string
+  personTypeCategoryId?: Types.ObjectId
 
   type: AccessControlType
   personId: Types.ObjectId
@@ -38,6 +39,7 @@ export interface IAccessControl extends IModel {
 
 export class AccessControlModel extends Model<IAccessControl> {
   private _picture?: IAccessControl['picture']
+  private _personTypeCategoryId?: IAccessControl['personTypeCategoryId']
 
   private _type: IAccessControl['type']
   private _personId: IAccessControl['personId']
@@ -49,6 +51,7 @@ export class AccessControlModel extends Model<IAccessControl> {
     super(accessControl)
 
     this._picture = accessControl.picture
+    this._personTypeCategoryId = accessControl.personTypeCategoryId ? ObjectId(accessControl.personTypeCategoryId) : undefined
 
     this._accessPointId = ObjectId(accessControl.accessPointId)
     this._accessReleaseId = ObjectId(accessControl.accessReleaseId)
@@ -79,6 +82,7 @@ export class AccessControlModel extends Model<IAccessControl> {
       deletionDate: this.deletionDate,
       accessPointId: this._accessPointId,
       picture: this._picture,
+      personTypeCategoryId: this._personTypeCategoryId,
 
       type: this._type,
       personId: this._personId,

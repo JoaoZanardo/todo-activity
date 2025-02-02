@@ -26,6 +26,10 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
         type: Types.ObjectId,
         required: true
       },
+      personTypeCategoryId: {
+        type: Types.ObjectId,
+        required: true
+      },
       accessPointId: {
         type: Types.ObjectId,
         required: true
