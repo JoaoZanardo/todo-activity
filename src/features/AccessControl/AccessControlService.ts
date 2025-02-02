@@ -80,6 +80,11 @@ export class AccessControlService {
         }),
         this.removeAllAccessFromPerson(person, tenantId)
       ])
+
+      await AccessReleaseServiceImp.updateEndDateToCurrent({
+        id: lastAccessRelease._id!,
+        tenantId
+      })
     }
 
     const accessControlModel = new AccessControlModel({

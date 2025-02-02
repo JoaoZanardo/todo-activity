@@ -150,6 +150,7 @@ export class AccessReleaseService {
       data: {
         active: false,
         status,
+        endDate: DateUtils.getCurrent(),
         actions: [
           ...accessRelease.actions!,
           {
@@ -212,6 +213,19 @@ export class AccessReleaseService {
         }
       })
     )
+  }
+
+  async updateEndDateToCurrent ({
+    id,
+    tenantId
+  }: IFindModelByIdProps): Promise<void> {
+    await this.accessReleaseRepositoryImp.update({
+      id,
+      tenantId,
+      data: {
+        endDate: DateUtils.getCurrent()
+      }
+    })
   }
 
   private async processEquipments ({
