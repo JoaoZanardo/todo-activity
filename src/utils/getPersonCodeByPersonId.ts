@@ -1,6 +1,6 @@
 import { Types } from 'mongoose'
 
-export const getPersonCodeByPersonId = (personId: Types.ObjectId): number => {
+export const getPersonCodeByPersonId = (personId: Types.ObjectId): string => {
   const str = String(personId).split('')
 
   let finalSum = 0
@@ -11,5 +11,5 @@ export const getPersonCodeByPersonId = (personId: Types.ObjectId): number => {
     }
   })
 
-  return (finalSum * Math.floor(Math.random() * 99999))
+  return String((finalSum * Math.floor(Math.random() * 99999)))
 }
