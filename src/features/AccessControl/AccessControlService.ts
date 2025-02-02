@@ -88,7 +88,8 @@ export class AccessControlService {
       personTypeId: person.personTypeId,
       tenantId,
       type: accessType, // mocked one
-      accessReleaseId: lastAccessRelease._id!
+      accessReleaseId: lastAccessRelease._id!,
+      picture: lastAccessRelease.object.picture
     })
 
     return await this.accessControlRepositoryImp.create(accessControlModel)

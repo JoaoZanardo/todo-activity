@@ -5,6 +5,9 @@ export const addExpiringTime = (expiringTime: ExpiringTime): Date => {
   const now = DateUtils.getCurrent()
 
   switch (expiringTime.unit) {
+    case TimeUnit.minute:
+      now.setMinutes(now.getMinutes() + Number(expiringTime.value))
+      break
     case TimeUnit.hour:
       now.setHours(now.getHours() + Number(expiringTime.value))
       break
