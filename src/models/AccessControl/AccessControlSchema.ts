@@ -12,6 +12,7 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
     const accessControl = new mongoose.Schema({
       ...coreSchema,
       picture: String,
+      personTypeCategoryId: Types.ObjectId,
 
       type: {
         type: String,
@@ -23,10 +24,6 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
         required: true
       },
       personTypeId: {
-        type: Types.ObjectId,
-        required: true
-      },
-      personTypeCategoryId: {
         type: Types.ObjectId,
         required: true
       },
