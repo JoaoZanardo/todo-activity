@@ -128,6 +128,13 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
       },
       {
         $set: {
+          accessReleasesNumber: {
+            $size: '$lastAccessRelease'
+          }
+        }
+      },
+      {
+        $set: {
           lastAccessRelease: {
             $arrayElemAt: [
               {
