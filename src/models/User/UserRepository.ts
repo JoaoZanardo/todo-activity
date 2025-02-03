@@ -45,6 +45,13 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     login,
     tenantId
   }: IFindUserByLoginProps): Promise<UserModel | null> {
+    console.log({
+      login,
+      tenantId,
+      deletionDate: null,
+      active: false
+    })
+
     const pipeline: Array<PipelineStage> = [
       {
         $match: {
