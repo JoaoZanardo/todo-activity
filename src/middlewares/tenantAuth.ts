@@ -8,6 +8,8 @@ export const tenantAuthMiddleware = async (request: Request, response: Response,
   try {
     const tenantId = request.headers.tenant as string
 
+    console.log('tenantId', tenantId)
+
     if (!tenantId) throw CustomResponse.UNAUTHORIZED('Acesso negado!')
 
     const tenant = await TenantServiceImp.findById(ObjectId(tenantId))
