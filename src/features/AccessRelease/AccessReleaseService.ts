@@ -122,6 +122,21 @@ export class AccessReleaseService {
             }
           })
         )
+
+        await this.accessReleaseRepositoryImp.update({
+          id: accessRelease._id!,
+          tenantId,
+          data: {
+            status: AccessReleaseStatus.active,
+            actions: [
+              ...accessRelease.actions!,
+              {
+                action: ModelAction.update,
+                date: DateUtils.getCurrent()
+              }
+            ]
+          }
+        })
       }
 
       if (createdAccessRelease.initDate! > DateUtils.getCurrent()) {
