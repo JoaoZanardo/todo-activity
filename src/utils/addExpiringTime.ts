@@ -1,7 +1,7 @@
 import { ExpiringTime, TimeUnit } from '../models/PersonType/PersonTypeModel'
 
 export const addExpiringTime = (expiringTime: ExpiringTime, date: Date): Date => {
-  const newDate = date
+  const newDate = new Date(date)
 
   switch (expiringTime.unit) {
     case TimeUnit.minute:
