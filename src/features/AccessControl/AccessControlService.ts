@@ -101,6 +101,44 @@ export class AccessControlService {
   }
 
   async create (accessControl: AccessControlModel): Promise<AccessControlModel> {
+    const { tenantId, accessPointId, personId } = accessControl
+
+    const accessPoint = await AccessPointServiceImp.findById({
+      id: accessPointId,
+      tenantId
+    })
+
+    const person = await PersonServiceImp.findById({
+      id: personId,
+      tenantId
+    })
+
+    const lastAccessRelease = await AccessReleaseServiceImp.findLastByPersonId({
+      personId,
+      tenantId
+    })
+
+    if (
+      !lastAccessRelease ||
+      lastAccessRelease.status !== AccessReleaseStatus.active
+    ) throw CustomResponse.CONFLICT('Essa pessoa não possui uma liberação de acesso!')
+
+    if (accessPoint.object.generalExit && lastAccessRelease.object.singleAccess) {
+      await Promise.all([
+        AccessReleaseServiceImp.disable({
+          id: lastAccessRelease._id!,
+          tenantId,
+          status: AccessReleaseStatus.disabled
+        }),
+        this.removeAllAccessFromPerson(person, tenantId)
+      ])
+
+      await AccessReleaseServiceImp.updateEndDateToCurrent({
+        id: lastAccessRelease._id!,
+        tenantId
+      })
+    }
+
     return await this.accessControlRepositoryImp.create(accessControl)
   }
 
