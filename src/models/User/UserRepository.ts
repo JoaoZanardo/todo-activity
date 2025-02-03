@@ -67,11 +67,6 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
           path: '$accessGroup',
           preserveNullAndEmptyArrays: true
         }
-      },
-      {
-        $project: {
-          password: 0
-        }
       }
     ]
 
