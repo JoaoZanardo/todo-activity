@@ -45,15 +45,41 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     login,
     tenantId
   }: IFindUserByLoginProps): Promise<UserModel | null> {
-    const document = await this.mongoDB.findOne({
-      login,
-      tenantId,
-      active: true,
-      deletionDate: null
-    })
-    if (!document) return null
+    const pipeline: Array<PipelineStage> = [
+      {
+        $match: {
+          login,
+          tenantId,
+          deletionDate: null,
+          active: false
+        }
+      },
+      {
+        $lookup: {
+          from: 'accessgroups',
+          localField: 'accessGroupId',
+          foreignField: '_id',
+          as: 'accessGroup'
+        }
+      },
+      {
+        $unwind: {
+          path: '$accessGroup',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          password: 0
+        }
+      }
+    ]
 
-    return new UserModel(document)
+    const result = await this.mongoDB.aggregate(pipeline).exec()
+
+    if (!result.length) return null
+
+    return new UserModel(result[0])
   }
 
   async create (user: UserModel, session?: ClientSession): Promise<UserModel> {
