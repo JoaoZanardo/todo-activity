@@ -45,20 +45,13 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     login,
     tenantId
   }: IFindUserByLoginProps): Promise<UserModel | null> {
-    console.log({
-      login,
-      tenantId,
-      deletionDate: null,
-      active: false
-    })
-
     const pipeline: Array<PipelineStage> = [
       {
         $match: {
           login,
           tenantId,
           deletionDate: null,
-          active: false
+          active: true
         }
       },
       {
@@ -83,8 +76,6 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     ]
 
     const result = await this.mongoDB.aggregate(pipeline)
-
-    console.log({ result })
 
     if (!result.length) return null
 
