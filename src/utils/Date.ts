@@ -16,8 +16,6 @@ export const DateUtils = {
     return date
   },
   parse: (dateInput: string | Date): Date | null => {
-    console.log({ dateInput })
-
     if (dateInput instanceof Date && !isNaN(dateInput.getTime())) {
       return dateInput
     }
@@ -34,10 +32,12 @@ export const DateUtils = {
 
     const parsedDate = moment(dateInput, dateFormats, 'America/Sao_Paulo', true)
 
-    console.log({ parsedDate, parsedDateToDate: parsedDate.toDate() })
-
     if (parsedDate.isValid()) {
-      return parsedDate.toDate()
+      const date = parsedDate.toDate()
+
+      date.setHours(date.getHours() - 3)
+
+      return date
     }
 
     return null
