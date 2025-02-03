@@ -75,7 +75,9 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
       }
     ]
 
-    const result = await this.mongoDB.aggregate(pipeline).exec()
+    const result = await this.mongoDB.aggregate(pipeline)
+
+    console.log({ result })
 
     if (!result.length) return null
 
