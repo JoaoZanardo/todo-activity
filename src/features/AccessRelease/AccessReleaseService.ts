@@ -1,5 +1,6 @@
 import to from 'await-to-js'
 import schedule from 'node-schedule'
+import { AccessPointServiceImp } from 'src/features/AccessPoint/AccessPointController'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
@@ -10,7 +11,6 @@ import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { getPersonCodeByPersonId } from '../../utils/getPersonCodeByPersonId'
 import { AccessControlServiceImp } from '../AccessControl/AccessControlController'
-import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
@@ -106,21 +106,34 @@ export class AccessReleaseService {
     }
 
     if (DateUtils.isToday(createdAccessRelease.object.initDate!)) {
-      await Promise.all(
-        areasIds.map(async areaId => {
-          const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
+      const syncEquipments = async () => {
+        await Promise.all(
+          areasIds.map(async areaId => {
+            const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
 
-          if (accessPoints.length) {
-            await this.processAreaAccessPoints({
-              accessPoints,
-              endDate: accessRelease.endDate!,
-              person,
-              tenantId,
-              accessRelease: createdAccessRelease.object
-            })
-          }
+            if (accessPoints.length) {
+              await this.processAreaAccessPoints({
+                accessPoints,
+                endDate: accessRelease.endDate!,
+                person,
+                tenantId,
+                accessRelease: createdAccessRelease.object
+              })
+            }
+          })
+        )
+      }
+
+      if (createdAccessRelease.initDate! > DateUtils.getCurrent()) {
+        const adjustedExecutionDate = new Date(createdAccessRelease.initDate!)
+        adjustedExecutionDate.setHours(createdAccessRelease.initDate!.getHours() + 3)
+
+        schedule.scheduleJob(adjustedExecutionDate, async () => {
+          await syncEquipments()
         })
-      )
+      } else {
+        await syncEquipments()
+      }
     }
 
     return createdAccessRelease

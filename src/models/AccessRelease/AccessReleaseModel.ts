@@ -194,6 +194,10 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     return this._personId
   }
 
+  get initDate (): IAccessRelease['initDate'] {
+    return this._initDate
+  }
+
   get accessPointId (): IAccessRelease['accessPointId'] {
     return this._accessPointId
   }

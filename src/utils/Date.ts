@@ -16,6 +16,8 @@ export const DateUtils = {
     return date
   },
   parse: (dateInput: string | Date): Date | null => {
+    console.log({ dateInput })
+
     if (dateInput instanceof Date && !isNaN(dateInput.getTime())) {
       return dateInput
     }
@@ -31,6 +33,8 @@ export const DateUtils = {
     ]
 
     const parsedDate = moment(dateInput, dateFormats, true)
+
+    console.log({ parsedDate, parsedDateToDate: parsedDate.toDate() })
 
     if (parsedDate.isValid()) {
       return parsedDate.toDate()

@@ -105,6 +105,8 @@ class AccessReleaseController extends Controller {
             { areaId: finalAreaId }
           )
 
+          console.log({ initDate })
+
           const accessReleaseModel = new AccessReleaseModel({
             expiringTime,
             singleAccess,
