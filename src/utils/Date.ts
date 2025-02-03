@@ -32,7 +32,7 @@ export const DateUtils = {
       moment.ISO_8601
     ]
 
-    const parsedDate = moment(dateInput, dateFormats, true)
+    const parsedDate = moment(dateInput, dateFormats, 'America/Sao_Paulo', true)
 
     console.log({ parsedDate, parsedDateToDate: parsedDate.toDate() })
 

@@ -152,7 +152,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._endDate = accessRelease.endDate ??
       (this._expiringTime ? addExpiringTime(this._expiringTime, (accessRelease.initDate ?? DateUtils.getCurrent())) : accessRelease.endDate)
     this._initDate = accessRelease.initDate ?? DateUtils.getCurrent()
-    this._status = accessRelease.status ?? (DateUtils.isToday(this._initDate) ? AccessReleaseStatus.active : AccessReleaseStatus.scheduled)
+    this._status = accessRelease.status ?? (this._initDate >= DateUtils.getCurrent() ? AccessReleaseStatus.active : AccessReleaseStatus.scheduled)
     this._observation = accessRelease.observation
     this._synchronizations = accessRelease.synchronizations ?? []
 
