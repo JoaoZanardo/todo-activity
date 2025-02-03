@@ -48,6 +48,7 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     const document = await this.mongoDB.findOne({
       login,
       tenantId,
+      active: false,
       deletionDate: null
     })
     if (!document) return null

@@ -137,7 +137,7 @@ export class UserService {
       tenantId
     })
     if (!user) {
-      throw CustomResponse.NOT_FOUND('Usuário não cadastrado!', {
+      throw CustomResponse.NOT_FOUND('Usuário não ativo no sistema!', {
         login
       })
     }
