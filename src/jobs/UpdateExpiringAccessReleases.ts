@@ -11,31 +11,39 @@ export const UpdateExpiringAccessReleases = async () => {
     console.log(`UpdateExpiringAccessReleases - ${accessReleases.length}`)
 
     if (accessReleases.length) {
-      await Promise.all([
-        accessReleases.map(async accessRelease => {
-          if (accessRelease.endDate! > DateUtils.getCurrent()) {
-            const adjustedExecutionDate = new Date(accessRelease.endDate!)
-            adjustedExecutionDate.setHours(accessRelease.endDate!.getHours() + 3)
+      await Promise.all(
+        accessReleases.map(async (accessRelease) => {
+          try {
+            if (accessRelease.endDate! > DateUtils.getCurrent()) {
+              const adjustedExecutionDate = new Date(accessRelease.endDate!)
+              adjustedExecutionDate.setHours(accessRelease.endDate!.getHours() + 3)
 
-            schedule.scheduleJob(adjustedExecutionDate, async () => {
-              await AccessReleaseServiceImp.scheduleDisable({
-                accessReleaseId: accessRelease._id!,
-                endDate: accessRelease.endDate!,
+              schedule.scheduleJob(adjustedExecutionDate, async () => {
+                try {
+                  await AccessReleaseServiceImp.scheduleDisable({
+                    accessReleaseId: accessRelease._id!,
+                    endDate: accessRelease.endDate!,
+                    tenantId: accessRelease.tenantId!,
+                    status: AccessReleaseStatus.expired
+                  })
+                } catch (error) {
+                  console.error(`Error scheduling disable: ${error}`)
+                }
+              })
+            } else {
+              await AccessReleaseServiceImp.disable({
+                id: accessRelease._id!,
                 tenantId: accessRelease.tenantId!,
                 status: AccessReleaseStatus.expired
               })
-            })
-          } else {
-            await AccessReleaseServiceImp.disable({
-              id: accessRelease._id!,
-              tenantId: accessRelease.tenantId!,
-              status: AccessReleaseStatus.expired
-            })
+            }
+          } catch (error) {
+            console.error(`UpdateExpiringAccessReleasesError - MAP: ${error}`)
           }
         })
-      ])
+      )
     }
   } catch (error) {
-    console.log(`UpdateExpiringAccessReleasesError - ${error}`)
+    console.error(`UpdateExpiringAccessReleasesError: ${error}`)
   }
 }

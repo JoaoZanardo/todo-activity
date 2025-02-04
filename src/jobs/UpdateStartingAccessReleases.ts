@@ -13,43 +13,47 @@ export const UpdateStartingAccessReleases = async () => {
     if (accessReleases.length) {
       await Promise.all([
         accessReleases.map(async accessRelease => {
-          const tenantId = accessRelease.tenantId!
+          try {
+            const tenantId = accessRelease.tenantId!
 
-          const lastAccessRelease = await AccessReleaseServiceImp.findLastByPersonId({
-            personId: accessRelease.personId!,
-            tenantId
-          })
-
-          if (
-            lastAccessRelease &&
-            lastAccessRelease.status === AccessReleaseStatus.active
-          ) {
-            await AccessReleaseRepositoryImp.update({
-              id: accessRelease._id!,
-              tenantId,
-              data: {
-                actions: [
-                  ...accessRelease.actions!,
-                  {
-                    action: ModelAction.update,
-                    date: DateUtils.getCurrent()
-                  }
-                ],
-                active: false,
-                status: AccessReleaseStatus.conflict
-              }
-            })
-          } else {
-            await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
-              accessRelease: accessRelease as IAccessRelease,
+            const lastAccessRelease = await AccessReleaseServiceImp.findLastByPersonId({
               personId: accessRelease.personId!,
               tenantId
             })
+
+            if (
+              lastAccessRelease &&
+              lastAccessRelease.status === AccessReleaseStatus.active
+            ) {
+              await AccessReleaseRepositoryImp.update({
+                id: accessRelease._id!,
+                tenantId,
+                data: {
+                  actions: [
+                    ...accessRelease.actions!,
+                    {
+                      action: ModelAction.update,
+                      date: DateUtils.getCurrent()
+                    }
+                  ],
+                  active: false,
+                  status: AccessReleaseStatus.conflict
+                }
+              })
+            } else {
+              await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
+                accessRelease: accessRelease as IAccessRelease,
+                personId: accessRelease.personId!,
+                tenantId
+              })
+            }
+          } catch (error) {
+            console.log(`UpdateStartingAccessReleasesError - MAP: ${error}`)
           }
         })
       ])
     }
   } catch (error) {
-    console.log(`UpdateStartingAccessReleasesError - ${error}`)
+    console.log(`UpdateStartingAccessReleasesError: ${error}`)
   }
 }
