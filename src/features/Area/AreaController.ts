@@ -80,13 +80,15 @@ class AreaController extends Controller {
             analysis,
             name,
             description,
-            areaId
+            areaId,
+            active
           } = request.body
 
           this.rules.validate(
             { analysis, isRequiredField: false },
             { description, isRequiredField: false },
             { areaId, isRequiredField: false },
+            { active, isRequiredField: false },
             { name },
             { type }
           )
@@ -98,6 +100,7 @@ class AreaController extends Controller {
             areaId,
             analysis,
             tenantId,
+            active,
             actions: [{
               action: ModelAction.create,
               date: DateUtils.getCurrent(),

@@ -80,12 +80,14 @@ class PersonTypeCategoryController extends Controller {
             description,
             expiringTime,
             appAccess,
-            personTypeId
+            personTypeId,
+            active
           } = request.body
 
           this.rules.validate(
             { name },
             { personTypeId },
+            { active, isRequiredField: false },
             { description, isRequiredField: false },
             { expiringTime, isRequiredField: false },
             { appAccess, isRequiredField: false }
@@ -93,6 +95,7 @@ class PersonTypeCategoryController extends Controller {
 
           const personTypeCategoryModel = new PersonTypeCategoryModel({
             tenantId,
+            active,
             actions: [{
               action: ModelAction.create,
               date: DateUtils.getCurrent(),

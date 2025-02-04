@@ -69,7 +69,8 @@ class AccessPointController extends Controller {
             name,
             areaId,
             accessAreaId,
-            manualAccess
+            manualAccess,
+            active
           } = request.body
 
           this.rules.validate(
@@ -77,6 +78,7 @@ class AccessPointController extends Controller {
             { areaId, isRequiredField: false },
             { accessAreaId, isRequiredField: false },
             { manualAccess, isRequiredField: false },
+            { active, isRequiredField: false },
             { name },
             { accessType },
             { equipmentsIds },
@@ -89,6 +91,7 @@ class AccessPointController extends Controller {
             equipmentsIds,
             personTypesIds,
             generalExit,
+            active,
             tenantId,
             actions: [{
               action: ModelAction.create,

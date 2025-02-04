@@ -92,12 +92,14 @@ class EquipmentController extends Controller {
             description,
             pattern,
             ip,
-            name
+            name,
+            active
           } = request.body
 
           this.rules.validate(
             { serialNumber, isRequiredField: false },
             { description, isRequiredField: false },
+            { active, isRequiredField: false },
             { pattern },
             { name },
             { ip }
@@ -114,7 +116,8 @@ class EquipmentController extends Controller {
             description,
             pattern,
             ip,
-            name
+            name,
+            active
           })
 
           const equipment = await EquipmentServiceImp.create(equipmentModel)

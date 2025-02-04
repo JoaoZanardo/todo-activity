@@ -68,11 +68,13 @@ class AccessAreaController extends Controller {
             name,
             accessPointsIds,
             description,
-            areaId
+            areaId,
+            active
           } = request.body
 
           this.rules.validate(
             { accessPointsIds, isRequiredField: false },
+            { active, isRquiredField: false },
             { description, isRequiredField: false },
             { name },
             { areaId }
@@ -83,6 +85,7 @@ class AccessAreaController extends Controller {
             areaId,
             description,
             tenantId,
+            active,
             actions: [{
               action: ModelAction.create,
               date: DateUtils.getCurrent(),

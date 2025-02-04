@@ -95,10 +95,12 @@ export class AccessGroupController extends Controller {
           const {
             name,
             modules,
-            home
+            home,
+            active
           } = request.body
 
           this.rules.validate(
+            { active, isRequiredField: false },
             { name },
             { modules },
             { home }
@@ -107,6 +109,7 @@ export class AccessGroupController extends Controller {
           const accessGroupModel = new AccessGroupModel({
             modules,
             name,
+            active,
             home,
             tenantId,
             actions: [{

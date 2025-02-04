@@ -97,7 +97,8 @@ class PersonController extends Controller {
             cpf,
             picture,
             personTypeCategoryId,
-            bondAreaId
+            bondAreaId,
+            active
           } = request.body
 
           this.rules.validate(
@@ -105,6 +106,7 @@ class PersonController extends Controller {
             { contractInitDate, isRequiredField: false },
             { email, isRequiredField: false },
             { observation, isRequiredField: false },
+            { active, isRequiredField: false },
             { name },
             { personTypeId },
             { phone, isRequiredField: false },
@@ -126,6 +128,7 @@ class PersonController extends Controller {
 
           const personModel = new PersonModel({
             tenantId,
+            active,
             actions: [{
               action: ModelAction.create,
               date: DateUtils.getCurrent(),

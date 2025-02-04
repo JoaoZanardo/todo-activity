@@ -68,7 +68,8 @@ class WorkScheduleController extends Controller {
             endTime,
             name,
             startTime,
-            description
+            description,
+            active
           } = request.body
 
           this.rules.validate(
@@ -76,6 +77,7 @@ class WorkScheduleController extends Controller {
             { days },
             { hour: startTime },
             { hour: endTime },
+            { active, isRequiredField: false },
             { description, isRequiredField: false }
           )
 
