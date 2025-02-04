@@ -50,6 +50,6 @@ export const UpdateStartingAccessReleases = async () => {
       ])
     }
   } catch (error) {
-
+    console.log(`UpdateStartingAccessReleasesError - ${error}`)
   }
 }

@@ -36,6 +36,6 @@ export const UpdateExpiringAccessReleases = async () => {
       ])
     }
   } catch (error) {
-
+    console.log(`UpdateExpiringAccessReleasesError - ${error}`)
   }
 }
