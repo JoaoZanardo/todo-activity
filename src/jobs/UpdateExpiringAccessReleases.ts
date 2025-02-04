@@ -12,7 +12,7 @@ export const UpdateExpiringAccessReleases = async () => {
 
     if (accessReleases.length) {
       await Promise.all([
-        accessReleases.forEach(async accessRelease => {
+        accessReleases.map(async accessRelease => {
           if (accessRelease.endDate! > DateUtils.getCurrent()) {
             const adjustedExecutionDate = new Date(accessRelease.endDate!)
             adjustedExecutionDate.setHours(accessRelease.endDate!.getHours() + 3)

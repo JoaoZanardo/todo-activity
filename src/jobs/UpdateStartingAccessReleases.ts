@@ -12,7 +12,7 @@ export const UpdateStartingAccessReleases = async () => {
 
     if (accessReleases.length) {
       await Promise.all([
-        accessReleases.forEach(async accessRelease => {
+        accessReleases.map(async accessRelease => {
           const tenantId = accessRelease.tenantId!
 
           const lastAccessRelease = await AccessReleaseServiceImp.findLastByPersonId({
