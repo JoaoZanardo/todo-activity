@@ -62,7 +62,7 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
       areaId,
       tenantId,
       deletionDate: null
-    }, ['_id', 'generalExit', 'equipmentsIds', 'personTypesIds'])
+    }, ['_id', 'name', 'areaId', 'generalExit', 'equipmentsIds', 'personTypesIds'])
 
     return documents
   }

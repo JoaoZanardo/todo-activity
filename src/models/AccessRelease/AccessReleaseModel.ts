@@ -1,4 +1,5 @@
 import { Types } from 'mongoose'
+import { IEquipment } from 'src/models/Equipment/EquipmentModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -53,6 +54,7 @@ export interface IProcessAreaAccessPointsProps {
 
 export interface IProcessEquipments {
   equipmentsIds: Array<Types.ObjectId>
+  accessPoint: Partial<IAccessPoint>
   person: PersonModel
   tenantId: Types.ObjectId
   accessRelease: IAccessRelease
@@ -87,6 +89,8 @@ export interface IAccessReleaseSynchronization {
 
   equipmentId: Types.ObjectId
   equipmentIp: string
+  equipment: IEquipment
+  accessPoint: Partial<IAccessPoint>
 }
 
 export interface IAccessRelease extends IModel {

@@ -3,7 +3,7 @@ import schedule from 'node-schedule'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IScheduleDisableProps } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IScheduleDisableProps } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
@@ -151,7 +151,10 @@ export class AccessReleaseService {
       }
     }
 
-    return createdAccessRelease
+    return await this.findById({
+      id: createdAccessRelease._id!,
+      tenantId
+    })
   }
 
   async disable ({
@@ -236,7 +239,8 @@ export class AccessReleaseService {
             equipmentsIds,
             person,
             tenantId,
-            accessRelease
+            accessRelease,
+            accessPoint
           })
         }
       })
@@ -261,7 +265,8 @@ export class AccessReleaseService {
     equipmentsIds,
     person,
     tenantId,
-    accessRelease
+    accessRelease,
+    accessPoint
   }: IProcessEquipments) {
     await Promise.all(
       equipmentsIds.map(async (equipmentId) => {
@@ -283,23 +288,22 @@ export class AccessReleaseService {
           })
         )
 
-        let errorMessage
+        const synchronization: IAccessReleaseSynchronization = {
+          equipmentId,
+          equipmentIp: equipment.ip,
+          accessPoint,
+          equipment: equipment.show
+        }
 
         if (error) {
-          errorMessage = error.message
-
-          console.log({ errorMessage })
+          synchronization.error = true
+          synchronization.errorMessage = error.message
         }
 
         await this.accessReleaseRepositoryImp.updateSynchronizations({
           id: accessRelease._id!,
           tenantId,
-          synchronization: {
-            equipmentId,
-            equipmentIp: equipment.ip,
-            error: !!errorMessage,
-            errorMessage
-          }
+          synchronization
         })
       })
     )
