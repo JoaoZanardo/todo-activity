@@ -38,16 +38,12 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
           {
             error: Boolean,
             errorMessage: String,
-            accessPointId: {
-              type: Types.ObjectId,
+            accessPoint: {
+              type: Object,
               required: true
             },
-            equipmentId: {
-              type: Types.ObjectId,
-              required: true
-            },
-            equipmentIp: {
-              type: String,
+            equipment: {
+              type: Object,
               required: true
             }
           }

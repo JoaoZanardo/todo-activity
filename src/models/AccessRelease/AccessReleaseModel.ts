@@ -87,8 +87,6 @@ export interface IAccessReleaseSynchronization {
   error?: boolean
   errorMessage?: string
 
-  equipmentId: Types.ObjectId
-  equipmentIp: string
   equipment: IEquipment
   accessPoint: Partial<IAccessPoint>
 }

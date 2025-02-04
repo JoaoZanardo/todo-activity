@@ -289,8 +289,6 @@ export class AccessReleaseService {
         )
 
         const synchronization: IAccessReleaseSynchronization = {
-          equipmentId,
-          equipmentIp: equipment.ip,
           accessPoint,
           equipment: equipment.show
         }
