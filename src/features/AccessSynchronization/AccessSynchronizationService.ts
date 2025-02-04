@@ -64,28 +64,28 @@ export class AccessSynchronizationService {
       })
     )
 
-    if (accessReleases.length) {
-      await this.accessSynchronizationRepositoryImp.update({
-        id: createdAccessSynchronization._id!,
-        tenantId,
-        data: {
-          totalDocs: accessReleases.length
-        },
-        session
-      })
+    if (!accessReleases.length) throw CustomResponse.BAD_REQUEST('Não há registros de acesso para sincronizar!')
 
-      const worker = fork(path.resolve(__dirname, './syncWorker.js'))
+    await this.accessSynchronizationRepositoryImp.update({
+      id: createdAccessSynchronization._id!,
+      tenantId,
+      data: {
+        totalDocs: accessReleases.length
+      },
+      session
+    })
 
-      worker.send({
-        accessReleases,
-        accessSynchronizationId: createdAccessSynchronization._id,
-        equipment: {
-          id: equipment._id,
-          ip: equipment.ip
-        },
-        tenantId
-      })
-    }
+    const worker = fork(path.resolve(__dirname, './syncWorker.js'))
+
+    worker.send({
+      accessReleases,
+      accessSynchronizationId: createdAccessSynchronization._id,
+      equipment: {
+        id: equipment._id,
+        ip: equipment.ip
+      },
+      tenantId
+    })
 
     return createdAccessSynchronization
   }
