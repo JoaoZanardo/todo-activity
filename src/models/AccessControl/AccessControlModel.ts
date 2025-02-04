@@ -4,6 +4,8 @@ import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, Model
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
+import { AccessPointModel } from '../AccessPoint/AccessPointModel'
+import { AccessReleaseModel } from '../AccessRelease/AccessReleaseModel'
 
 export interface IListAccessControlsFilters extends IListModelsFilters {
   personId?: Types.ObjectId
@@ -18,6 +20,13 @@ export interface IDeleteAccessControlProps extends IDeleteModelProps { }
 export interface ICreateAccessControlByEquipmentIpProps {
   equipmentIp: string
   personId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
+export interface IValidateAccessControlCreationProps {
+  accessRelease: AccessReleaseModel | null
+
+  accessPoint: AccessPointModel
   tenantId: Types.ObjectId
 }
 

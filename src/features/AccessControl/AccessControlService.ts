@@ -1,13 +1,8 @@
-import to from 'await-to-js'
-import { Types } from 'mongoose'
-
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessControlModel, AccessControlType, IAccessControl, ICreateAccessControlByEquipmentIpProps, IListAccessControlsFilters } from '../../models/AccessControl/AccessControlModel'
+import { AccessControlModel, AccessControlType, IAccessControl, ICreateAccessControlByEquipmentIpProps, IListAccessControlsFilters, IValidateAccessControlCreationProps } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
 import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
-import { PersonModel } from '../../models/Person/PersonModel'
-import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
@@ -63,38 +58,20 @@ export class AccessControlService {
       tenantId
     })
 
-    if (
-      !lastAccessRelease ||
-      lastAccessRelease.status !== AccessReleaseStatus.active
-    ) throw CustomResponse.CONFLICT('Essa pessoa não possui uma liberação de acesso!')
-    let accessType = AccessControlType.entry
-
-    if (accessPoint.object.generalExit && lastAccessRelease.object.singleAccess) {
-      accessType = AccessControlType.exit
-
-      await Promise.all([
-        AccessReleaseServiceImp.disable({
-          id: lastAccessRelease._id!,
-          tenantId,
-          status: AccessReleaseStatus.disabled
-        }),
-        this.removeAllAccessFromPerson(person, tenantId)
-      ])
-
-      await AccessReleaseServiceImp.updateEndDateToCurrent({
-        id: lastAccessRelease._id!,
-        tenantId
-      })
-    }
+    await this.validateAccessControlCreation({
+      accessPoint,
+      accessRelease: lastAccessRelease,
+      tenantId
+    })
 
     const accessControlModel = new AccessControlModel({
       accessPointId: accessPoint._id!,
       personId,
       personTypeId: person.personTypeId,
       tenantId,
-      type: accessType, // mocked one
-      accessReleaseId: lastAccessRelease._id!,
-      picture: lastAccessRelease.object.picture
+      type: AccessControlType.entry, // mocked one
+      accessReleaseId: lastAccessRelease!._id!,
+      picture: lastAccessRelease!.object.picture
     })
 
     return await this.accessControlRepositoryImp.create(accessControlModel)
@@ -108,72 +85,43 @@ export class AccessControlService {
       tenantId
     })
 
-    const person = await PersonServiceImp.findById({
-      id: personId,
-      tenantId
-    })
-
     const lastAccessRelease = await AccessReleaseServiceImp.findLastByPersonId({
       personId,
       tenantId
     })
 
-    if (
-      !lastAccessRelease ||
-      lastAccessRelease.status !== AccessReleaseStatus.active
-    ) throw CustomResponse.CONFLICT('Essa pessoa não possui uma liberação de acesso!')
-
-    if (accessPoint.object.generalExit && lastAccessRelease.object.singleAccess) {
-      await Promise.all([
-        AccessReleaseServiceImp.disable({
-          id: lastAccessRelease._id!,
-          tenantId,
-          status: AccessReleaseStatus.disabled
-        }),
-        this.removeAllAccessFromPerson(person, tenantId)
-      ])
-
-      await AccessReleaseServiceImp.updateEndDateToCurrent({
-        id: lastAccessRelease._id!,
-        tenantId
-      })
-    }
+    await this.validateAccessControlCreation({
+      accessPoint,
+      accessRelease: lastAccessRelease,
+      tenantId
+    })
 
     return await this.accessControlRepositoryImp.create(accessControl)
   }
 
-  async removeAllAccessFromPerson (person: PersonModel, tenantId: Types.ObjectId) {
-    const accessPoints = await AccessPointServiceImp.findAllByPersonTypeId({
-      personTypeId: person.personTypeId,
-      tenantId
-    })
+  private async validateAccessControlCreation ({
+    accessRelease,
+    accessPoint,
+    tenantId
+  }: IValidateAccessControlCreationProps) {
+    if (
+      !accessRelease ||
+      accessRelease.status !== AccessReleaseStatus.active
+    ) throw CustomResponse.CONFLICT('Essa pessoa não possui uma liberação de acesso!')
 
-    if (accessPoints.length) {
-      await Promise.all(
-        accessPoints.map(async accessPoint => {
-          if (accessPoint.equipmentsIds?.length) {
-            await Promise.all(
-              accessPoint.equipmentsIds.map(async equipmentId => {
-                const equipment = await EquipmentServiceImp.findById({
-                  id: equipmentId,
-                  tenantId
-                })
-
-                // try to delete  all access, if one throw errors, do not cancel all the session
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-                const [error, _] = await to(
-                  EquipmentServer.removeAccess({
-                    equipmentIp: equipment.ip,
-                    personId: person._id!
-                  })
-                )
-
-                if (error) console.log({ error: error.message })
-              })
-            )
-          }
+    if (accessPoint.object.generalExit && accessRelease.object.singleAccess) {
+      await Promise.all([
+        AccessReleaseServiceImp.disable({
+          id: accessRelease._id!,
+          tenantId,
+          status: AccessReleaseStatus.disabled
         })
-      )
+      ])
+
+      await AccessReleaseServiceImp.updateEndDateToCurrent({
+        id: accessRelease._id!,
+        tenantId
+      })
     }
   }
 }

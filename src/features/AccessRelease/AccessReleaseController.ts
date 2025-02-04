@@ -10,6 +10,7 @@ import { AccessReleaseModel, AccessReleaseStatus } from '../../models/AccessRele
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
+import AccessReleaseCreationService from './AccessReleaseCreationService'
 import { AccessReleaseRules } from './AccessReleaseRules'
 import { AccessReleaseService } from './AccessReleaseService'
 
@@ -105,8 +106,6 @@ class AccessReleaseController extends Controller {
             { areaId: finalAreaId }
           )
 
-          console.log({ initDate })
-
           const accessReleaseModel = new AccessReleaseModel({
             expiringTime,
             singleAccess,
@@ -129,7 +128,7 @@ class AccessReleaseController extends Controller {
             initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined
           })
 
-          const accessRelease = await AccessReleaseServiceImp.create(accessReleaseModel)
+          const accessRelease = await AccessReleaseCreationService.execute(accessReleaseModel)
 
           await session.commitTransaction()
           session.endSession()

@@ -1,5 +1,4 @@
 import { Types } from 'mongoose'
-import { IEquipment } from 'src/models/Equipment/EquipmentModel'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -8,6 +7,7 @@ import { addExpiringTime } from '../../utils/addExpiringTime'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
 import { IAccessPoint } from '../AccessPoint/AccessPointModel'
+import { IEquipment } from '../Equipment/EquipmentModel'
 import { ExpiringTime, IPersonType } from '../PersonType/PersonTypeModel'
 import { IPersonTypeCategory } from '../PersonTypeCategory/PersonTypeCategoryModel'
 
@@ -66,6 +66,12 @@ export interface IScheduleDisableProps {
   accessReleaseId: Types.ObjectId
   tenantId: Types.ObjectId
   status: AccessReleaseStatus
+}
+
+export interface ISyncPersonAccessWithEquipmentsProps {
+  accessRelease: IAccessRelease
+  personId: Types.ObjectId
+  tenantId: Types.ObjectId
 }
 
 export enum AccessReleaseType {

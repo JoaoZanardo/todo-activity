@@ -1,7 +1,5 @@
 import { ModelAction } from '../core/interfaces/Model'
-import { AccessPointServiceImp } from '../features/AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../features/AccessRelease/AccessReleaseController'
-import { PersonServiceImp } from '../features/Person/PersonController'
 import { AccessReleaseStatus, IAccessRelease } from '../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../models/AccessRelease/AccessReleaseMongoDB'
 import { DateUtils } from '../utils/Date'
@@ -42,43 +40,10 @@ export const UpdateStartingAccessReleases = async () => {
               }
             })
           } else {
-            const person = await PersonServiceImp.findById({
-              id: accessRelease.personId!,
+            await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
+              accessRelease: accessRelease as IAccessRelease,
+              personId: accessRelease.personId!,
               tenantId
-            })
-
-            await Promise.all(
-              accessRelease.areasIds!.map(async areaId => {
-                const accessPoints = await AccessPointServiceImp.findAllByAreaId({
-                  areaId,
-                  tenantId
-                })
-
-                if (accessPoints.length) {
-                  await AccessReleaseServiceImp.processAreaAccessPoints({
-                    accessPoints,
-                    endDate: accessRelease.endDate!,
-                    person,
-                    tenantId,
-                    accessRelease: accessRelease as IAccessRelease
-                  })
-                }
-              })
-            )
-
-            await AccessReleaseRepositoryImp.update({
-              id: accessRelease._id!,
-              tenantId,
-              data: {
-                status: AccessReleaseStatus.active,
-                actions: [
-                  ...accessRelease.actions!,
-                  {
-                    action: ModelAction.update,
-                    date: DateUtils.getCurrent()
-                  }
-                ]
-              }
             })
           }
         })

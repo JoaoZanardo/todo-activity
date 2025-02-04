@@ -1,15 +1,16 @@
 import to from 'await-to-js'
+import { Types } from 'mongoose'
 import schedule from 'node-schedule'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IScheduleDisableProps } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
+import { PersonModel } from '../../models/Person/PersonModel'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { getPersonCodeByPersonId } from '../../utils/getPersonCodeByPersonId'
-import { AccessControlServiceImp } from '../AccessControl/AccessControlController'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
@@ -69,94 +70,6 @@ export class AccessReleaseService {
     })
   }
 
-  async create (accessRelease: AccessReleaseModel): Promise<AccessReleaseModel> {
-    const { tenantId, personId, areasIds } = accessRelease
-
-    const lastAccessRelease = await AccessReleaseServiceImp.findLastByPersonId({
-      personId,
-      tenantId
-    })
-
-    if (
-      lastAccessRelease &&
-      lastAccessRelease.status === AccessReleaseStatus.active
-    ) throw CustomResponse.CONFLICT('Essa pessoa já possui uma liberação de acesso!')
-
-    const person = await PersonServiceImp.findById({ id: personId, tenantId })
-
-    // const accessPoint = await AccessPointServiceImp.findById({ id: accessPointId, tenantId })
-
-    if (!accessRelease.expiringTime) {
-      accessRelease.endDate = DateUtils.getDefaultEndDate()
-    }
-
-    const { initDate, endDate } = accessRelease.object
-
-    if (endDate! < initDate!) throw CustomResponse.UNPROCESSABLE_ENTITY('A data de término deve ser maior que a data de início!')
-
-    const createdAccessRelease = await this.accessReleaseRepositoryImp.create(accessRelease)
-
-    if (DateUtils.isToday(createdAccessRelease.endDate!)) {
-      this.scheduleDisable({
-        endDate: createdAccessRelease.endDate!,
-        accessReleaseId: createdAccessRelease._id!,
-        tenantId,
-        status: AccessReleaseStatus.expired
-      })
-    }
-
-    if (DateUtils.isToday(createdAccessRelease.object.initDate!)) {
-      const syncEquipments = async () => {
-        await Promise.all(
-          areasIds.map(async areaId => {
-            const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
-
-            if (accessPoints.length) {
-              await this.processAreaAccessPoints({
-                accessPoints,
-                endDate: accessRelease.endDate!,
-                person,
-                tenantId,
-                accessRelease: createdAccessRelease.object
-              })
-            }
-          })
-        )
-
-        await this.accessReleaseRepositoryImp.update({
-          id: accessRelease._id!,
-          tenantId,
-          data: {
-            status: AccessReleaseStatus.active,
-            actions: [
-              ...accessRelease.actions!,
-              {
-                action: ModelAction.update,
-                date: DateUtils.getCurrent()
-              }
-            ]
-          }
-        })
-      }
-
-      if (createdAccessRelease.initDate! > DateUtils.getCurrent()) {
-        const adjustedExecutionDate = new Date(createdAccessRelease.initDate!)
-        adjustedExecutionDate.setHours(createdAccessRelease.initDate!.getHours() + 3)
-
-        schedule.scheduleJob(adjustedExecutionDate, async () => {
-          await syncEquipments()
-        })
-      } else {
-        await syncEquipments()
-      }
-    }
-
-    return await this.findById({
-      id: createdAccessRelease._id!,
-      tenantId
-    })
-  }
-
   async disable ({
     id,
     tenantId,
@@ -173,7 +86,7 @@ export class AccessReleaseService {
       tenantId
     })
 
-    await AccessControlServiceImp.removeAllAccessFromPerson(person, tenantId)
+    await this.removeAllAccessFromPerson(person, tenantId)
 
     const updated = await this.accessReleaseRepositoryImp.update({
       id,
@@ -218,7 +131,97 @@ export class AccessReleaseService {
     })
   }
 
-  async processAreaAccessPoints ({
+  async updateEndDateToCurrent ({
+    id,
+    tenantId
+  }: IFindModelByIdProps): Promise<void> {
+    await this.accessReleaseRepositoryImp.update({
+      id,
+      tenantId,
+      data: {
+        endDate: DateUtils.getCurrent()
+      }
+    })
+  }
+
+  async syncPersonAccessWithEquipments ({
+    accessRelease,
+    personId,
+    tenantId
+  }: ISyncPersonAccessWithEquipmentsProps) {
+    const person = await PersonServiceImp.findById({
+      id: personId,
+      tenantId
+    })
+
+    await Promise.all(
+      accessRelease.areasIds.map(async areaId => {
+        const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
+
+        if (accessPoints.length) {
+          await AccessReleaseServiceImp.processAreaAccessPoints({
+            accessPoints,
+            endDate: accessRelease.endDate!,
+            person,
+            tenantId,
+            accessRelease
+          })
+        }
+      })
+    )
+
+    await AccessReleaseRepositoryImp.update({
+      id: accessRelease._id!,
+      tenantId,
+      data: {
+        status: AccessReleaseStatus.active,
+        actions: [
+          ...accessRelease.actions!,
+          {
+            action: ModelAction.update,
+            date: DateUtils.getCurrent()
+          }
+        ]
+      }
+    })
+  }
+
+  private async removeAllAccessFromPerson (person: PersonModel, tenantId: Types.ObjectId) {
+    const accessPoints = await AccessPointServiceImp.findAllByPersonTypeId({
+      personTypeId: person.personTypeId,
+      tenantId
+    })
+
+    if (accessPoints.length) {
+      await Promise.all(
+        accessPoints.map(async accessPoint => {
+          if (accessPoint.equipmentsIds?.length) {
+            await Promise.all(
+              accessPoint.equipmentsIds.map(async equipmentId => {
+                const equipment = await EquipmentServiceImp.findById({
+                  id: equipmentId,
+                  tenantId
+                })
+
+                // try to delete  all access, if one throw errors, do not cancel all the session
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+                const [error, _] = await to(
+                  EquipmentServer.removeAccess({
+                    equipmentIp: equipment.ip,
+                    personId: person._id!
+                  })
+                )
+
+                if (error) console.log({ error: error.message })
+              })
+            )
+          }
+        })
+      )
+    }
+  }
+
+  private async processAreaAccessPoints ({
     accessPoints,
     endDate,
     person,
@@ -245,19 +248,6 @@ export class AccessReleaseService {
         }
       })
     )
-  }
-
-  async updateEndDateToCurrent ({
-    id,
-    tenantId
-  }: IFindModelByIdProps): Promise<void> {
-    await this.accessReleaseRepositoryImp.update({
-      id,
-      tenantId,
-      data: {
-        endDate: DateUtils.getCurrent()
-      }
-    })
   }
 
   private async processEquipments ({
