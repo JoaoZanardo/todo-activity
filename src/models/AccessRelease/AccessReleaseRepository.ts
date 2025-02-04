@@ -33,7 +33,6 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
     const documents = await this.mongoDB.find({
       deletionDate: null,
       endDate: {
-        $gte: startOfDay,
         $lte: endOfDay
       },
       active: true,
