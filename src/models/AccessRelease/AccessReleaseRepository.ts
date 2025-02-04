@@ -44,8 +44,8 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   }
 
   async findAllStartingToday (): Promise<Array<Partial<IAccessRelease>>> {
-    const startOfDay = new Date()
-    startOfDay.setHours(0, 0, 0, 0)
+    // const startOfDay = new Date()
+    // startOfDay.setHours(0, 0, 0, 0)
 
     const endOfDay = new Date()
     endOfDay.setHours(23, 59, 59, 999)
@@ -53,7 +53,6 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
     const documents = await this.mongoDB.find({
       deletionDate: null,
       initDate: {
-        $gte: startOfDay,
         $lte: endOfDay
       },
       active: true,
