@@ -46,6 +46,15 @@ export const UpdateStartingAccessReleases = async () => {
                 personId: accessRelease.personId!,
                 tenantId
               })
+
+              if (DateUtils.isToday(accessRelease.endDate!)) {
+                AccessReleaseServiceImp.scheduleDisable({
+                  endDate: accessRelease.endDate!,
+                  accessReleaseId: accessRelease._id!,
+                  tenantId,
+                  status: AccessReleaseStatus.expired
+                })
+              }
             }
           } catch (error) {
             console.log(`UpdateStartingAccessReleasesError - MAP: ${error}`)
