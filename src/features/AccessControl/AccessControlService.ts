@@ -117,11 +117,6 @@ export class AccessControlService {
           status: AccessReleaseStatus.disabled
         })
       ])
-
-      await AccessReleaseServiceImp.updateEndDateToCurrent({
-        id: accessRelease._id!,
-        tenantId
-      })
     }
   }
 }

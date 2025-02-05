@@ -131,19 +131,6 @@ export class AccessReleaseService {
     })
   }
 
-  async updateEndDateToCurrent ({
-    id,
-    tenantId
-  }: IFindModelByIdProps): Promise<void> {
-    await this.accessReleaseRepositoryImp.update({
-      id,
-      tenantId,
-      data: {
-        endDate: DateUtils.getCurrent()
-      }
-    })
-  }
-
   async syncPersonAccessWithEquipments ({
     accessRelease,
     personId,
