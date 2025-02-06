@@ -37,6 +37,12 @@ export interface IFindAccessPointByNameProps {
   tenantId: Types.ObjectId
 }
 
+export interface IRemoveEquipmentIdFromAccessPointProps {
+  id: Types.ObjectId
+  tenantId: Types.ObjectId
+  equipmentId: Types.ObjectId
+}
+
 export interface IAccessPoint extends IModel {
   generalExit?: boolean
   areaId?: Types.ObjectId

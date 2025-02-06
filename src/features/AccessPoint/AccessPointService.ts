@@ -2,7 +2,7 @@ import { Types } from 'mongoose'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessPointModel, IAccessPoint, IFindAccessPointByEquipmentIdProps, IFindAccessPointByNameProps, IFindAllAccessPointsByAreaIdProps, IFindAllAccessPointsByPersonTypeIdProps, IListAccessPointsFilters, IUpdateAccessPointProps } from '../../models/AccessPoint/AccessPointModel'
+import { AccessPointModel, IAccessPoint, IFindAccessPointByEquipmentIdProps, IFindAccessPointByNameProps, IFindAllAccessPointsByAreaIdProps, IFindAllAccessPointsByPersonTypeIdProps, IListAccessPointsFilters, IRemoveEquipmentIdFromAccessPointProps, IUpdateAccessPointProps } from '../../models/AccessPoint/AccessPointModel'
 import { AccessPointRepositoryImp } from '../../models/AccessPoint/AccessPointMongoDB'
 import { IDeleteEquipmentProps } from '../../models/Equipment/EquipmentModel'
 import CustomResponse from '../../utils/CustomResponse'
@@ -78,6 +78,24 @@ export class AccessPointService {
     await this.validateDuplicatedName(accessPoint)
 
     return await this.accessPointRepositoryImp.create(accessPoint)
+  }
+
+  async removeEquipmentId ({
+    id,
+    tenantId,
+    equipmentId
+  }: IRemoveEquipmentIdFromAccessPointProps): Promise<void> {
+    const updated = await this.accessPointRepositoryImp.removeEquipmentId({
+      id,
+      tenantId,
+      equipmentId
+    })
+
+    if (!updated) {
+      throw CustomResponse.INTERNAL_SERVER_ERROR('Ocorreu um erro ao tentar remover equipamento do ponto de acesso!', {
+        accessPointId: id
+      })
+    }
   }
 
   async update ({

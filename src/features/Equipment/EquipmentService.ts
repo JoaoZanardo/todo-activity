@@ -1,3 +1,6 @@
+/* eslint-disable unused-imports/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import to from 'await-to-js'
 import { Types } from 'mongoose'
 
 import { IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
@@ -6,6 +9,7 @@ import { EquipmentModel, IDeleteEquipmentProps, IEquipment, IFindEquipmentByIpPr
 import { EquipmentRepositoryImp } from '../../models/Equipment/EquipmentMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 
 export class EquipmentService {
   constructor (
@@ -72,7 +76,7 @@ export class EquipmentService {
       tenantId
     })
 
-    const { ip, name } = data
+    const { ip, name, active } = data
 
     if (ip && ip !== equipment.ip) {
       await this.validateDuplicatedIp({
@@ -86,6 +90,21 @@ export class EquipmentService {
         name,
         tenantId
       })
+    }
+
+    if (active === false) {
+      const [_, accessPoint] = await to(AccessPointServiceImp.findByEquipmentId({
+        equipmentId: id,
+        tenantId
+      }))
+
+      if (accessPoint) {
+        await AccessPointServiceImp.removeEquipmentId({
+          id,
+          equipmentId: id,
+          tenantId
+        })
+      }
     }
 
     const updated = await this.equipmentRepositoryImp.update({
@@ -127,11 +146,22 @@ export class EquipmentService {
       tenantId
     })
 
-    // await this.validateDeletion(equipment)
-
     if (equipment.object.deletionDate) {
       throw CustomResponse.CONFLICT('Equipamento já removido!', {
         equipmentId: id
+      })
+    }
+
+    const [_, accessPoint] = await to(AccessPointServiceImp.findByEquipmentId({
+      equipmentId: id,
+      tenantId
+    }))
+
+    if (accessPoint) {
+      await AccessPointServiceImp.removeEquipmentId({
+        id,
+        equipmentId: id,
+        tenantId
       })
     }
 

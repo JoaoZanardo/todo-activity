@@ -1,8 +1,13 @@
+/* eslint-disable unused-imports/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import to from 'await-to-js'
+
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AccessControlModel, AccessControlType, IAccessControl, ICreateAccessControlByEquipmentIpProps, IListAccessControlsFilters, IValidateAccessControlCreationProps } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
 import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
+import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
@@ -108,6 +113,29 @@ export class AccessControlService {
       !accessRelease ||
       accessRelease.status !== AccessReleaseStatus.active
     ) throw CustomResponse.CONFLICT('Essa pessoa não possui uma liberação de acesso!')
+
+    if (accessRelease.accessPointId.equals(accessPoint._id!)) {
+      const person = await PersonServiceImp.findById({
+        id: accessRelease.personId,
+        tenantId
+      })
+
+      Promise.all(
+        accessPoint.object.equipmentsIds.map(async equipmentId => {
+          const equipment = await EquipmentServiceImp.findById({
+            id: equipmentId,
+            tenantId
+          })
+
+          const [error, _] = await to(
+            EquipmentServer.removeAccess({
+              equipmentIp: equipment.ip,
+              personId: person._id!
+            })
+          )
+        })
+      )
+    }
 
     if (accessPoint.object.generalExit && accessRelease.object.singleAccess) {
       await Promise.all([

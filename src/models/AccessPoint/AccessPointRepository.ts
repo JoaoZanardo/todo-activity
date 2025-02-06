@@ -3,7 +3,7 @@ import { Aggregate, FilterQuery, Types } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AccessPointModel, IAccessPoint, IFindAccessPointByEquipmentIdProps, IFindAccessPointByNameProps, IFindAllAccessPointsByAreaIdProps, IFindAllAccessPointsByPersonTypeIdProps, IListAccessPointsFilters } from './AccessPointModel'
+import { AccessPointModel, IAccessPoint, IFindAccessPointByEquipmentIdProps, IFindAccessPointByNameProps, IFindAllAccessPointsByAreaIdProps, IFindAllAccessPointsByPersonTypeIdProps, IListAccessPointsFilters, IRemoveEquipmentIdFromAccessPointProps } from './AccessPointModel'
 import { IAccessPointMongoDB } from './AccessPointSchema'
 
 export class AccessPointRepository extends Repository<IAccessPointMongoDB, AccessPointModel> {
@@ -217,7 +217,7 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
     return await this.mongoDB.aggregatePaginate(aggregationStages, { limit: 1000 })
   }
 
-  async create (AccessPoint: AccessPointModel): Promise < AccessPointModel > {
+  async create (AccessPoint: AccessPointModel): Promise<AccessPointModel> {
     const document = await this.mongoDB.create(AccessPoint.object)
 
     return new AccessPointModel(document)
@@ -227,13 +227,26 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
     id,
     tenantId,
     data
-  }: IUpdateProps): Promise < boolean > {
+  }: IUpdateProps): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
     }, {
       $set: data
     })
+
+    return !!updated.modifiedCount
+  }
+
+  async removeEquipmentId ({
+    id,
+    tenantId,
+    equipmentId
+  }: IRemoveEquipmentIdFromAccessPointProps): Promise<boolean> {
+    const updated = await this.mongoDB.updateOne(
+      { _id: id, tenantId },
+      { $pull: { equipmentsIds: equipmentId } }
+    )
 
     return !!updated.modifiedCount
   }
