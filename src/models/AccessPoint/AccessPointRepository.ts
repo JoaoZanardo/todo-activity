@@ -209,7 +209,8 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
           area: 1,
           accessArea: 1,
           personTypes: 1,
-          equipments: 1
+          equipments: 1,
+          manualAccess: 1
         }
       }
     ])
