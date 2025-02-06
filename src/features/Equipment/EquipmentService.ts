@@ -100,7 +100,7 @@ export class EquipmentService {
 
       if (accessPoint) {
         await AccessPointServiceImp.removeEquipmentId({
-          id,
+          id: accessPoint._id!,
           equipmentId: id,
           tenantId
         })
@@ -159,7 +159,7 @@ export class EquipmentService {
 
     if (accessPoint) {
       await AccessPointServiceImp.removeEquipmentId({
-        id,
+        id: accessPoint._id!,
         equipmentId: id,
         tenantId
       })
