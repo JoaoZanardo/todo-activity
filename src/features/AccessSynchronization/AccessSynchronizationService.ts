@@ -1,7 +1,5 @@
 import to from 'await-to-js'
-import { fork } from 'child_process'
 import { ClientSession } from 'mongoose'
-import path from 'path'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
@@ -75,19 +73,63 @@ export class AccessSynchronizationService {
       session
     })
 
-    const worker = fork(path.resolve(__dirname, './syncWorker.js'))
-
-    worker.send({
+    this.synchronizeAll({
       accessReleases,
-      accessSynchronizationId: createdAccessSynchronization._id,
+      accessSynchronizationId: createdAccessSynchronization._id!,
       equipment: {
-        id: equipment._id,
-        ip: equipment.ip
+        ip: equipment.ip,
+        id: equipment._id!
       },
       tenantId
     })
 
     return createdAccessSynchronization
+  }
+
+  async synchronizeAll ({
+    accessReleases,
+    accessSynchronizationId,
+    equipment,
+    tenantId
+  }: ISynchronizeProps): Promise<void> {
+    try {
+      while (accessReleases.length) {
+        const batch = accessReleases.splice(0, 25)
+
+        await this.synchronize({
+          accessReleases: batch,
+          accessSynchronizationId,
+          equipment,
+          tenantId
+        })
+
+        await AccessSynchronizationRepositoryImp.updateExecutedNumbers({
+          id: accessSynchronizationId,
+          tenantId,
+          number: batch.length
+        })
+      }
+
+      await AccessSynchronizationRepositoryImp.update({
+        id: accessSynchronizationId!,
+        tenantId,
+        data: {
+          endDate: DateUtils.getCurrent(),
+          finished: true
+        }
+      })
+
+      if (process.send) {
+        process.send({ status: 'completed' })
+      }
+    } catch (error: any) {
+      if (process.send) {
+        process.send({
+          status: 'error',
+          error: error?.message
+        })
+      }
+    }
   }
 
   async synchronize ({
