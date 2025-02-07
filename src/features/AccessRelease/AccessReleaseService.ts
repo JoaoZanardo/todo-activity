@@ -143,16 +143,20 @@ export class AccessReleaseService {
 
     await Promise.all(
       accessRelease.areasIds.map(async areaId => {
-        const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
+        try {
+          const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
 
-        if (accessPoints.length) {
-          await AccessReleaseServiceImp.processAreaAccessPoints({
-            accessPoints,
-            endDate: accessRelease.endDate!,
-            person,
-            tenantId,
-            accessRelease
-          })
+          if (accessPoints.length) {
+            await AccessReleaseServiceImp.processAreaAccessPoints({
+              accessPoints,
+              endDate: accessRelease.endDate!,
+              person,
+              tenantId,
+              accessRelease
+            })
+          }
+        } catch (error) {
+          console.log(`SyncPersonAccessWithEquipments - MAP: ${error}`)
         }
       })
     )
@@ -182,26 +186,34 @@ export class AccessReleaseService {
     if (accessPoints.length) {
       await Promise.all(
         accessPoints.map(async accessPoint => {
-          if (accessPoint.equipmentsIds?.length) {
-            await Promise.all(
-              accessPoint.equipmentsIds.map(async equipmentId => {
-                const equipment = await EquipmentServiceImp.findById({
-                  id: equipmentId,
-                  tenantId
+          try {
+            if (accessPoint.equipmentsIds?.length) {
+              await Promise.all(
+                accessPoint.equipmentsIds.map(async equipmentId => {
+                  try {
+                    const equipment = await EquipmentServiceImp.findById({
+                      id: equipmentId,
+                      tenantId
+                    })
+
+                    // try to delete  all access, if one throw errors, do not cancel all the session
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+                    const [error, _] = await to(
+                      EquipmentServer.removeAccess({
+                        equipmentIp: equipment.ip,
+                        personId: person._id!
+                      })
+                    )
+
+                    if (error) console.log({ error: error.message })
+                  } catch (error) {
+                    console.log(`EquipmentRemoveAccess - MAP: ${error}`)
+                  }
                 })
-
-                // try to delete  all access, if one throw errors, do not cancel all the session
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-                const [error, _] = await to(
-                  EquipmentServer.removeAccess({
-                    equipmentIp: equipment.ip,
-                    personId: person._id!
-                  })
-                )
-
-                if (error) console.log({ error: error.message })
-              })
-            )
+              )
+            }
+          } catch (error) {
+            console.log(`RemoveAllAccessFromPerson - MAP: ${error}`)
           }
         })
       )
@@ -219,19 +231,23 @@ export class AccessReleaseService {
 
     await Promise.all(
       accessPoints.map(async (accessPoint) => {
-        const { personTypesIds, equipmentsIds } = accessPoint
+        try {
+          const { personTypesIds, equipmentsIds } = accessPoint
 
-        const isPersonTypeIncluded = personTypesIds?.some(id => id.equals(personTypeId))
+          const isPersonTypeIncluded = personTypesIds?.some(id => id.equals(personTypeId))
 
-        if (isPersonTypeIncluded && equipmentsIds?.length) {
-          await this.processEquipments({
-            endDate,
-            equipmentsIds,
-            person,
-            tenantId,
-            accessRelease,
-            accessPoint
-          })
+          if (isPersonTypeIncluded && equipmentsIds?.length) {
+            await this.processEquipments({
+              endDate,
+              equipmentsIds,
+              person,
+              tenantId,
+              accessRelease,
+              accessPoint
+            })
+          }
+        } catch (error) {
+          console.log(`ProcessAreaAccessPoints - MAP: ${error}`)
         }
       })
     )
@@ -247,39 +263,43 @@ export class AccessReleaseService {
   }: IProcessEquipments) {
     await Promise.all(
       equipmentsIds.map(async (equipmentId) => {
-        const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
-        console.log({ equipment: equipment.show })
+        try {
+          const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
+          console.log({ equipment: equipment.show })
 
-        // try to create all access, if one throw errors, do not cancel all the session
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-        const [error, _] = await to(
-          EquipmentServer.addAccess({
-            equipmentIp: equipment.ip,
-            personCode: getPersonCodeByPersonId(person._id!),
-            personId: person._id!,
-            personName: person.name,
-            personPictureUrl: person.object.picture!,
-            initDate: DateUtils.getCurrent(),
-            endDate,
-            schedules: []
+          // try to create all access, if one throw errors, do not cancel all the session
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+          const [error, _] = await to(
+            EquipmentServer.addAccess({
+              equipmentIp: equipment.ip,
+              personCode: getPersonCodeByPersonId(person._id!),
+              personId: person._id!,
+              personName: person.name,
+              personPictureUrl: person.object.picture!,
+              initDate: DateUtils.getCurrent(),
+              endDate,
+              schedules: []
+            })
+          )
+
+          const synchronization: IAccessReleaseSynchronization = {
+            accessPoint,
+            equipment: equipment.show
+          }
+
+          if (error) {
+            synchronization.error = true
+            synchronization.errorMessage = error.message
+          }
+
+          await this.accessReleaseRepositoryImp.updateSynchronizations({
+            id: accessRelease._id!,
+            tenantId,
+            synchronization
           })
-        )
-
-        const synchronization: IAccessReleaseSynchronization = {
-          accessPoint,
-          equipment: equipment.show
+        } catch (error) {
+          console.log(`ProcessEquipments - MAP: ${error}`)
         }
-
-        if (error) {
-          synchronization.error = true
-          synchronization.errorMessage = error.message
-        }
-
-        await this.accessReleaseRepositoryImp.updateSynchronizations({
-          id: accessRelease._id!,
-          tenantId,
-          synchronization
-        })
       })
     )
   }
