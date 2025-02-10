@@ -162,7 +162,7 @@ export class AccessSynchronizationService {
             tenantId,
             syncError: {
               person,
-              message: error.message
+              message: (error as any).response.data.message
             }
           })
         }
