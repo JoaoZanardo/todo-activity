@@ -140,31 +140,35 @@ export class AccessSynchronizationService {
   }: ISynchronizeProps): Promise<void> {
     await Promise.all(
       accessReleases.map(async accessRelease => {
-        const person = accessRelease.person!
+        try {
+          const person = accessRelease.person!
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-        const [error, _] = await to(
-          EquipmentServer.addAccess({
-            equipmentIp: equipment.ip,
-            personCode: getPersonCodeByPersonId(person._id!),
-            personId: person._id!,
-            personName: person.name,
-            personPictureUrl: person.picture!,
-            initDate: DateUtils.getCurrent(),
-            endDate: DateUtils.getDefaultEndDate(),
-            schedules: []
-          })
-        )
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+          const [error, _] = await to(
+            EquipmentServer.addAccess({
+              equipmentIp: equipment.ip,
+              personCode: getPersonCodeByPersonId(person._id!),
+              personId: person._id!,
+              personName: person.name,
+              personPictureUrl: person.picture!,
+              initDate: DateUtils.getCurrent(),
+              endDate: DateUtils.getDefaultEndDate(),
+              schedules: []
+            })
+          )
 
-        if (error) {
-          await this.accessSynchronizationRepositoryImp.updateSynErrors({
-            id: accessSynchronizationId!,
-            tenantId,
-            syncError: {
-              person,
-              message: error.message
-            }
-          })
+          if (error) {
+            await this.accessSynchronizationRepositoryImp.updateSynErrors({
+              id: accessSynchronizationId!,
+              tenantId,
+              syncError: {
+                person,
+                message: error.message
+              }
+            })
+          }
+        } catch (error) {
+          console.log(`Synchronize - MAP ERROR: ${error}`)
         }
       })
     )

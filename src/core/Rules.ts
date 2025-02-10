@@ -9,6 +9,7 @@ export default class Rules {
 
   constructor () {
     this.validator = requestCheck()
+
     this.validator.requiredMessage = 'Campo obrigatório!'
 
     this.validator.addRule('active', {

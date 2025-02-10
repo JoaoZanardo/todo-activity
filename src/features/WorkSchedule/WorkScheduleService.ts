@@ -1,3 +1,6 @@
+import { EquipmentServiceImp } from 'src/features/Equipment/EquipmentController'
+import EquipmentServer from 'src/services/EquipmentServer'
+
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IDeleteWorkScheduleProps, IListWorkSchedulesFilters, IUpdateWorkScheduleProps, IWorkSchedule, WorkScheduleModel } from '../../models/WorkSchedule/WorkScheduleModel'
 import { WorkScheduleRepositoryImp } from '../../models/WorkSchedule/WorkScheduleMongoDB'
@@ -38,12 +41,38 @@ export class WorkScheduleService {
   }
 
   async create (workSchedule: WorkScheduleModel): Promise<WorkScheduleModel> {
-    await Promise.all([
-      this.validateDuplicatedName({
-        name: workSchedule.name,
-        tenantId: workSchedule.tenantId
-      })
-    ])
+    this.validateDuplicatedName({
+      name: workSchedule.name,
+      tenantId: workSchedule.tenantId
+    })
+
+    const equipments = (await EquipmentServiceImp.findAll(workSchedule.tenantId)).docs
+
+    if (equipments.length) {
+      await Promise.all(
+        equipments.map(async equipment => {
+          try {
+            await EquipmentServer.addWorkScheduleTemplate({
+              equipmentIp: equipment.ip,
+              workSchedule: {
+                id: workSchedule._id!,
+                name: workSchedule.name
+              }
+            })
+
+            await EquipmentServer.addWorkSchedule({
+              days: workSchedule.object.days,
+              startTime: workSchedule.object.startTime,
+              endTime: workSchedule.object.endTime,
+              equipmentIp: equipment.ip,
+              workScheduleId: workSchedule._id!
+            })
+          } catch (error) {
+            console.log(`Create Work Schedule - MAP ERROR: ${error}`)
+          }
+        })
+      )
+    }
 
     return await this.workScheduleRepositoryImp.create(workSchedule)
   }
