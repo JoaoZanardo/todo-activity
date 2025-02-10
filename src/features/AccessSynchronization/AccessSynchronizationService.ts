@@ -118,17 +118,8 @@ export class AccessSynchronizationService {
           finished: true
         }
       })
-
-      if (process.send) {
-        process.send({ status: 'completed' })
-      }
     } catch (error: any) {
-      if (process.send) {
-        process.send({
-          status: 'error',
-          error: error?.message
-        })
-      }
+      console.log(`Syncronize All: ${error}`)
     }
   }
 
