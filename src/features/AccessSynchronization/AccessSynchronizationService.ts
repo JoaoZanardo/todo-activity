@@ -129,35 +129,43 @@ export class AccessSynchronizationService {
     equipment,
     tenantId
   }: ISynchronizeProps): Promise<void> {
-    await Promise.all(
-      accessReleases.map(async accessRelease => {
-        const person = accessRelease.person!
+    try {
+      await Promise.all(
+        accessReleases.map(async (accessRelease) => {
+          try {
+            const person = accessRelease.person!
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-        const [error, _] = await to(
-          EquipmentServer.addAccess({
-            equipmentIp: equipment.ip,
-            personCode: getPersonCodeByPersonId(person._id!),
-            personId: person._id!,
-            personName: person.name,
-            personPictureUrl: person.picture!,
-            initDate: DateUtils.getCurrent(),
-            endDate: DateUtils.getDefaultEndDate(),
-            schedules: []
-          })
-        )
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+            const [error, _] = await to(
+              EquipmentServer.addAccess({
+                equipmentIp: equipment.ip,
+                personCode: getPersonCodeByPersonId(person._id!),
+                personId: person._id!,
+                personName: person.name,
+                personPictureUrl: person.picture!,
+                initDate: DateUtils.getCurrent(),
+                endDate: DateUtils.getDefaultEndDate(),
+                schedules: []
+              })
+            )
 
-        if (error) {
-          await this.accessSynchronizationRepositoryImp.updateSynErrors({
-            id: accessSynchronizationId!,
-            tenantId,
-            syncError: {
-              person,
-              message: (error as any).response.data.message
+            if (error) {
+              await this.accessSynchronizationRepositoryImp.updateSynErrors({
+                id: accessSynchronizationId!,
+                tenantId,
+                syncError: {
+                  person,
+                  message: (error as any).response?.data?.message || 'Erro desconhecido'
+                }
+              })
             }
-          })
-        }
-      })
-    )
+          } catch (err) {
+            console.error(`Erro ao processar accessRelease: ${err}`)
+          }
+        })
+      )
+    } catch (err) {
+      console.error(`Erro geral na sincronização: ${err}`)
+    }
   }
 }
