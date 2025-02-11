@@ -288,11 +288,10 @@ export class AccessReleaseService {
           const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
           console.log({ equipment: equipment.show })
 
-          // try to create all access, if one throw errors, do not cancel all the session
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-
           const workScheduleId = person.object.workScheduleId
 
+          // try to create all access, if one throw errors, do not cancel all the session
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
           const [error, _] = await to(
             EquipmentServer.addAccess({
               equipmentIp: equipment.ip,
@@ -302,10 +301,10 @@ export class AccessReleaseService {
               personPictureUrl: person.object.picture!,
               initDate: DateUtils.getCurrent(),
               endDate,
-              schedules: [{
-                scheduleId: workScheduleId ? person.object.workScheduleId!,
+              schedules: workScheduleId ? [{
+                scheduleId: workScheduleId,
                 description: 'Descrição'
-              }]
+              }] : []
             })
           )
 

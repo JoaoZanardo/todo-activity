@@ -1,11 +1,10 @@
-import { EquipmentServiceImp } from 'src/features/Equipment/EquipmentController'
-import EquipmentServer from 'src/services/EquipmentServer'
-
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IDeleteWorkScheduleProps, IListWorkSchedulesFilters, IUpdateWorkScheduleProps, IWorkSchedule, WorkScheduleModel } from '../../models/WorkSchedule/WorkScheduleModel'
 import { WorkScheduleRepositoryImp } from '../../models/WorkSchedule/WorkScheduleMongoDB'
+import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 
 export class WorkScheduleService {
   constructor (

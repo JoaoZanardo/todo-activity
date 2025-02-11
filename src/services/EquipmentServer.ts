@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { Types } from 'mongoose'
-import { Day } from 'src/models/WorkSchedule/WorkScheduleModel'
 
 import env from '../config/env'
 import { IResponseData } from '../core/interfaces/Response'
+import { Day } from '../models/WorkSchedule/WorkScheduleModel'
 import CustomResponse from '../utils/CustomResponse'
 
 interface IAddAccessToEquipmentProps {
