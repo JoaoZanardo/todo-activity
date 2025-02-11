@@ -10,10 +10,13 @@ const executeJobs = () => {
   schedule.scheduleJob('00 03 * * *', () => UpdateStartingAccessReleases()) // 00:00
 
   const updateExpiringTenantsJob = new CronJob('0 0 * * *', UpdateExpiringTenants)
-  // const inspectWorkSchedulesJob = new CronJob('* * * * *', inspectWorkSchedules)
+
+  const updateExpiringAccessReleasesJob = new CronJob('0 * * * *', UpdateExpiringAccessReleases)
+  const updateStartingAccessReleasesJob = new CronJob('0 * * * *', UpdateStartingAccessReleases)
 
   updateExpiringTenantsJob.start()
-  // inspectWorkSchedulesJob.start()
+  updateExpiringAccessReleasesJob.start()
+  updateStartingAccessReleasesJob.start()
 }
 
 export default executeJobs
