@@ -181,7 +181,10 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         $unwind: '$personType'
       },
       {
-        $unwind: '$accessPoint'
+        $unwind: {
+          path: '$accessPoint',
+          preserveNullAndEmptyArrays: true
+        }
       },
       { $sort: { _id: -1 } }
     ])
@@ -292,7 +295,10 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         $unwind: '$personType'
       },
       {
-        $unwind: '$accessPoint'
+        $unwind: {
+          path: '$accessPoint',
+          preserveNullAndEmptyArrays: true
+        }
       },
       { $unwind: '$person' },
       {

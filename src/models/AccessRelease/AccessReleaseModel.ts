@@ -116,6 +116,7 @@ export interface IAccessRelease extends IModel {
   initDate?: Date
   endDate?: Date
   synchronizations?: Array<IAccessReleaseSynchronization>
+  accessPointId?: Types.ObjectId
 
   person?: IPerson
   personType?: IPersonType
@@ -126,7 +127,6 @@ export interface IAccessRelease extends IModel {
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
   areasIds: Array<Types.ObjectId>
-  accessPointId: Types.ObjectId
   finalAreaId: Types.ObjectId
 }
 
@@ -148,11 +148,11 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _personType?: IAccessRelease['personType']
   private _personTypeCategory?: IAccessRelease['personTypeCategory']
   private _accessPoint?: IAccessRelease['accessPoint']
+  private _accessPointId?: IAccessRelease['accessPointId']
 
   private _personId: IAccessRelease['personId']
   private _personTypeId: IAccessRelease['personTypeId']
   private _areasIds: IAccessRelease['areasIds']
-  private _accessPointId: IAccessRelease['accessPointId']
   private _finalAreaId: IAccessRelease['finalAreaId']
 
   constructor (accessRelease: IAccessRelease) {
@@ -170,6 +170,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._status = accessRelease.status ?? (this._initDate <= DateUtils.getCurrent() ? AccessReleaseStatus.active : AccessReleaseStatus.scheduled)
     this._observation = accessRelease.observation
     this._synchronizations = accessRelease.synchronizations ?? []
+    this._accessPointId = accessRelease.accessPointId ? ObjectId(accessRelease.accessPointId) : undefined
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
@@ -177,7 +178,6 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._personTypeCategory = accessRelease.personTypeCategory
     this._accessPoint = accessRelease.accessPoint
 
-    this._accessPointId = ObjectId(accessRelease.accessPointId)
     this._type = accessRelease.type
     this._personId = ObjectId(accessRelease.personId)
     this._personTypeId = ObjectId(accessRelease.personTypeId)

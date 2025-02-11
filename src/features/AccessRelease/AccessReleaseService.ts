@@ -8,6 +8,7 @@ import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessRel
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import { getPersonCodeByPersonId } from '../../utils/getPersonCodeByPersonId'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
@@ -219,7 +220,7 @@ export class AccessReleaseService {
 
                     if (error) {
                       synchronization.error = true
-                      synchronization.errorMessage = (error as any).response.data.message
+                      synchronization.errorMessage = getErrorMessage(error)
                     }
 
                     await this.accessReleaseRepositoryImp.updateSynchronizations({
@@ -311,7 +312,7 @@ export class AccessReleaseService {
 
           if (error) {
             synchronization.error = true
-            synchronization.errorMessage = (error as any).response.data.message
+            synchronization.errorMessage = getErrorMessage(error)
           }
 
           await this.accessReleaseRepositoryImp.updateSynchronizations({

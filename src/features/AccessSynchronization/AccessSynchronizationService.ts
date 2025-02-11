@@ -9,6 +9,7 @@ import { AccessSynchronizationRepositoryImp } from '../../models/AccessSynchroni
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import { getPersonCodeByPersonId } from '../../utils/getPersonCodeByPersonId'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
@@ -155,7 +156,7 @@ export class AccessSynchronizationService {
                 tenantId,
                 syncError: {
                   person,
-                  message: (error as any).response?.data?.message || 'Erro desconhecido'
+                  message: getErrorMessage(error)
                 }
               })
             }
