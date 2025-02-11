@@ -74,6 +74,12 @@ export interface ISyncPersonAccessWithEquipmentsProps {
   tenantId: Types.ObjectId
 }
 
+export interface IRemoveAllAccessFromPersonProps {
+  person: PersonModel
+  accessReleaseId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
 export enum AccessReleaseType {
   manually = 'manually',
   invite = 'invite'
@@ -95,6 +101,7 @@ export interface IAccessReleaseSynchronization {
 
   equipment: IEquipment
   accessPoint: Partial<IAccessPoint>
+  syncType: 'add' | 'remove'
 }
 
 export interface IAccessRelease extends IModel {

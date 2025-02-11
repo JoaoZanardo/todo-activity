@@ -1,12 +1,10 @@
 import to from 'await-to-js'
-import { Types } from 'mongoose'
 import schedule from 'node-schedule'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAllAccessFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
-import { PersonModel } from '../../models/Person/PersonModel'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
@@ -86,7 +84,11 @@ export class AccessReleaseService {
       tenantId
     })
 
-    await this.removeAllAccessFromPerson(person, tenantId)
+    await this.removeAllAccessFromPerson({
+      accessReleaseId: accessRelease._id!,
+      person,
+      tenantId
+    })
 
     const updated = await this.accessReleaseRepositoryImp.update({
       id,
@@ -177,7 +179,11 @@ export class AccessReleaseService {
     })
   }
 
-  private async removeAllAccessFromPerson (person: PersonModel, tenantId: Types.ObjectId) {
+  private async removeAllAccessFromPerson ({
+    accessReleaseId,
+    person,
+    tenantId
+  }: IRemoveAllAccessFromPersonProps) {
     const accessPoints = await AccessPointServiceImp.findAllByPersonTypeId({
       personTypeId: person.personTypeId,
       tenantId
@@ -205,7 +211,22 @@ export class AccessReleaseService {
                       })
                     )
 
-                    if (error) console.log({ error: error.message })
+                    const synchronization: IAccessReleaseSynchronization = {
+                      accessPoint,
+                      equipment: equipment.show,
+                      syncType: 'remove'
+                    }
+
+                    if (error) {
+                      synchronization.error = true
+                      synchronization.errorMessage = (error as any).response.data.message
+                    }
+
+                    await this.accessReleaseRepositoryImp.updateSynchronizations({
+                      id: accessReleaseId,
+                      tenantId,
+                      synchronization
+                    })
                   } catch (error) {
                     console.log(`EquipmentRemoveAccess - MAP: ${error}`)
                   }
@@ -290,12 +311,13 @@ export class AccessReleaseService {
 
           const synchronization: IAccessReleaseSynchronization = {
             accessPoint,
-            equipment: equipment.show
+            equipment: equipment.show,
+            syncType: 'add'
           }
 
           if (error) {
             synchronization.error = true
-            synchronization.errorMessage = error.message
+            synchronization.errorMessage = (error as any).response.data.message
           }
 
           await this.accessReleaseRepositoryImp.updateSynchronizations({

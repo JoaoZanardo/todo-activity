@@ -36,6 +36,7 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
       synchronizations: {
         type: [
           {
+            syncType: String,
             error: Boolean,
             errorMessage: String,
             accessPoint: {
