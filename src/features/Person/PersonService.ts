@@ -1,11 +1,10 @@
-import { AccessReleaseServiceImp } from 'src/features/AccessRelease/AccessReleaseController'
-import { AccessReleaseStatus } from 'src/models/AccessRelease/AccessReleaseModel'
-
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
+import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
 import { IDeletePersonProps, IFindPersonByCpfProps, IListPersonsFilters, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
 import { PersonRepositoryImp } from '../../models/Person/PersonMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 
 export class PersonService {
   constructor (
