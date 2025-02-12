@@ -14,6 +14,12 @@ import { IPersonTypeCategory } from '../PersonTypeCategory/PersonTypeCategoryMod
 export interface IListAccessReleasesFilters extends IListModelsFilters {
   personId?: Types.ObjectId
   personTypeId?: Types.ObjectId
+  responsibleId?: Types.ObjectId
+  personTypeCategoryId?: Types.ObjectId
+  accessPointId?: Types.ObjectId
+  noticeId?: Types.ObjectId
+  finalAreaId?: Types.ObjectId
+  status?: AccessReleaseStatus
 }
 
 export interface IUpdateAccessReleaseProps extends IUpdateModelProps<IAccessRelease> { }
@@ -272,13 +278,25 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       page,
       tenantId,
       personTypeId,
-      personId
+      personId,
+      accessPointId,
+      finalAreaId,
+      noticeId,
+      personTypeCategoryId,
+      responsibleId,
+      status
     }: Partial<IListAccessReleasesFilters>
   ): IListAccessReleasesFilters {
     const filters = {
       deletionDate: undefined
     } as IListAccessReleasesFilters
 
+    if (status) Object.assign(filters, { status })
+    if (accessPointId) Object.assign(filters, { accessPointId: ObjectId(accessPointId) })
+    if (finalAreaId) Object.assign(filters, { finalAreaId: ObjectId(finalAreaId) })
+    if (noticeId) Object.assign(filters, { noticeId: ObjectId(noticeId) })
+    if (personTypeCategoryId) Object.assign(filters, { personTypeCategoryId: ObjectId(personTypeCategoryId) })
+    if (responsibleId) Object.assign(filters, { responsibleId: ObjectId(responsibleId) })
     if (personId) Object.assign(filters, { personId: ObjectId(personId) })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })

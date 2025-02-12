@@ -348,7 +348,12 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
           as: 'accessArea'
         }
       },
-      { $unwind: '$area' },
+      {
+        $unwind: {
+          path: '$area',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       {
         $unwind: {
           path: '$accessArea',
