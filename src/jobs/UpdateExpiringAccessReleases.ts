@@ -1,5 +1,3 @@
-import schedule from 'node-schedule'
-
 import { AccessReleaseServiceImp } from '../features/AccessRelease/AccessReleaseController'
 import { AccessReleaseStatus } from '../models/AccessRelease/AccessReleaseModel'
 import { DateUtils } from '../utils/Date'
@@ -15,21 +13,16 @@ export const UpdateExpiringAccessReleases = async () => {
         accessReleases.map(async (accessRelease) => {
           try {
             if (accessRelease.endDate! > DateUtils.getCurrent()) {
-              const adjustedExecutionDate = new Date(accessRelease.endDate!)
-              adjustedExecutionDate.setHours(accessRelease.endDate!.getHours() + 3)
-
-              schedule.scheduleJob(adjustedExecutionDate, async () => {
-                try {
-                  await AccessReleaseServiceImp.scheduleDisable({
-                    accessReleaseId: accessRelease._id!,
-                    endDate: accessRelease.endDate!,
-                    tenantId: accessRelease.tenantId!,
-                    status: AccessReleaseStatus.expired
-                  })
-                } catch (error) {
-                  console.error(`Error scheduling disable: ${error}`)
-                }
-              })
+              try {
+                await AccessReleaseServiceImp.scheduleDisable({
+                  accessReleaseId: accessRelease._id!,
+                  endDate: accessRelease.endDate!,
+                  tenantId: accessRelease.tenantId!,
+                  status: AccessReleaseStatus.expired
+                })
+              } catch (error) {
+                console.error(`Error scheduling disable: ${error}`)
+              }
             } else {
               await AccessReleaseServiceImp.disable({
                 id: accessRelease._id!,

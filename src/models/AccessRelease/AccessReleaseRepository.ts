@@ -3,6 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
+import { DateUtils } from '../../utils/Date'
 import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
 import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
@@ -38,6 +39,36 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       active: true,
       status: AccessReleaseStatus.active
     }, ['_id', 'tenantId', 'endDate'])
+
+    return documents
+  }
+
+  async findAllActiveExpiredAccessReleases (): Promise<Array<Partial<IAccessRelease>>> {
+    const currentDate = DateUtils.getCurrent()
+
+    const documents = await this.mongoDB.find({
+      deletionDate: null,
+      endDate: {
+        $lte: currentDate
+      },
+      active: true,
+      status: AccessReleaseStatus.active
+    }, ['_id', 'tenantId', 'endDate'])
+
+    return documents
+  }
+
+  async findAllScheduledAccessReleasesThatStarted (): Promise<Array<Partial<IAccessRelease>>> {
+    const currentDate = DateUtils.getCurrent()
+
+    const documents = await this.mongoDB.find({
+      deletionDate: null,
+      initDate: {
+        $lte: currentDate
+      },
+      active: true,
+      status: AccessReleaseStatus.scheduled
+    }, ['_id', 'tenantId', 'initDate', 'endDate', 'areasIds', 'personId', 'actions'])
 
     return documents
   }
