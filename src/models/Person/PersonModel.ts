@@ -3,6 +3,7 @@ import { Types } from 'mongoose'
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
+import { getPersonCode } from '../../utils/getPersonCode'
 import ObjectId from '../../utils/ObjectId'
 import { IAccessArea } from '../AccessArea/AccessAreaModel'
 import { IAccessControl } from '../AccessControl/AccessControlModel'
@@ -59,6 +60,7 @@ export interface IPerson extends IModel {
   lastAccessPoint?: IAccessPoint
   lastAccessArea?: IAccessArea
   bondAreaId?: string
+  code?: string
 
   personTypeId: Types.ObjectId
   name: string
@@ -87,6 +89,7 @@ export class PersonModel extends Model<IPerson> {
   private _lastAccessPoint?: IPerson['lastAccessPoint']
   private _lastAccessArea?: IPerson['lastAccessArea']
   private _bondAreaId?: IPerson['bondAreaId']
+  private _code?: IPerson['code']
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
@@ -115,6 +118,7 @@ export class PersonModel extends Model<IPerson> {
     this._lastAccessPoint = person.lastAccessPoint
     this._lastAccessArea = person.lastAccessArea
     this._bondAreaId = person.bondAreaId
+    this._code = person.code || getPersonCode()
 
     this._personTypeId = person.personTypeId
     this._name = person.name
@@ -132,6 +136,10 @@ export class PersonModel extends Model<IPerson> {
 
   get cpf (): IPerson['cpf'] {
     return this._cpf
+  }
+
+  get code (): IPerson['code'] {
+    return this._code
   }
 
   get object (): IPerson {
@@ -161,7 +169,8 @@ export class PersonModel extends Model<IPerson> {
       cpf: this._cpf,
       picture: this._picture,
       personTypeCategoryId: this._personTypeCategoryId,
-      bondAreaId: this._bondAreaId
+      bondAreaId: this._bondAreaId,
+      code: this._code
     }
   }
 

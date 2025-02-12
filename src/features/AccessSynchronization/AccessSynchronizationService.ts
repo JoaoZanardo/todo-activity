@@ -10,7 +10,6 @@ import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { getErrorMessage } from '../../utils/getErrorMessage'
-import { getPersonCodeByPersonId } from '../../utils/getPersonCodeByPersonId'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 
@@ -140,12 +139,12 @@ export class AccessSynchronizationService {
             const [error, _] = await to(
               EquipmentServer.addAccess({
                 equipmentIp: equipment.ip,
-                personCode: getPersonCodeByPersonId(person._id!),
+                personCode: person.code!,
                 personId: person._id!,
                 personName: person.name,
                 personPictureUrl: person.picture!,
-                initDate: DateUtils.getCurrent(),
-                endDate: DateUtils.getDefaultEndDate(),
+                initDate: accessRelease.initDate,
+                endDate: accessRelease.endDate,
                 schedules: []
               })
             )

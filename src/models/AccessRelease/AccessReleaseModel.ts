@@ -102,6 +102,7 @@ export interface IAccessReleaseSynchronization {
   equipment: IEquipment
   accessPoint: Partial<IAccessPoint>
   syncType: 'add' | 'remove'
+  date: Date
 }
 
 export interface IAccessRelease extends IModel {
@@ -117,6 +118,7 @@ export interface IAccessRelease extends IModel {
   endDate?: Date
   synchronizations?: Array<IAccessReleaseSynchronization>
   accessPointId?: Types.ObjectId
+  noticeId?: Types.ObjectId
 
   person?: IPerson
   personType?: IPersonType
@@ -142,13 +144,14 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _initDate?: IAccessRelease['initDate']
   private _endDate?: IAccessRelease['endDate']
   private _synchronizations?: IAccessRelease['synchronizations']
+  private _accessPointId?: IAccessRelease['accessPointId']
+  private _noticeId?: IAccessRelease['noticeId']
 
   private _person?: IAccessRelease['person']
   private _responsible?: IAccessRelease['responsible']
   private _personType?: IAccessRelease['personType']
   private _personTypeCategory?: IAccessRelease['personTypeCategory']
   private _accessPoint?: IAccessRelease['accessPoint']
-  private _accessPointId?: IAccessRelease['accessPointId']
 
   private _personId: IAccessRelease['personId']
   private _personTypeId: IAccessRelease['personTypeId']
@@ -171,6 +174,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._observation = accessRelease.observation
     this._synchronizations = accessRelease.synchronizations ?? []
     this._accessPointId = accessRelease.accessPointId ? ObjectId(accessRelease.accessPointId) : undefined
+    this._noticeId = accessRelease.noticeId ? ObjectId(accessRelease.noticeId) : undefined
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
@@ -240,6 +244,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       status: this._status,
       initDate: this._initDate,
       endDate: this._endDate,
+      noticeId: this._noticeId,
       synchronizations: this._synchronizations,
 
       type: this._type,
