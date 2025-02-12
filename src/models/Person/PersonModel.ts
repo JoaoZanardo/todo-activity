@@ -20,6 +20,7 @@ export interface IListPersonsFilters extends IListModelsFilters {
   passport?: string
   cnpj?: string
   register?: string
+  bondAreaId?: Types.ObjectId
 }
 
 export interface IUpdatePersonProps extends IUpdateModelProps<IPerson> { }
@@ -202,7 +203,8 @@ export class PersonModel extends Model<IPerson> {
       passport,
       register,
       rg,
-      cpf
+      cpf,
+      bondAreaId
     }: Partial<IListPersonsFilters>
   ): IListPersonsFilters {
     const filters = {
@@ -219,6 +221,7 @@ export class PersonModel extends Model<IPerson> {
     if (email) Object.assign(filters, { email: { $regex: email, $options: 'i' } })
 
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
+    if (bondAreaId) Object.assign(filters, { bondAreaId: ObjectId(bondAreaId) })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
     if (search) {
       Object.assign(filters, {
@@ -231,9 +234,7 @@ export class PersonModel extends Model<IPerson> {
           { passport: { $regex: search, $options: 'i' } },
           { cnpj: { $regex: search, $options: 'i' } },
           { register: { $regex: search, $options: 'i' } },
-          { 'cnh.value': { $regex: search, $options: 'i' } },
-          { 'address.streetName': { $regex: search, $options: 'i' } },
-          { 'address.streetNumber': { $regex: search, $options: 'i' } }
+          { 'cnh.value': { $regex: search, $options: 'i' } }
         ]
       })
     }
