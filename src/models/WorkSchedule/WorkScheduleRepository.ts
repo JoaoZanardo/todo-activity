@@ -83,6 +83,7 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
   }: IFindAllModelsProps): Promise<Array<Partial<IWorkSchedule>>> {
     return await this.mongoDB.find({
       tenantId,
+      active: true,
       deletionDate: null
     })
   }

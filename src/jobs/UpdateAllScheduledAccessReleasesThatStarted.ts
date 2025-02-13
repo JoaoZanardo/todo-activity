@@ -6,7 +6,7 @@ import { DateUtils } from '../utils/Date'
 
 export const UpdateAllScheduledAccessReleasesThatStarted = async () => {
   try {
-    const accessReleases = await AccessReleaseServiceImp.findAllStartingToday()
+    const accessReleases = await AccessReleaseRepositoryImp.findAllScheduledAccessReleasesThatStarted()
 
     console.log(`UpdateAllScheduledAccessReleasesThatStarted - ${accessReleases.length}`)
 

@@ -44,12 +44,13 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   }
 
   async findAllActiveExpiredAccessReleases (): Promise<Array<Partial<IAccessRelease>>> {
-    const currentDate = DateUtils.getCurrent()
+    const minEndDate = DateUtils.getCurrent()
+    minEndDate.setMinutes(minEndDate.getMinutes() - 1)
 
     const documents = await this.mongoDB.find({
       deletionDate: null,
       endDate: {
-        $lte: currentDate
+        $lte: minEndDate
       },
       active: true,
       status: AccessReleaseStatus.active
@@ -59,12 +60,13 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   }
 
   async findAllScheduledAccessReleasesThatStarted (): Promise<Array<Partial<IAccessRelease>>> {
-    const currentDate = DateUtils.getCurrent()
+    const minEndDate = DateUtils.getCurrent()
+    minEndDate.setMinutes(minEndDate.getMinutes() - 1)
 
     const documents = await this.mongoDB.find({
       deletionDate: null,
       initDate: {
-        $lte: currentDate
+        $lte: minEndDate
       },
       active: true,
       status: AccessReleaseStatus.scheduled
@@ -74,9 +76,6 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   }
 
   async findAllStartingToday (): Promise<Array<Partial<IAccessRelease>>> {
-    // const startOfDay = new Date()
-    // startOfDay.setHours(0, 0, 0, 0)
-
     const endOfDay = new Date()
     endOfDay.setHours(23, 59, 59, 999)
 
