@@ -92,7 +92,7 @@ class EquipmentServer {
       equipamentoIp: equipmentIp
     })
 
-    if (response.data.code !== 200) {
+    if (response.data.code !== 201) {
       throw CustomResponse.BAD_REQUEST('Ocorreu um erro ao remover cadastro no equipamento!', {
         personId,
         equipmentIp
@@ -111,7 +111,7 @@ class EquipmentServer {
       idPlano: workSchedule.id
     })
 
-    if (response.data.code !== 200) {
+    if (response.data.code !== 201) {
       throw CustomResponse.BAD_REQUEST('Ocorreu um erro ao cadastrar template de jornada de horário!', {
         workSchedule,
         equipmentIp
@@ -134,7 +134,7 @@ class EquipmentServer {
       horaFim: endTime
     })
 
-    if (response.data.code !== 200) {
+    if (response.data.code !== 201) {
       throw CustomResponse.BAD_REQUEST('Ocorreu um erro ao cadastrar jornada de horário!', {
         equipmentIp
       })

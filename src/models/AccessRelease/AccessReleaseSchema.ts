@@ -53,6 +53,8 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         default: []
       },
       accessPointId: Types.ObjectId,
+      noticeId: Types.ObjectId,
+      workScheduleId: Types.ObjectId,
 
       type: {
         type: String,

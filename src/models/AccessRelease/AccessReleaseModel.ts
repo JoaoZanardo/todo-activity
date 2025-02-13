@@ -125,6 +125,7 @@ export interface IAccessRelease extends IModel {
   synchronizations?: Array<IAccessReleaseSynchronization>
   accessPointId?: Types.ObjectId
   noticeId?: Types.ObjectId
+  workScheduleId?: Types.ObjectId
 
   person?: IPerson
   personType?: IPersonType
@@ -152,6 +153,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _synchronizations?: IAccessRelease['synchronizations']
   private _accessPointId?: IAccessRelease['accessPointId']
   private _noticeId?: IAccessRelease['noticeId']
+  private _workScheduleId?: IAccessRelease['workScheduleId']
 
   private _person?: IAccessRelease['person']
   private _responsible?: IAccessRelease['responsible']
@@ -181,6 +183,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._synchronizations = accessRelease.synchronizations ?? []
     this._accessPointId = accessRelease.accessPointId ? ObjectId(accessRelease.accessPointId) : undefined
     this._noticeId = accessRelease.noticeId ? ObjectId(accessRelease.noticeId) : undefined
+    this._workScheduleId = accessRelease.workScheduleId ? ObjectId(accessRelease.workScheduleId) : undefined
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
@@ -251,6 +254,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       initDate: this._initDate,
       endDate: this._endDate,
       noticeId: this._noticeId,
+      workScheduleId: this._workScheduleId,
       synchronizations: this._synchronizations,
 
       type: this._type,
