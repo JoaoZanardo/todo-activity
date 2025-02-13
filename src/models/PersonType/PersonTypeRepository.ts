@@ -45,6 +45,7 @@ export class PersonTypeRepository extends Repository<IPersonTypeMongoDB, PersonT
   }: IFindAllModelsProps): Promise<Array<Partial<IPersonType>>> {
     const documents = await this.mongoDB.find({
       tenantId,
+      active: true,
       deletionDate: null
     }, select)
 

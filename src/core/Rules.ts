@@ -61,6 +61,11 @@ export default class Rules {
       validator: (value: string) => is.objectId(value),
       message: 'Identificador de sincronização de acesso inválido. Informe um identificador válido!'
     })
+
+    this.validator.addRule('noticeId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de aviso inválido. Informe um identificador válido!'
+    })
   }
 
   public invalid (...args: Array<{ [key: string]: any, isRequiredField?: boolean } | null | undefined>): any {

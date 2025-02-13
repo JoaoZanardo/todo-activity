@@ -47,6 +47,7 @@ export class PersonTypeCategoryRepository extends Repository<IPersonTypeCategory
     return await this.mongoDB.find({
       tenantId,
       personTypeId,
+      active: true,
       deletionDate: null
     }, select)
   }

@@ -33,6 +33,10 @@ class PersonSchema extends Schema<IPersonDocument> {
       personTypeCategoryId: Types.ObjectId,
       bondAreaId: Types.ObjectId,
 
+      code: {
+        type: String,
+        requied: true
+      },
       personTypeId: {
         type: Types.ObjectId,
         required: true

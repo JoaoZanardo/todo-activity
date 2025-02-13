@@ -8,7 +8,7 @@ import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessRel
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
-import { getPersonCodeByPersonId } from '../../utils/getPersonCodeByPersonId'
+import { getErrorMessage } from '../../utils/getErrorMessage'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
@@ -214,12 +214,13 @@ export class AccessReleaseService {
                     const synchronization: IAccessReleaseSynchronization = {
                       accessPoint,
                       equipment: equipment.show,
-                      syncType: 'remove'
+                      syncType: 'remove',
+                      date: DateUtils.getCurrent()
                     }
 
                     if (error) {
                       synchronization.error = true
-                      synchronization.errorMessage = (error as any).response.data.message
+                      synchronization.errorMessage = getErrorMessage(error)
                     }
 
                     await this.accessReleaseRepositoryImp.updateSynchronizations({
@@ -295,7 +296,7 @@ export class AccessReleaseService {
           const [error, _] = await to(
             EquipmentServer.addAccess({
               equipmentIp: equipment.ip,
-              personCode: getPersonCodeByPersonId(person._id!),
+              personCode: person.code!,
               personId: person._id!,
               personName: person.name,
               personPictureUrl: person.object.picture!,
@@ -311,12 +312,13 @@ export class AccessReleaseService {
           const synchronization: IAccessReleaseSynchronization = {
             accessPoint,
             equipment: equipment.show,
-            syncType: 'add'
+            syncType: 'add',
+            date: DateUtils.getCurrent()
           }
 
           if (error) {
             synchronization.error = true
-            synchronization.errorMessage = (error as any).response.data.message
+            synchronization.errorMessage = getErrorMessage(error)
           }
 
           await this.accessReleaseRepositoryImp.updateSynchronizations({

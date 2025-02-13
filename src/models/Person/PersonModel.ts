@@ -3,6 +3,7 @@ import { Types } from 'mongoose'
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
+import { getPersonCode } from '../../utils/getPersonCode'
 import ObjectId from '../../utils/ObjectId'
 import { IAccessArea } from '../AccessArea/AccessAreaModel'
 import { IAccessControl } from '../AccessControl/AccessControlModel'
@@ -19,6 +20,7 @@ export interface IListPersonsFilters extends IListModelsFilters {
   passport?: string
   cnpj?: string
   register?: string
+  bondAreaId?: Types.ObjectId
 }
 
 export interface IUpdatePersonProps extends IUpdateModelProps<IPerson> { }
@@ -59,6 +61,7 @@ export interface IPerson extends IModel {
   lastAccessPoint?: IAccessPoint
   lastAccessArea?: IAccessArea
   bondAreaId?: string
+  code?: string
 
   personTypeId: Types.ObjectId
   name: string
@@ -87,6 +90,7 @@ export class PersonModel extends Model<IPerson> {
   private _lastAccessPoint?: IPerson['lastAccessPoint']
   private _lastAccessArea?: IPerson['lastAccessArea']
   private _bondAreaId?: IPerson['bondAreaId']
+  private _code?: IPerson['code']
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
@@ -115,6 +119,7 @@ export class PersonModel extends Model<IPerson> {
     this._lastAccessPoint = person.lastAccessPoint
     this._lastAccessArea = person.lastAccessArea
     this._bondAreaId = person.bondAreaId
+    this._code = person.code || getPersonCode()
 
     this._personTypeId = person.personTypeId
     this._name = person.name
@@ -132,6 +137,10 @@ export class PersonModel extends Model<IPerson> {
 
   get cpf (): IPerson['cpf'] {
     return this._cpf
+  }
+
+  get code (): IPerson['code'] {
+    return this._code
   }
 
   get object (): IPerson {
@@ -161,7 +170,8 @@ export class PersonModel extends Model<IPerson> {
       cpf: this._cpf,
       picture: this._picture,
       personTypeCategoryId: this._personTypeCategoryId,
-      bondAreaId: this._bondAreaId
+      bondAreaId: this._bondAreaId,
+      code: this._code
     }
   }
 
@@ -193,7 +203,8 @@ export class PersonModel extends Model<IPerson> {
       passport,
       register,
       rg,
-      cpf
+      cpf,
+      bondAreaId
     }: Partial<IListPersonsFilters>
   ): IListPersonsFilters {
     const filters = {
@@ -210,6 +221,7 @@ export class PersonModel extends Model<IPerson> {
     if (email) Object.assign(filters, { email: { $regex: email, $options: 'i' } })
 
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
+    if (bondAreaId) Object.assign(filters, { bondAreaId: ObjectId(bondAreaId) })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
     if (search) {
       Object.assign(filters, {
@@ -222,9 +234,7 @@ export class PersonModel extends Model<IPerson> {
           { passport: { $regex: search, $options: 'i' } },
           { cnpj: { $regex: search, $options: 'i' } },
           { register: { $regex: search, $options: 'i' } },
-          { 'cnh.value': { $regex: search, $options: 'i' } },
-          { 'address.streetName': { $regex: search, $options: 'i' } },
-          { 'address.streetNumber': { $regex: search, $options: 'i' } }
+          { 'cnh.value': { $regex: search, $options: 'i' } }
         ]
       })
     }

@@ -36,6 +36,7 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
       synchronizations: {
         type: [
           {
+            date: Date,
             syncType: String,
             error: Boolean,
             errorMessage: String,
@@ -51,6 +52,7 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         ],
         default: []
       },
+      accessPointId: Types.ObjectId,
 
       type: {
         type: String,
@@ -62,10 +64,6 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         required: true
       },
       personTypeId: {
-        type: Types.ObjectId,
-        required: true
-      },
-      accessPointId: {
         type: Types.ObjectId,
         required: true
       },

@@ -1,8 +1,10 @@
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
+import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
 import { IDeletePersonProps, IFindPersonByCpfProps, IListPersonsFilters, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
 import { PersonRepositoryImp } from '../../models/Person/PersonMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 
 export class PersonService {
   constructor (
@@ -55,14 +57,20 @@ export class PersonService {
       tenantId
     })
 
-    // const { name } = data
+    if (data.active === false) {
+      const accessRelease = await AccessReleaseServiceImp.findLastByPersonId({
+        personId: id,
+        tenantId
+      })
 
-    // if (name && name !== person.name) {
-    //   await this.validateDuplicatedName({
-    //     name,
-    //     tenantId
-    //   })
-    // }
+      if (accessRelease) {
+        await AccessReleaseServiceImp.disable({
+          id: accessRelease._id!,
+          tenantId,
+          status: AccessReleaseStatus.disabled
+        })
+      }
+    }
 
     const updated = await this.personRepositoryImp.update({
       id,
@@ -108,6 +116,19 @@ export class PersonService {
     if (person.object.deletionDate) {
       throw CustomResponse.CONFLICT('Pessoa já removida!', {
         personId: id
+      })
+    }
+
+    const accessRelease = await AccessReleaseServiceImp.findLastByPersonId({
+      personId: id,
+      tenantId
+    })
+
+    if (accessRelease) {
+      await AccessReleaseServiceImp.disable({
+        id: accessRelease._id!,
+        tenantId,
+        status: AccessReleaseStatus.disabled
       })
     }
 

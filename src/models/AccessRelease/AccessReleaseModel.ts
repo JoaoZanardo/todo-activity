@@ -14,6 +14,12 @@ import { IPersonTypeCategory } from '../PersonTypeCategory/PersonTypeCategoryMod
 export interface IListAccessReleasesFilters extends IListModelsFilters {
   personId?: Types.ObjectId
   personTypeId?: Types.ObjectId
+  responsibleId?: Types.ObjectId
+  personTypeCategoryId?: Types.ObjectId
+  accessPointId?: Types.ObjectId
+  noticeId?: Types.ObjectId
+  finalAreaId?: Types.ObjectId
+  status?: AccessReleaseStatus
 }
 
 export interface IUpdateAccessReleaseProps extends IUpdateModelProps<IAccessRelease> { }
@@ -102,6 +108,7 @@ export interface IAccessReleaseSynchronization {
   equipment: IEquipment
   accessPoint: Partial<IAccessPoint>
   syncType: 'add' | 'remove'
+  date: Date
 }
 
 export interface IAccessRelease extends IModel {
@@ -116,6 +123,8 @@ export interface IAccessRelease extends IModel {
   initDate?: Date
   endDate?: Date
   synchronizations?: Array<IAccessReleaseSynchronization>
+  accessPointId?: Types.ObjectId
+  noticeId?: Types.ObjectId
 
   person?: IPerson
   personType?: IPersonType
@@ -126,7 +135,6 @@ export interface IAccessRelease extends IModel {
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
   areasIds: Array<Types.ObjectId>
-  accessPointId: Types.ObjectId
   finalAreaId: Types.ObjectId
 }
 
@@ -142,6 +150,8 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _initDate?: IAccessRelease['initDate']
   private _endDate?: IAccessRelease['endDate']
   private _synchronizations?: IAccessRelease['synchronizations']
+  private _accessPointId?: IAccessRelease['accessPointId']
+  private _noticeId?: IAccessRelease['noticeId']
 
   private _person?: IAccessRelease['person']
   private _responsible?: IAccessRelease['responsible']
@@ -152,7 +162,6 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _personId: IAccessRelease['personId']
   private _personTypeId: IAccessRelease['personTypeId']
   private _areasIds: IAccessRelease['areasIds']
-  private _accessPointId: IAccessRelease['accessPointId']
   private _finalAreaId: IAccessRelease['finalAreaId']
 
   constructor (accessRelease: IAccessRelease) {
@@ -170,6 +179,8 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._status = accessRelease.status ?? (this._initDate <= DateUtils.getCurrent() ? AccessReleaseStatus.active : AccessReleaseStatus.scheduled)
     this._observation = accessRelease.observation
     this._synchronizations = accessRelease.synchronizations ?? []
+    this._accessPointId = accessRelease.accessPointId ? ObjectId(accessRelease.accessPointId) : undefined
+    this._noticeId = accessRelease.noticeId ? ObjectId(accessRelease.noticeId) : undefined
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
@@ -177,7 +188,6 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._personTypeCategory = accessRelease.personTypeCategory
     this._accessPoint = accessRelease.accessPoint
 
-    this._accessPointId = ObjectId(accessRelease.accessPointId)
     this._type = accessRelease.type
     this._personId = ObjectId(accessRelease.personId)
     this._personTypeId = ObjectId(accessRelease.personTypeId)
@@ -240,6 +250,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       status: this._status,
       initDate: this._initDate,
       endDate: this._endDate,
+      noticeId: this._noticeId,
       synchronizations: this._synchronizations,
 
       type: this._type,
@@ -267,13 +278,25 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       page,
       tenantId,
       personTypeId,
-      personId
+      personId,
+      accessPointId,
+      finalAreaId,
+      noticeId,
+      personTypeCategoryId,
+      responsibleId,
+      status
     }: Partial<IListAccessReleasesFilters>
   ): IListAccessReleasesFilters {
     const filters = {
       deletionDate: undefined
     } as IListAccessReleasesFilters
 
+    if (status) Object.assign(filters, { status })
+    if (accessPointId) Object.assign(filters, { accessPointId: ObjectId(accessPointId) })
+    if (finalAreaId) Object.assign(filters, { finalAreaId: ObjectId(finalAreaId) })
+    if (noticeId) Object.assign(filters, { noticeId: ObjectId(noticeId) })
+    if (personTypeCategoryId) Object.assign(filters, { personTypeCategoryId: ObjectId(personTypeCategoryId) })
+    if (responsibleId) Object.assign(filters, { responsibleId: ObjectId(responsibleId) })
     if (personId) Object.assign(filters, { personId: ObjectId(personId) })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })

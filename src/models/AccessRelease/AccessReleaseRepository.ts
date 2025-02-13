@@ -3,6 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
+import { DateUtils } from '../../utils/Date'
 import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
 import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
@@ -42,10 +43,39 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
     return documents
   }
 
-  async findAllStartingToday (): Promise<Array<Partial<IAccessRelease>>> {
-    // const startOfDay = new Date()
-    // startOfDay.setHours(0, 0, 0, 0)
+  async findAllActiveExpiredAccessReleases (): Promise<Array<Partial<IAccessRelease>>> {
+    const minEndDate = DateUtils.getCurrent()
+    minEndDate.setMinutes(minEndDate.getMinutes() - 1)
 
+    const documents = await this.mongoDB.find({
+      deletionDate: null,
+      endDate: {
+        $lte: minEndDate
+      },
+      active: true,
+      status: AccessReleaseStatus.active
+    }, ['_id', 'tenantId', 'endDate'])
+
+    return documents
+  }
+
+  async findAllScheduledAccessReleasesThatStarted (): Promise<Array<Partial<IAccessRelease>>> {
+    const minEndDate = DateUtils.getCurrent()
+    minEndDate.setMinutes(minEndDate.getMinutes() - 1)
+
+    const documents = await this.mongoDB.find({
+      deletionDate: null,
+      initDate: {
+        $lte: minEndDate
+      },
+      active: true,
+      status: AccessReleaseStatus.scheduled
+    }, ['_id', 'tenantId', 'initDate', 'endDate', 'areasIds', 'personId', 'actions'])
+
+    return documents
+  }
+
+  async findAllStartingToday (): Promise<Array<Partial<IAccessRelease>>> {
     const endOfDay = new Date()
     endOfDay.setHours(23, 59, 59, 999)
 
@@ -181,7 +211,10 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         $unwind: '$personType'
       },
       {
-        $unwind: '$accessPoint'
+        $unwind: {
+          path: '$accessPoint',
+          preserveNullAndEmptyArrays: true
+        }
       },
       { $sort: { _id: -1 } }
     ])
@@ -292,7 +325,10 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         $unwind: '$personType'
       },
       {
-        $unwind: '$accessPoint'
+        $unwind: {
+          path: '$accessPoint',
+          preserveNullAndEmptyArrays: true
+        }
       },
       { $unwind: '$person' },
       {
@@ -311,7 +347,12 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
           as: 'accessArea'
         }
       },
-      { $unwind: '$area' },
+      {
+        $unwind: {
+          path: '$area',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       {
         $unwind: {
           path: '$accessArea',

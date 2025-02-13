@@ -1,16 +1,14 @@
-import schedule from 'node-schedule'
-
 import { ModelAction } from '../core/interfaces/Model'
 import { AccessReleaseServiceImp } from '../features/AccessRelease/AccessReleaseController'
 import { AccessReleaseStatus, IAccessRelease } from '../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../models/AccessRelease/AccessReleaseMongoDB'
 import { DateUtils } from '../utils/Date'
 
-export const UpdateStartingAccessReleases = async () => {
+export const UpdateAllScheduledAccessReleasesThatStarted = async () => {
   try {
-    const accessReleases = await AccessReleaseServiceImp.findAllStartingToday()
+    const accessReleases = await AccessReleaseRepositoryImp.findAllScheduledAccessReleasesThatStarted()
 
-    console.log(`UpdateStartingAccessReleases - ${accessReleases.length}`)
+    console.log(`UpdateAllScheduledAccessReleasesThatStarted - ${accessReleases.length}`)
 
     if (accessReleases.length) {
       await Promise.all([
@@ -43,24 +41,11 @@ export const UpdateStartingAccessReleases = async () => {
                 }
               })
             } else {
-              const syncWithEquips = async () => {
-                await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
-                  accessRelease: accessRelease as IAccessRelease,
-                  personId: accessRelease.personId!,
-                  tenantId
-                })
-              }
-
-              if (accessRelease.initDate! > DateUtils.getCurrent()) {
-                const adjustedExecutionDate = new Date(accessRelease.initDate!)
-                adjustedExecutionDate.setHours(accessRelease.initDate!.getHours() + 3)
-
-                schedule.scheduleJob(adjustedExecutionDate, async () => {
-                  await syncWithEquips()
-                })
-              } else {
-                await syncWithEquips()
-              }
+              await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
+                accessRelease: accessRelease as IAccessRelease,
+                personId: accessRelease.personId!,
+                tenantId
+              })
 
               if (DateUtils.isToday(accessRelease.endDate!)) {
                 AccessReleaseServiceImp.scheduleDisable({
@@ -72,12 +57,12 @@ export const UpdateStartingAccessReleases = async () => {
               }
             }
           } catch (error) {
-            console.log(`UpdateStartingAccessReleasesError - MAP: ${error}`)
+            console.log(`UpdateAllScheduledAccessReleasesThatStartedError - MAP: ${error}`)
           }
         })
       ])
     }
   } catch (error) {
-    console.log(`UpdateStartingAccessReleasesError: ${error}`)
+    console.log(`UpdateAllScheduledAccessReleasesThatStartedError: ${error}`)
   }
 }

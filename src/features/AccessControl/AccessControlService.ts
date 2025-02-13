@@ -114,7 +114,11 @@ export class AccessControlService {
       accessRelease.status !== AccessReleaseStatus.active
     ) throw CustomResponse.CONFLICT('Essa pessoa não possui uma liberação de acesso!')
 
-    if (accessRelease.accessPointId.equals(accessPoint._id!)) {
+    if (accessRelease.object.singleAccess && !accessRelease.accessPointId) {
+      throw CustomResponse.BAD_REQUEST('Ponto de accesso não definido na liberação de acesso!')
+    }
+
+    if (accessRelease.object.singleAccess && accessRelease.accessPointId?.equals(accessPoint._id!)) {
       const person = await PersonServiceImp.findById({
         id: accessRelease.personId,
         tenantId
