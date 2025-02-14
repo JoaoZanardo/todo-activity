@@ -1,6 +1,4 @@
 import { ClientSession } from 'mongoose'
-import { AccessPointServiceImp } from 'src/features/AccessPoint/AccessPointController'
-import { PersonTypeCategoryServiceImp } from 'src/features/PersonTypeCategory/PersonTypeCategoryController'
 
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
@@ -9,7 +7,9 @@ import { PersonTypeRepositoryImp } from '../../models/PersonType/PersonTypeMongo
 import { PersonTypeFormModel } from '../../models/PersonTypeForm/PersonTypeFormModel'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { PersonServiceImp } from '../Person/PersonController'
+import { PersonTypeCategoryServiceImp } from '../PersonTypeCategory/PersonTypeCategoryController'
 import { PersonTypeFormServiceImp } from '../PersonTypeForm/PersonTypeFormController'
 
 export class PersonTypeService {
