@@ -50,13 +50,16 @@ export class PersonTypeFormRepository extends Repository<IPersonTypeFormMongoDB,
   async update ({
     id,
     data,
-    tenantId
+    tenantId,
+    session
   }: IUpdateProps<IPersonTypeForm>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
     }, {
       $set: data
+    }, {
+      session
     })
 
     return !!updated.modifiedCount

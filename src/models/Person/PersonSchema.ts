@@ -32,6 +32,7 @@ class PersonSchema extends Schema<IPersonDocument> {
       picture: String,
       personTypeCategoryId: Types.ObjectId,
       bondAreaId: Types.ObjectId,
+      landline: String,
 
       code: {
         type: String,

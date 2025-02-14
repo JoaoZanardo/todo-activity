@@ -1,8 +1,9 @@
 import { ClientSession } from 'mongoose'
+import { AccessPointServiceImp } from 'src/features/AccessPoint/AccessPointController'
+import { PersonTypeCategoryServiceImp } from 'src/features/PersonTypeCategory/PersonTypeCategoryController'
 
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { PersonModel } from '../../models/Person/PersonModel'
 import { IDeletePersonTypeProps, IListPersonTypesFilters, IPersonType, IUpdatePersonTypeProps, PersonTypeModel } from '../../models/PersonType/PersonTypeModel'
 import { PersonTypeRepositoryImp } from '../../models/PersonType/PersonTypeMongoDB'
 import { PersonTypeFormModel } from '../../models/PersonTypeForm/PersonTypeFormModel'
@@ -70,7 +71,8 @@ export class PersonTypeService {
     id,
     tenantId,
     responsibleId,
-    data
+    data,
+    session
   }: IUpdatePersonTypeProps): Promise<void> {
     const personType = await this.findById({
       id,
@@ -89,6 +91,7 @@ export class PersonTypeService {
     const updated = await this.personTypeRepositoryImp.update({
       id,
       tenantId,
+      session,
       data: {
         ...data,
         actions: [
@@ -118,7 +121,8 @@ export class PersonTypeService {
   async delete ({
     id,
     tenantId,
-    responsibleId
+    responsibleId,
+    session
   }: IDeletePersonTypeProps) {
     const personType = await this.findById({
       id,
@@ -126,15 +130,21 @@ export class PersonTypeService {
     })
 
     // Validate if exists person with the current personType
-    await this.validateDeletion(personType)
-
     // Delete all PersontypeForms
+    await this.validateDeletion(personType)
 
     if (personType.object.deletionDate) {
       throw CustomResponse.CONFLICT('Tipo de pessoa já removido!', {
         personTypeId: id
       })
     }
+
+    await this.deleteAllLinkedModels({
+      id,
+      responsibleId,
+      tenantId,
+      session
+    })
 
     return await this.update({
       id,
@@ -143,7 +153,8 @@ export class PersonTypeService {
         active: false,
         deletionDate: DateUtils.getCurrent()
       },
-      responsibleId
+      responsibleId,
+      session
     })
   }
 
@@ -159,14 +170,60 @@ export class PersonTypeService {
     if (personType) throw CustomResponse.CONFLICT('Nome de tipo de pessoa já cadastrado!')
   }
 
-  private async validateDeletion (personType: PersonTypeModel): Promise<void> {
-    const peopleFilter = PersonModel.listFilters({
-      tenantId: personType.tenantId,
-      personTypeId: personType._id
+  private async deleteAllLinkedModels ({
+    id,
+    responsibleId,
+    tenantId,
+    session
+  }: IDeletePersonTypeProps): Promise<void> {
+    const personTypeForm = await PersonTypeFormServiceImp.findByPersonTypeId({
+      personTypeId: id,
+      tenantId
     })
 
-    const people = await PersonServiceImp.list(peopleFilter)
+    await PersonTypeFormServiceImp.delete({
+      id: personTypeForm._id!,
+      responsibleId,
+      tenantId,
+      session
+    })
 
-    if (people.docs.length) CustomResponse.CONFLICT('Existem pessoas veínculadas a esse tipo!')
+    const personTypeCategories = await PersonTypeCategoryServiceImp.findAllByPersonTypeId({
+      personTypeId: id,
+      tenantId,
+      select: ['_id']
+    })
+
+    if (personTypeCategories.length) {
+      await Promise.all(
+        personTypeCategories.map(async personTypeCategory => {
+          await PersonTypeCategoryServiceImp.delete({
+            id: personTypeCategory._id!,
+            responsibleId,
+            tenantId,
+            session
+          })
+        })
+      )
+    }
+  }
+
+  private async validateDeletion (personType: PersonTypeModel): Promise<void> {
+    const personTypeId = personType._id!
+    const tenantId = personType.tenantId
+
+    const accesspoints = await AccessPointServiceImp.findAllByPersonTypeId({
+      personTypeId,
+      tenantId
+    })
+
+    if (accesspoints.length) CustomResponse.CONFLICT('Existem pontos de acessos veínculados a esse tipo de pessoa!')
+
+    const people = await PersonServiceImp.findAllByPersonTypeId({
+      personTypeId,
+      tenantId
+    })
+
+    if (people.length) CustomResponse.CONFLICT('Existem pessoas veínculadas a esse tipo de pessoa!')
   }
 }
