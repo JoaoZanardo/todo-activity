@@ -1,6 +1,6 @@
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
-import { IDeletePersonProps, IFindPersonByCpfProps, IListPersonsFilters, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
+import { IDeletePersonProps, IFindAllByPersonTypeId, IFindPersonByCpfProps, IListPersonsFilters, IPerson, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
 import { PersonRepositoryImp } from '../../models/Person/PersonMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
@@ -25,6 +25,16 @@ export class PersonService {
     if (!person) throw CustomResponse.NOT_FOUND('Pessoa não cadastrada!')
 
     return person
+  }
+
+  async findAllByPersonTypeId ({
+    personTypeId,
+    tenantId
+  }: IFindAllByPersonTypeId): Promise<Array<Partial<IPerson>>> {
+    return await this.personRepositoryImp.findAllByPersonTypeId({
+      personTypeId,
+      tenantId
+    })
   }
 
   async list (filters: IListPersonsFilters) {
@@ -111,7 +121,7 @@ export class PersonService {
       tenantId
     })
 
-    // await this.validateDeletion(person)
+    // await this.validateDeletion(person, responsibleId)
 
     if (person.object.deletionDate) {
       throw CustomResponse.CONFLICT('Pessoa já removida!', {

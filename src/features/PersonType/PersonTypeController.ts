@@ -185,6 +185,9 @@ class PersonTypeController extends Controller {
       '/:personTypeId',
       permissionAuthMiddleware(Permission.delete),
       async (request: Request, response: Response, next: NextFunction) => {
+        const session = await database.startSession()
+        session.startTransaction()
+
         try {
           const { tenantId, userId } = request
 
@@ -200,8 +203,13 @@ class PersonTypeController extends Controller {
             responsibleId: userId
           })
 
+          await session.commitTransaction()
+          session.endSession()
+
           response.OK('Tipo de pessoa removido com sucesso!')
         } catch (error) {
+          session.endSession()
+
           next(error)
         }
       })

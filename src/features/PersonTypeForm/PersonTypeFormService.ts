@@ -56,7 +56,8 @@ export class PersonTypeFormService {
     id,
     tenantId,
     responsibleId,
-    data
+    data,
+    session
   }: IUpdatePersonTypeFormProps): Promise<void> {
     const personTypeForm = await this.findById({
       id,
@@ -82,7 +83,8 @@ export class PersonTypeFormService {
             }
           )
         ]
-      }
+      },
+      session
     })
 
     if (!updated) {
@@ -95,7 +97,8 @@ export class PersonTypeFormService {
   async delete ({
     id,
     tenantId,
-    responsibleId
+    responsibleId,
+    session
   }: IDeletePersonTypeFormProps) {
     const personTypeForm = await this.findById({
       id,
@@ -117,7 +120,8 @@ export class PersonTypeFormService {
         active: false,
         deletionDate: DateUtils.getCurrent()
       },
-      responsibleId
+      responsibleId,
+      session
     })
   }
 
