@@ -54,7 +54,7 @@ export class WorkScheduleService {
             await EquipmentServer.addWorkScheduleTemplate({
               equipmentIp: equipment.ip,
               workSchedule: {
-                id: workSchedule._id!,
+                id: workSchedule.code!,
                 name: workSchedule.name
               }
             })
@@ -64,7 +64,7 @@ export class WorkScheduleService {
               startTime: workSchedule.object.startTime,
               endTime: workSchedule.object.endTime,
               equipmentIp: equipment.ip,
-              workScheduleId: workSchedule._id!
+              workScheduleId: workSchedule.code!
             })
           } catch (error) {
             console.log(`Create Work Schedule - MAP ERROR: ${error}`)
@@ -105,7 +105,7 @@ export class WorkScheduleService {
             await EquipmentServer.addWorkScheduleTemplate({
               equipmentIp: equipment.ip,
               workSchedule: {
-                id: workSchedule._id!,
+                id: workSchedule.code!,
                 name: workSchedule.name
               }
             })
@@ -115,7 +115,7 @@ export class WorkScheduleService {
               startTime: workSchedule.object.startTime,
               endTime: workSchedule.object.endTime,
               equipmentIp: equipment.ip,
-              workScheduleId: workSchedule._id!
+              workScheduleId: workSchedule.code!
             })
           } catch (error) {
             console.log(`Update Work Schedule - MAP ERROR: ${error}`)

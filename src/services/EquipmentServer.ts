@@ -28,14 +28,14 @@ interface IRemoveAccessFromEquipmentProps {
 
 interface IAddWorkScheduleTemplateProps {
   workSchedule: {
-    id: Types.ObjectId
+    id: string
     name: string
   }
   equipmentIp: string
 }
 
 interface IAddWorkScheduleProps {
-  workScheduleId: Types.ObjectId
+  workScheduleId: string
   equipmentIp: string
   days: Array<Day>
   startTime: string

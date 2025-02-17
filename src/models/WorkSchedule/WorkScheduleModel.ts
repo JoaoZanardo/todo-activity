@@ -59,6 +59,14 @@ export class WorkScheduleModel extends Model<IWorkSchedule> {
     this._endTime = workSchedule.endTime
   }
 
+  get name (): IWorkSchedule['name'] {
+    return this._name
+  }
+
+  get code (): IWorkSchedule['code'] {
+    return this._code
+  }
+
   get object (): IWorkSchedule {
     return {
       _id: this._id,
@@ -78,10 +86,6 @@ export class WorkScheduleModel extends Model<IWorkSchedule> {
 
   get show () {
     return this.object
-  }
-
-  get name (): IWorkSchedule['name'] {
-    return this._name
   }
 
   static listFilters (
