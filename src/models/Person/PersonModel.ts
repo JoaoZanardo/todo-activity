@@ -51,7 +51,6 @@ export interface IPerson extends IModel {
     value: string
     expirationDate: Date
   }
-  workScheduleId?: Types.ObjectId
   responsibleId?: string
   cnpj?: string
   register?: string
@@ -81,7 +80,6 @@ export class PersonModel extends Model<IPerson> {
   private _phone?: IPerson['phone']
   private _address?: IPerson['address']
   private _cnh?: IPerson['cnh']
-  private _workScheduleId?: IPerson['workScheduleId']
   private _responsibleId?: IPerson['responsibleId']
   private _cnpj?: IPerson['cnpj']
   private _register?: IPerson['register']
@@ -111,7 +109,6 @@ export class PersonModel extends Model<IPerson> {
     this._contractInitDate = person.contractInitDate
     this._contractEndDate = person.contractEndDate
     this._cnh = person.cnh
-    this._workScheduleId = person.workScheduleId
     this._responsibleId = person.responsibleId
     this._cnpj = person.cnpj
     this._register = person.register
@@ -168,7 +165,6 @@ export class PersonModel extends Model<IPerson> {
       address: this._address,
       personTypeId: this._personTypeId,
       cnh: this._cnh,
-      workScheduleId: this._workScheduleId,
       responsibleId: this._responsibleId,
       cnpj: this._cnpj,
       register: this._register,

@@ -89,7 +89,8 @@ class AccessReleaseController extends Controller {
             initDate,
             finalAreaId,
             active,
-            noticeId
+            noticeId,
+            workScheduleIds
           } = request.body
 
           this.rules.validate(
@@ -104,6 +105,7 @@ class AccessReleaseController extends Controller {
             { initDate, isRequiredField: false },
             { active, isRequiredField: false },
             { noticeId, isRequiredField: false },
+            { workScheduleIds, isRequiredField: false },
             { personId },
             { personTypeId },
             { type },
@@ -131,6 +133,7 @@ class AccessReleaseController extends Controller {
             type,
             finalAreaId,
             noticeId,
+            workScheduleIds,
             initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined
           })
 

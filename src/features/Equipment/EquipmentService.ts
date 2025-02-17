@@ -7,9 +7,11 @@ import { IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../c
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { EquipmentModel, IDeleteEquipmentProps, IEquipment, IFindEquipmentByIpProps, IListEquipmentsFilters, IUpdateEquipmentProps } from '../../models/Equipment/EquipmentModel'
 import { EquipmentRepositoryImp } from '../../models/Equipment/EquipmentMongoDB'
+import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
+import { WorkScheduleServiceImp } from '../WorkSchedule/WorkScheduleController'
 
 export class EquipmentService {
   constructor (
@@ -59,6 +61,32 @@ export class EquipmentService {
       this.validateDuplicatedIp(equipment),
       this.validateDuplicatedName(equipment)
     ])
+
+    const workSchedules = await WorkScheduleServiceImp.findAll({
+      tenantId: equipment.tenantId
+    })
+
+    if (workSchedules.length) {
+      await Promise.all(
+        workSchedules.map(async workSchedule => {
+          await EquipmentServer.addWorkScheduleTemplate({
+            equipmentIp: equipment.ip,
+            workSchedule: {
+              id: workSchedule._id!,
+              name: workSchedule.name!
+            }
+          })
+
+          await EquipmentServer.addWorkSchedule({
+            days: workSchedule.days!,
+            startTime: workSchedule.startTime!,
+            endTime: workSchedule.endTime!,
+            equipmentIp: equipment.ip,
+            workScheduleId: workSchedule._id!
+          })
+        })
+      )
+    }
 
     const createdEquipment = await this.equipmentRepositoryImp.create(equipment)
 

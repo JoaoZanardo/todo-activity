@@ -5,14 +5,14 @@ import { Jimp, JimpMime } from 'jimp'
 import { s3 } from '../config/s3'
 import CustomResponse from '../utils/CustomResponse'
 
-const MAX_IMAGE_SIZE = 500 * 1024
+const MAX_IMAGE_SIZE = 200 * 1024
 
 export const S3Middleware = async (request: Request, response: Response, next: NextFunction) => {
   try {
     const file = request.file
     if (!file) throw CustomResponse.UNPROCESSABLE_ENTITY('Arquivo inválido!')
 
-    const validMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+    const validMimeTypes = ['image/jpeg', 'image/png']
     if (!validMimeTypes.includes(file.mimetype)) {
       throw CustomResponse.UNPROCESSABLE_ENTITY('Tipo de arquivo inválido. Apenas imagens são permitidas.')
     }
