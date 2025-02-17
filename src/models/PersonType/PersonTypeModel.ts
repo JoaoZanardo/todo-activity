@@ -1,5 +1,3 @@
-import { Types } from 'mongoose'
-
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
@@ -28,7 +26,7 @@ export interface IPersonType extends IModel {
   description?: string
   appAccess?: boolean
   expiringTime?: ExpiringTime
-  workSchedulesIds?: Array<Types.ObjectId>
+  workSchedulesCodes?: Array<string>
 
   name: string
 }
@@ -37,7 +35,7 @@ export class PersonTypeModel extends Model<IPersonType> {
   private _description?: IPersonType['description']
   private _appAccess?: IPersonType['appAccess']
   private _expiringTime?: IPersonType['expiringTime']
-  private _workSchedulesIds?: IPersonType['workSchedulesIds']
+  private _workSchedulesCodes?: IPersonType['workSchedulesCodes']
 
   private _name: IPersonType['name']
 
@@ -47,7 +45,7 @@ export class PersonTypeModel extends Model<IPersonType> {
     this._description = personType.description
     this._appAccess = personType.appAccess
     this._expiringTime = personType.expiringTime
-    this._workSchedulesIds = personType.workSchedulesIds
+    this._workSchedulesCodes = personType.workSchedulesCodes ?? []
 
     this._name = personType.name
     this.actions = personType.actions || [{
@@ -68,7 +66,7 @@ export class PersonTypeModel extends Model<IPersonType> {
       name: this._name,
       appAccess: this._appAccess,
       expiringTime: this._expiringTime,
-      workSchedulesIds: this._workSchedulesIds
+      workSchedulesCodes: this._workSchedulesCodes
     }
   }
 

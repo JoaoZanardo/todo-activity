@@ -3,7 +3,7 @@ import { Types } from 'mongoose'
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
-import { getPersonCode } from '../../utils/getPersonCode'
+import { getRandomCode } from '../../utils/getRandomCode'
 import ObjectId from '../../utils/ObjectId'
 import { IAccessArea } from '../AccessArea/AccessAreaModel'
 import { IAccessControl } from '../AccessControl/AccessControlModel'
@@ -123,7 +123,7 @@ export class PersonModel extends Model<IPerson> {
     this._lastAccessPoint = person.lastAccessPoint
     this._lastAccessArea = person.lastAccessArea
     this._bondAreaId = person.bondAreaId
-    this._code = person.code || getPersonCode()
+    this._code = person.code || getRandomCode()
     this._landline = person.landline
 
     this._personTypeId = person.personTypeId

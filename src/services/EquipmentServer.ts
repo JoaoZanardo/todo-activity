@@ -8,7 +8,7 @@ import CustomResponse from '../utils/CustomResponse'
 
 interface IAddAccessToEquipmentProps {
   schedules?: Array<{
-    scheduleId: Types.ObjectId
+    scheduleCode: string
     description: string
   }>
   initDate?: Date
@@ -66,7 +66,7 @@ class EquipmentServer {
       pessoaDiretorioFoto: personPictureUrl,
       jornadas: (schedules || [])?.map(schedule => {
         return {
-          id: schedule.scheduleId,
+          id: schedule.scheduleCode,
           descricao: schedule.description
         }
       }),

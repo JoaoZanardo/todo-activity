@@ -296,13 +296,13 @@ export class AccessReleaseService {
             tenantId
           })
 
-          const workSchedulesIds = personType.object.workSchedulesIds
+          const workSchedulesCodes = personType.object.workSchedulesCodes
 
-          const schedules = workSchedulesIds?.length
-            ? workSchedulesIds.map(workScheduleId => {
+          const schedules = workSchedulesCodes?.length
+            ? workSchedulesCodes.map(scheduleCode => {
               return {
-                scheduleId: workScheduleId,
-                description: `workScheduleId-${workScheduleId}`
+                scheduleCode,
+                description: `ScheduleCode-${scheduleCode}`
               }
             })
             : []

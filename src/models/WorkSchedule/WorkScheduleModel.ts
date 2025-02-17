@@ -2,6 +2,7 @@ import { Types } from 'mongoose'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
+import { getRandomCode } from '../../utils/getRandomCode'
 import ObjectId from '../../utils/ObjectId'
 
 export interface IListWorkSchedulesFilters extends IListModelsFilters { }
@@ -29,6 +30,7 @@ export const DayValues = Object.values(Day)
 
 export interface IWorkSchedule extends IModel {
   description?: string
+  code?: string
 
   name: string
   days: Array<Day>
@@ -38,6 +40,7 @@ export interface IWorkSchedule extends IModel {
 
 export class WorkScheduleModel extends Model<IWorkSchedule> {
   private _description?: IWorkSchedule['description']
+  private _code?: IWorkSchedule['code']
 
   private _name: IWorkSchedule['name']
   private _days: IWorkSchedule['days']
@@ -48,6 +51,7 @@ export class WorkScheduleModel extends Model<IWorkSchedule> {
     super(workSchedule)
 
     this._description = workSchedule.description
+    this._code = workSchedule.code ?? getRandomCode()
 
     this._name = workSchedule.name
     this._days = workSchedule.days
@@ -67,7 +71,8 @@ export class WorkScheduleModel extends Model<IWorkSchedule> {
       name: this._name,
       days: this._days,
       startTime: this._startTime,
-      endTime: this._endTime
+      endTime: this._endTime,
+      code: this._code
     }
   }
 

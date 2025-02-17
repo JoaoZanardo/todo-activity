@@ -1,4 +1,4 @@
-import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
+import mongoose, { AggregatePaginateModel, Document } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
 import { IPersonType, TimeUnit } from './PersonTypeModel'
@@ -23,8 +23,8 @@ class PersonTypeSchema extends Schema<IPersonTypeDocument> {
           enum: TimeUnit
         }
       },
-      workSchedulesIds: {
-        type: Array<Types.ObjectId>,
+      workSchedulesCodes: {
+        type: Array<String>,
         default: []
       },
 
