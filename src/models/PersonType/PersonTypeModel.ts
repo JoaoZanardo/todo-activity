@@ -26,7 +26,7 @@ export interface IPersonType extends IModel {
   description?: string
   appAccess?: boolean
   expiringTime?: ExpiringTime
-  workSchedulesCodes?: Array<string>
+  workSchedulesCodes?: Array<number>
 
   name: string
 }

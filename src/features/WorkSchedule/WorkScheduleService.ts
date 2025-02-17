@@ -44,6 +44,11 @@ export class WorkScheduleService {
       name: workSchedule.name,
       tenantId: workSchedule.tenantId
     })
+    const lastWorkSchedule = await this.workScheduleRepositoryImp.findLast({ tenantId: workSchedule.tenantId })
+
+    const code = (lastWorkSchedule?.code ?? 0) + 1
+
+    workSchedule.code = code
 
     const equipments = (await EquipmentServiceImp.findAll(workSchedule.tenantId)).docs
 

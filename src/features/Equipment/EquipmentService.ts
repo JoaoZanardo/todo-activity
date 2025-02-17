@@ -72,7 +72,7 @@ export class EquipmentService {
           await EquipmentServer.addWorkScheduleTemplate({
             equipmentIp: equipment.ip,
             workSchedule: {
-              id: workSchedule._id!,
+              id: workSchedule.code!,
               name: workSchedule.name!
             }
           })
@@ -82,7 +82,7 @@ export class EquipmentService {
             startTime: workSchedule.startTime!,
             endTime: workSchedule.endTime!,
             equipmentIp: equipment.ip,
-            workScheduleId: workSchedule._id!
+            workScheduleId: workSchedule.code!
           })
         })
       )

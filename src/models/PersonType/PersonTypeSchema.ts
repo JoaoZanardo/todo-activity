@@ -24,7 +24,7 @@ class PersonTypeSchema extends Schema<IPersonTypeDocument> {
         }
       },
       workSchedulesCodes: {
-        type: Array<String>,
+        type: Array<Number>,
         default: []
       },
 

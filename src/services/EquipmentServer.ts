@@ -8,7 +8,7 @@ import CustomResponse from '../utils/CustomResponse'
 
 interface IAddAccessToEquipmentProps {
   schedules?: Array<{
-    scheduleCode: string
+    scheduleCode: number
     description: string
   }>
   initDate?: Date
@@ -28,14 +28,14 @@ interface IRemoveAccessFromEquipmentProps {
 
 interface IAddWorkScheduleTemplateProps {
   workSchedule: {
-    id: string
+    id: number
     name: string
   }
   equipmentIp: string
 }
 
 interface IAddWorkScheduleProps {
-  workScheduleId: string
+  workScheduleId: number
   equipmentIp: string
   days: Array<Day>
   startTime: string

@@ -125,7 +125,7 @@ export interface IAccessRelease extends IModel {
   synchronizations?: Array<IAccessReleaseSynchronization>
   accessPointId?: Types.ObjectId
   noticeId?: Types.ObjectId
-  workSchedulesCodes?: Array<string>
+  workSchedulesCodes?: Array<number>
 
   person?: IPerson
   personType?: IPersonType
