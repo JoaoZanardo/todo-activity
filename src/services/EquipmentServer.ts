@@ -66,7 +66,7 @@ class EquipmentServer {
       pessoaDiretorioFoto: personPictureUrl,
       jornadas: (schedules || [])?.map(schedule => {
         return {
-          id: schedule.scheduleCode,
+          id: String(schedule.scheduleCode),
           descricao: schedule.description
         }
       }),
@@ -105,10 +105,10 @@ class EquipmentServer {
     workSchedule
   }: IAddWorkScheduleTemplateProps): Promise<void> {
     const response = await axios.post<IResponseData>(`${this.baseUrl}/add-user-right-week-plan-template`, {
-      id: workSchedule.id,
+      id: String(workSchedule.id),
       ip: equipmentIp,
       nome: workSchedule.name,
-      idPlano: workSchedule.id
+      idPlano: String(workSchedule.id)
     })
 
     if (response.data.code !== 201) {
@@ -126,8 +126,8 @@ class EquipmentServer {
     startTime,
     workScheduleId
   }: IAddWorkScheduleProps): Promise<void> {
-    const response = await axios.post<IResponseData>(`${this.baseUrl}/delete`, {
-      id: workScheduleId,
+    const response = await axios.post<IResponseData>(`${this.baseUrl}/add-user-right-week-plan`, {
+      id: String(workScheduleId),
       ip: equipmentIp,
       dias: days,
       horaInicio: startTime,

@@ -54,8 +54,8 @@ export class WorkScheduleModel extends Model<IWorkSchedule> {
 
     this._name = workSchedule.name
     this._days = workSchedule.days
-    this._startTime = workSchedule.startTime
-    this._endTime = workSchedule.endTime
+    this._startTime = `${workSchedule.startTime}:59`
+    this._endTime = `${workSchedule.endTime}:59`
   }
 
   get name (): IWorkSchedule['name'] {

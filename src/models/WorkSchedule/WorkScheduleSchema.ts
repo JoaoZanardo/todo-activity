@@ -30,7 +30,7 @@ class WorkScheduleSchema extends Schema<IWorkScheduleDocument> {
         required: true
       },
       code: {
-        type: String,
+        type: Number,
         required: true
       }
     })
