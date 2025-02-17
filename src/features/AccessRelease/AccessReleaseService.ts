@@ -1,6 +1,5 @@
 import to from 'await-to-js'
 import schedule from 'node-schedule'
-import { PersonTypeServiceImp } from 'src/features/PersonType/PersonTypeController'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
@@ -14,6 +13,7 @@ import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
+import { PersonTypeServiceImp } from '../PersonType/PersonTypeController'
 
 export class AccessReleaseService {
   constructor (
