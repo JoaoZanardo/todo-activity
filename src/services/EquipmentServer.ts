@@ -107,7 +107,7 @@ class EquipmentServer {
     const response = await axios.post<IResponseData>(`${this.baseUrl}/add-user-right-week-plan-template`, {
       id: workSchedule.id,
       ip: equipmentIp,
-      name: workSchedule.name,
+      nome: workSchedule.name,
       idPlano: workSchedule.id
     })
 
