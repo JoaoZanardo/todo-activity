@@ -12,6 +12,7 @@ import { DateUtils } from '../../utils/Date'
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
+import { PersonTypeServiceImp } from '../PersonType/PersonTypeController'
 
 export class AccessSynchronizationService {
   constructor (
@@ -135,7 +136,23 @@ export class AccessSynchronizationService {
           try {
             const person = accessRelease.person!
 
-            const workScheduleId = person.workScheduleId
+            const personTypeId = person.personTypeId
+
+            const personType = await PersonTypeServiceImp.findById({
+              id: personTypeId,
+              tenantId
+            })
+
+            const workSchedulesIds = personType.object.workSchedulesIds
+
+            const schedules = workSchedulesIds?.length
+              ? workSchedulesIds.map(workScheduleId => {
+                return {
+                  scheduleId: workScheduleId,
+                  description: `workScheduleId-${workScheduleId}`
+                }
+              })
+              : []
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
             const [error, _] = await to(
@@ -147,10 +164,7 @@ export class AccessSynchronizationService {
                 personPictureUrl: person.picture!,
                 initDate: accessRelease.initDate,
                 endDate: accessRelease.endDate,
-                schedules: workScheduleId ? [{
-                  scheduleId: workScheduleId,
-                  description: 'Descrição'
-                }] : []
+                schedules
               })
             )
 

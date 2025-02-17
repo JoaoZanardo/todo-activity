@@ -288,7 +288,6 @@ export class AccessReleaseService {
       equipmentsIds.map(async (equipmentId) => {
         try {
           const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
-          console.log({ equipment: equipment.show })
 
           const personTypeId = person.personTypeId
 

@@ -54,7 +54,7 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
       },
       accessPointId: Types.ObjectId,
       noticeId: Types.ObjectId,
-      workScheduleId: Types.ObjectId,
+      workSchedulesIds: Array<Types.ObjectId>,
 
       type: {
         type: String,
