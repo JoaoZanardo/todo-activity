@@ -79,13 +79,17 @@ export class PersonTypeService {
       tenantId
     })
 
-    const name = data.name
+    const { name, active } = data
 
     if (name && name !== personType.name) {
       await this.validateDuplicatedName({
         name,
         tenantId
       })
+    }
+
+    if (active === false) {
+      await this.validateDeletion(personType)
     }
 
     const updated = await this.personTypeRepositoryImp.update({
