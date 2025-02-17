@@ -1,5 +1,6 @@
 import to from 'await-to-js'
 import schedule from 'node-schedule'
+import { PersonTypeServiceImp } from 'src/features/PersonType/PersonTypeController'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
@@ -149,7 +150,7 @@ export class AccessReleaseService {
           const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
 
           if (accessPoints.length) {
-            await AccessReleaseServiceImp.processAreaAccessPoints({
+            await this.processAreaAccessPoints({
               accessPoints,
               endDate: accessRelease.endDate!,
               person,
@@ -289,6 +290,24 @@ export class AccessReleaseService {
           const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
           console.log({ equipment: equipment.show })
 
+          const personTypeId = person.personTypeId
+
+          const personType = await PersonTypeServiceImp.findById({
+            id: personTypeId,
+            tenantId
+          })
+
+          const workSchedulesIds = personType.object.workSchedulesIds
+
+          const schedules = workSchedulesIds?.length
+            ? workSchedulesIds.map(workScheduleId => {
+              return {
+                scheduleId: workScheduleId,
+                description: `workScheduleId-${workScheduleId}`
+              }
+            })
+            : []
+
           // try to create all access, if one throw errors, do not cancel all the session
           // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
           const [error, _] = await to(
@@ -300,7 +319,7 @@ export class AccessReleaseService {
               personPictureUrl: person.object.picture!,
               initDate: DateUtils.getCurrent(),
               endDate,
-              schedules: []
+              schedules
             })
           )
 

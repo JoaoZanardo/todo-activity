@@ -135,6 +135,8 @@ export class AccessSynchronizationService {
           try {
             const person = accessRelease.person!
 
+            const workScheduleId = person.workScheduleId
+
             // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
             const [error, _] = await to(
               EquipmentServer.addAccess({
@@ -145,7 +147,10 @@ export class AccessSynchronizationService {
                 personPictureUrl: person.picture!,
                 initDate: accessRelease.initDate,
                 endDate: accessRelease.endDate,
-                schedules: []
+                schedules: workScheduleId ? [{
+                  scheduleId: workScheduleId,
+                  description: 'Descrição'
+                }] : []
               })
             )
 

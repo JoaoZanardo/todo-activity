@@ -98,14 +98,16 @@ class PersonTypeController extends Controller {
             name,
             description,
             expiringTime,
-            appAccess
+            appAccess,
+            workSchedulesIds
           } = request.body
 
           this.rules.validate(
             { name },
             { description, isRequiredField: false },
             { expiringTime, isRequiredField: false },
-            { appAccess, isRequiredField: false }
+            { appAccess, isRequiredField: false },
+            { workSchedulesIds, isRequiredField: false }
           )
 
           const personTypeModel = new PersonTypeModel({
@@ -118,7 +120,8 @@ class PersonTypeController extends Controller {
             name,
             description,
             expiringTime,
-            appAccess
+            appAccess,
+            workSchedulesIds
           })
 
           const personType = await PersonTypeServiceImp.create(personTypeModel, session)

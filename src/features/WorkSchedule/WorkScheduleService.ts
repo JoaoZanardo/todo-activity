@@ -1,8 +1,10 @@
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IDeleteWorkScheduleProps, IListWorkSchedulesFilters, IUpdateWorkScheduleProps, IWorkSchedule, WorkScheduleModel } from '../../models/WorkSchedule/WorkScheduleModel'
 import { WorkScheduleRepositoryImp } from '../../models/WorkSchedule/WorkScheduleMongoDB'
+import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 
 export class WorkScheduleService {
   constructor (
@@ -38,12 +40,38 @@ export class WorkScheduleService {
   }
 
   async create (workSchedule: WorkScheduleModel): Promise<WorkScheduleModel> {
-    await Promise.all([
-      this.validateDuplicatedName({
-        name: workSchedule.name,
-        tenantId: workSchedule.tenantId
-      })
-    ])
+    this.validateDuplicatedName({
+      name: workSchedule.name,
+      tenantId: workSchedule.tenantId
+    })
+
+    const equipments = (await EquipmentServiceImp.findAll(workSchedule.tenantId)).docs
+
+    if (equipments.length) {
+      await Promise.all(
+        equipments.map(async equipment => {
+          try {
+            await EquipmentServer.addWorkScheduleTemplate({
+              equipmentIp: equipment.ip,
+              workSchedule: {
+                id: workSchedule._id!,
+                name: workSchedule.name
+              }
+            })
+
+            await EquipmentServer.addWorkSchedule({
+              days: workSchedule.object.days,
+              startTime: workSchedule.object.startTime,
+              endTime: workSchedule.object.endTime,
+              equipmentIp: equipment.ip,
+              workScheduleId: workSchedule._id!
+            })
+          } catch (error) {
+            console.log(`Create Work Schedule - MAP ERROR: ${error}`)
+          }
+        })
+      )
+    }
 
     return await this.workScheduleRepositoryImp.create(workSchedule)
   }
@@ -66,6 +94,34 @@ export class WorkScheduleService {
         name,
         tenantId
       })
+    }
+
+    const equipments = (await EquipmentServiceImp.findAll(workSchedule.tenantId)).docs
+
+    if (equipments.length) {
+      await Promise.all(
+        equipments.map(async equipment => {
+          try {
+            await EquipmentServer.addWorkScheduleTemplate({
+              equipmentIp: equipment.ip,
+              workSchedule: {
+                id: workSchedule._id!,
+                name: workSchedule.name
+              }
+            })
+
+            await EquipmentServer.addWorkSchedule({
+              days: workSchedule.object.days,
+              startTime: workSchedule.object.startTime,
+              endTime: workSchedule.object.endTime,
+              equipmentIp: equipment.ip,
+              workScheduleId: workSchedule._id!
+            })
+          } catch (error) {
+            console.log(`Update Work Schedule - MAP ERROR: ${error}`)
+          }
+        })
+      )
     }
 
     const updated = await this.workScheduleRepositoryImp.update({
@@ -107,7 +163,7 @@ export class WorkScheduleService {
       tenantId
     })
 
-    // await this.validateDeletion(workSchedule)
+    await this.validateDeletion(workSchedule)
 
     if (workSchedule.object.deletionDate) {
       throw CustomResponse.CONFLICT('Jornada de trabalho já removida!', {
@@ -124,6 +180,10 @@ export class WorkScheduleService {
       },
       responsibleId
     })
+  }
+
+  async validateDeletion (workSchedule: WorkScheduleModel): Promise<void> {
+    console.log({ workSchedule })
   }
 
   private async validateDuplicatedName ({
