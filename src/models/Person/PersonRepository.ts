@@ -101,36 +101,16 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
   async list ({ limit, page, ...filters }: IListPersonsFilters): Promise<IAggregatePaginate<IPerson>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
-      ...this.$lookupAndUnwindStages(),
+      ...(filters.lastAccess ? [{ $limit: 2 }] : []),
+      ...this.$lookupAndUnwindStages(filters.lastAccess),
       { $sort: { _id: -1 } }
     ])
 
-    return await this.mongoDB.aggregatePaginate(
-      aggregationStages,
-      {
-        limit,
-        page
-      })
+    return await this.mongoDB.aggregatePaginate(aggregationStages, { limit, page })
   }
 
-  private $lookupAndUnwindStages (): Array<any> {
-    return [
-      {
-        $lookup: {
-          from: 'persontypes',
-          localField: 'personTypeId',
-          foreignField: '_id',
-          as: 'personType'
-        }
-      },
-      {
-        $lookup: {
-          from: 'persontypecategories',
-          localField: 'personTypeCategoryId',
-          foreignField: '_id',
-          as: 'personTypeCategory'
-        }
-      },
+  private $lookupAndUnwindStages (lastAccess?: boolean): Array<any> {
+    const lastAccessStages = [
       {
         $lookup: {
           from: 'accessreleases',
@@ -186,13 +166,6 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
           as: 'lastAccessPoint'
         }
       },
-      { $unwind: '$personType' },
-      {
-        $unwind: {
-          path: '$personTypeCategory',
-          preserveNullAndEmptyArrays: true
-        }
-      },
       {
         $unwind: {
           path: '$lastAccessPoint',
@@ -212,21 +185,21 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
           path: '$lastAccessArea',
           preserveNullAndEmptyArrays: true
         }
-      },
-      {
-        $lookup: {
-          from: 'areas',
-          localField: 'bondAreaId',
-          foreignField: '_id',
-          as: 'bondArea'
-        }
-      },
-      {
-        $unwind: {
-          path: '$bondArea',
-          preserveNullAndEmptyArrays: true
-        }
       }
     ]
+
+    const baseStages = [
+      {
+        $lookup: {
+          from: 'persontypes',
+          localField: 'personTypeId',
+          foreignField: '_id',
+          as: 'personType'
+        }
+      },
+      { $unwind: '$personType' }
+    ]
+
+    return lastAccess ? [...baseStages, ...lastAccessStages] : baseStages
   }
 }

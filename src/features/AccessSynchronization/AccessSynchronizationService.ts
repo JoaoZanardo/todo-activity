@@ -95,7 +95,7 @@ export class AccessSynchronizationService {
   }: ISynchronizeProps): Promise<void> {
     try {
       while (accessReleases.length) {
-        const batch = accessReleases.splice(0, 25)
+        const batch = accessReleases.splice(0, 10)
 
         await this.synchronize({
           accessReleases: batch,

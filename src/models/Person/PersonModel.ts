@@ -3,6 +3,7 @@ import { Types } from 'mongoose'
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
+import { format } from '../../utils/format'
 import { getRandomCode } from '../../utils/getRandomCode'
 import ObjectId from '../../utils/ObjectId'
 import { IAccessArea } from '../AccessArea/AccessAreaModel'
@@ -21,6 +22,7 @@ export interface IListPersonsFilters extends IListModelsFilters {
   cnpj?: string
   register?: string
   bondAreaId?: Types.ObjectId
+  lastAccess?: boolean
 }
 
 export interface IUpdatePersonProps extends IUpdateModelProps<IPerson> { }
@@ -209,13 +211,15 @@ export class PersonModel extends Model<IPerson> {
       register,
       rg,
       cpf,
-      bondAreaId
+      bondAreaId,
+      lastAccess
     }: Partial<IListPersonsFilters>
   ): IListPersonsFilters {
     const filters = {
       deletionDate: undefined
     } as IListPersonsFilters
 
+    if (lastAccess) Object.assign(filters, { lastAccess: format.boolean(lastAccess) })
     if (cnh) Object.assign(filters, { 'cnh.value': { $regex: cnh, $options: 'i' } })
     if (cpf) Object.assign(filters, { cpf: { $regex: cpf, $options: 'i' } })
     if (cnpj) Object.assign(filters, { cnpj: { $regex: cnpj, $options: 'i' } })

@@ -148,7 +148,19 @@ export class AccessSynchronizationRepository extends Repository<IAccessSynchroni
       {
         $unwind: '$accessPoint'
       },
-      { $sort: { _id: -1 } }
+      {
+        $set: {
+          syncErrorsNumber: {
+            $size: '$syncErrors'
+          }
+        }
+      },
+      { $sort: { _id: -1 } },
+      {
+        $project: {
+          syncErrors: 0
+        }
+      }
     ])
 
     return await this.mongoDB.aggregatePaginate(

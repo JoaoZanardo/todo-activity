@@ -286,79 +286,9 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         }
       },
       {
-        $lookup: {
-          from: 'people',
-          localField: 'responsibleId',
-          foreignField: '_id',
-          as: 'responsible'
-        }
-      },
-      {
-        $lookup: {
-          from: 'accesspoints',
-          localField: 'accessPointId',
-          foreignField: '_id',
-          as: 'accessPoint'
-        }
-      },
-      {
-        $lookup: {
-          from: 'persontypecategories',
-          localField: 'personTypeCategoryId',
-          foreignField: '_id',
-          as: 'personTypeCategory'
-        }
-      },
-      {
-        $unwind: {
-          path: '$personTypeCategory',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: {
-          path: '$responsible',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
         $unwind: '$personType'
       },
-      {
-        $unwind: {
-          path: '$accessPoint',
-          preserveNullAndEmptyArrays: true
-        }
-      },
       { $unwind: '$person' },
-      {
-        $lookup: {
-          from: 'areas',
-          localField: 'accessPoint.areaId',
-          foreignField: '_id',
-          as: 'area'
-        }
-      },
-      {
-        $lookup: {
-          from: 'accessareas',
-          localField: 'accessPoint.accessAreaId',
-          foreignField: '_id',
-          as: 'accessArea'
-        }
-      },
-      {
-        $unwind: {
-          path: '$area',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: {
-          path: '$accessArea',
-          preserveNullAndEmptyArrays: true
-        }
-      },
       { $sort: { _id: -1 } }
     ])
 
