@@ -92,7 +92,12 @@ export class WorkScheduleService {
       tenantId
     })
 
-    const { name } = data
+    const {
+      name,
+      days,
+      startTime,
+      endTime
+    } = data
 
     if (name && name !== workSchedule.name) {
       await this.validateDuplicatedName({
@@ -104,7 +109,7 @@ export class WorkScheduleService {
     const equipments = (await EquipmentServiceImp.findAll(workSchedule.tenantId)).docs
 
     if (equipments.length) {
-      await Promise.all(
+      Promise.all(
         equipments.map(async equipment => {
           try {
             await EquipmentServer.addWorkScheduleTemplate({
@@ -116,9 +121,9 @@ export class WorkScheduleService {
             })
 
             await EquipmentServer.addWorkSchedule({
-              days: workSchedule.object.days,
-              startTime: workSchedule.object.startTime,
-              endTime: workSchedule.object.endTime,
+              days: days || workSchedule.object.days,
+              startTime: startTime || workSchedule.object.startTime,
+              endTime: endTime || workSchedule.object.endTime,
               equipmentIp: equipment.ip,
               workScheduleId: workSchedule.code!
             })

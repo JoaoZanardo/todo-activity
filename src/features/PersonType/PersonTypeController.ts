@@ -153,7 +153,8 @@ class PersonTypeController extends Controller {
             description,
             expiringTime,
             appAccess,
-            active
+            active,
+            workSchedulesCodes
           } = request.body
 
           this.rules.validate(
@@ -162,6 +163,7 @@ class PersonTypeController extends Controller {
             { expiringTime, isRequiredField: false },
             { appAccess, isRequiredField: false },
             { active, isRequiredField: false },
+            { workSchedulesCodes, isRequiredField: false },
             { personTypeId }
           )
 
