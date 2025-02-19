@@ -86,13 +86,16 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
   async update ({
     id,
     data,
-    tenantId
+    tenantId,
+    session
   }: IUpdateProps<IPerson>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
     }, {
       $set: data
+    }, {
+      session
     })
 
     return !!updated.modifiedCount

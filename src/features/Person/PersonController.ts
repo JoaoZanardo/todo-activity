@@ -98,7 +98,9 @@ class PersonController extends Controller {
             personTypeCategoryId,
             bondAreaId,
             active,
-            landline
+            landline,
+            appAccess,
+            creationType
           } = request.body
 
           this.rules.validate(
@@ -123,7 +125,9 @@ class PersonController extends Controller {
             { picture, isRequiredField: false },
             { personTypeCategoryId, isRequiredField: false },
             { bondAreaId, isRequiredField: false },
-            { landline, isRequiredField: false }
+            { landline, isRequiredField: false },
+            { appAccess, isRequiredField: false },
+            { creationType, isRequiredField: false }
           )
 
           const personModel = new PersonModel({
@@ -153,7 +157,9 @@ class PersonController extends Controller {
             picture,
             personTypeCategoryId,
             bondAreaId,
-            landline
+            landline,
+            appAccess,
+            creationType
           })
 
           const person = await PersonServiceImp.create(personModel)
@@ -196,7 +202,9 @@ class PersonController extends Controller {
             personTypeCategoryId,
             personTypeId,
             bondAreaId,
-            landline
+            landline,
+            appAccess
+
           } = request.body
 
           this.rules.validate(
@@ -221,6 +229,7 @@ class PersonController extends Controller {
             { personTypeId, isRequiredField: false },
             { bondAreaId, isRequiredField: false },
             { landline, isRequiredField: false },
+            { appAccess, isRequiredField: false },
             { personId }
           )
 
@@ -247,7 +256,8 @@ class PersonController extends Controller {
               personTypeCategoryId,
               personTypeId,
               bondAreaId,
-              landline
+              landline,
+              appAccess
             },
             responsibleId: userId
           })

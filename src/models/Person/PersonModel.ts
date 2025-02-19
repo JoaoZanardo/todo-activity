@@ -39,6 +39,11 @@ export interface IFindAllByPersonTypeId {
   tenantId: Types.ObjectId
 }
 
+export enum PersonCreationType {
+  default = 'default',
+  invite = 'invite'
+}
+
 export interface IPerson extends IModel {
   email?: string
   observation?: string
@@ -53,7 +58,6 @@ export interface IPerson extends IModel {
     value: string
     expirationDate: Date
   }
-  responsibleId?: string
   cnpj?: string
   register?: string
   role?: string
@@ -61,14 +65,19 @@ export interface IPerson extends IModel {
   passport?: string
   cpf?: string
   picture?: string
+  code?: string
+  landline?: string
+  creationType?: PersonCreationType
+  responsibleId?: Types.ObjectId
   personTypeCategoryId?: Types.ObjectId
+  bondAreaId?: Types.ObjectId
+  userId?: Types.ObjectId
+  appAccess?: boolean
+
   personType?: IPersonType
   lastAccessControl?: IAccessControl
   lastAccessPoint?: IAccessPoint
   lastAccessArea?: IAccessArea
-  bondAreaId?: Types.ObjectId
-  code?: string
-  landline?: string
 
   personTypeId: Types.ObjectId
   name: string
@@ -82,7 +91,6 @@ export class PersonModel extends Model<IPerson> {
   private _phone?: IPerson['phone']
   private _address?: IPerson['address']
   private _cnh?: IPerson['cnh']
-  private _responsibleId?: IPerson['responsibleId']
   private _cnpj?: IPerson['cnpj']
   private _register?: IPerson['register']
   private _role?: IPerson['role']
@@ -90,14 +98,19 @@ export class PersonModel extends Model<IPerson> {
   private _passport?: IPerson['passport']
   private _cpf?: IPerson['cpf']
   private _picture?: IPerson['picture']
-  private _personTypeCategoryId?: IPerson['personTypeCategoryId']
-  private _personType?: IPerson['personType']
-  private _lastAccessControl?: IPerson['lastAccessControl']
-  private _lastAccessPoint?: IPerson['lastAccessPoint']
-  private _lastAccessArea?: IPerson['lastAccessArea']
-  private _bondAreaId?: IPerson['bondAreaId']
   private _code?: IPerson['code']
   private _landline?: IPerson['landline']
+  private _creationType?: IPerson['creationType']
+  private _responsibleId?: IPerson['responsibleId']
+  private _personTypeCategoryId?: IPerson['personTypeCategoryId']
+  private _bondAreaId?: IPerson['bondAreaId']
+  private _userId?: IPerson['userId']
+  private _appAccess?: IPerson['appAccess']
+
+  private _lastAccessArea?: IPerson['lastAccessArea']
+  private _personType?: IPerson['personType']
+  private _lastAccessPoint?: IPerson['lastAccessPoint']
+  private _lastAccessControl?: IPerson['lastAccessControl']
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
@@ -127,6 +140,9 @@ export class PersonModel extends Model<IPerson> {
     this._bondAreaId = person.bondAreaId
     this._code = person.code || getRandomCode()
     this._landline = person.landline
+    this._creationType = person.creationType ?? PersonCreationType.default
+    this._userId = person.userId
+    this._appAccess = person.appAccess
 
     this._personTypeId = person.personTypeId
     this._name = person.name
@@ -152,6 +168,10 @@ export class PersonModel extends Model<IPerson> {
 
   get code (): IPerson['code'] {
     return this._code
+  }
+
+  get appAccess (): IPerson['appAccess'] {
+    return this._appAccess
   }
 
   get object (): IPerson {
@@ -182,7 +202,10 @@ export class PersonModel extends Model<IPerson> {
       personTypeCategoryId: this._personTypeCategoryId,
       bondAreaId: this._bondAreaId,
       code: this._code,
-      landline: this._landline
+      landline: this._landline,
+      userId: this._userId,
+      creationType: this._creationType,
+      appAccess: this._appAccess
     }
   }
 

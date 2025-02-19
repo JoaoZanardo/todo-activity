@@ -1,4 +1,4 @@
-import { Types } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
 import { IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -21,6 +21,13 @@ export interface ISignInProps {
   password: string
 }
 
+export interface ISignUpProps {
+  tenantId: Types.ObjectId
+  login: string
+  password: string
+  session: ClientSession
+}
+
 export interface IAuthenticatedProps {
   user: IUser
   token: string
@@ -31,11 +38,18 @@ export interface IFindUserByLoginProps {
   login: string
 }
 
+export enum UserCreationType {
+  default = 'default',
+  app = 'app'
+}
+
 export interface IUser extends IModel {
   admin?: boolean
   accessGroup?: IAccessGroup
   accessGroupId?: Types.ObjectId
   email?: string
+  personId?: Types.ObjectId
+  creationType?: UserCreationType
 
   name: string
   login: string
@@ -47,6 +61,8 @@ export class UserModel extends Model<IUser> {
   private _accessGroup?: IUser['accessGroup']
   private _accessGroupId?: IUser['accessGroupId']
   private _email?: IUser['email']
+  private _personId?: IUser['personId']
+  private _creationType?: IUser['creationType']
 
   private _name: IUser['name']
   private _login: IUser['login']
@@ -58,6 +74,9 @@ export class UserModel extends Model<IUser> {
     this._admin = user.admin
     this._accessGroup = user.accessGroup
     this._email = user.email
+    this._personId = user.personId
+    this._creationType = user.creationType
+
     this._name = user.name
     this._login = user.login
     this._password = user.password
@@ -77,7 +96,9 @@ export class UserModel extends Model<IUser> {
       name: this._name,
       login: this._login,
       password: this._password,
-      accessGroupId: this._accessGroupId
+      accessGroupId: this._accessGroupId,
+      creationType: this._creationType,
+      personId: this._personId
     }
   }
 

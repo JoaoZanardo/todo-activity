@@ -1,7 +1,7 @@
 import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
-import { IPerson } from './PersonModel'
+import { IPerson, PersonCreationType } from './PersonModel'
 
 export interface IPersonDocument extends Document, Omit<IPerson, '_id'> { }
 
@@ -31,6 +31,13 @@ class PersonSchema extends Schema<IPersonDocument> {
       picture: String,
       personTypeCategoryId: Types.ObjectId,
       bondAreaId: Types.ObjectId,
+      userId: Types.ObjectId,
+      creationType: {
+        type: String,
+        enum: PersonCreationType,
+        default: PersonCreationType.default
+      },
+      appAccess: Boolean,
       landline: String,
 
       code: {
