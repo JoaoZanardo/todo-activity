@@ -61,7 +61,7 @@ export interface IPerson extends IModel {
   passport?: string
   cpf?: string
   picture?: string
-  personTypeCategoryId?: string
+  personTypeCategoryId?: Types.ObjectId
   personType?: IPersonType
   lastAccessControl?: IAccessControl
   lastAccessPoint?: IAccessPoint
@@ -140,6 +140,10 @@ export class PersonModel extends Model<IPerson> {
 
   get personTypeId (): IPerson['personTypeId'] {
     return this._personTypeId
+  }
+
+  get personType (): IPerson['personType'] {
+    return this._personType
   }
 
   get cpf (): IPerson['cpf'] {

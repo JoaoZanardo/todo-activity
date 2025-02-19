@@ -47,33 +47,6 @@ export class AccessControlRepository extends Repository<IAccessControlMongoDB, A
   async list ({ limit, page, ...filters }: IListAccessControlsFilters): Promise<IAggregatePaginate<IAccessControl>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
-      {
-        $lookup: {
-          from: 'persontypes',
-          localField: 'personTypeId',
-          foreignField: '_id',
-          as: 'personType'
-        }
-      },
-      {
-        $lookup: {
-          from: 'people',
-          localField: 'personId',
-          foreignField: '_id',
-          as: 'person'
-        }
-      },
-      {
-        $lookup: {
-          from: 'accesspoints',
-          localField: 'accessPointId',
-          foreignField: '_id',
-          as: 'accessPoint'
-        }
-      },
-      { $unwind: '$personType' },
-      { $unwind: '$accessPoint' },
-      { $unwind: '$person' },
       { $sort: { _id: -1 } }
     ])
 

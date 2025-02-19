@@ -4,7 +4,7 @@ import to from 'await-to-js'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessControlModel, AccessControlType, IAccessControl, ICreateAccessControlByEquipmentIpProps, IListAccessControlsFilters, IValidateAccessControlCreationProps } from '../../models/AccessControl/AccessControlModel'
+import { AccessControlModel, IAccessControl, ICreateAccessControlByEquipmentIpProps, IListAccessControlsFilters, IValidateAccessControlCreationProps } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
 import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
 import EquipmentServer from '../../services/EquipmentServer'
@@ -13,6 +13,7 @@ import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
+import AccessControlCreationService from './AccessControlCreationService'
 
 export class AccessControlService {
   constructor (
@@ -69,42 +70,16 @@ export class AccessControlService {
       tenantId
     })
 
-    const accessControlModel = new AccessControlModel({
+    return await AccessControlCreationService.execute({
       accessPointId: accessPoint._id!,
-      personId,
-      personTypeId: person.personTypeId,
-      tenantId,
-      type: AccessControlType.entry, // mocked one
       accessReleaseId: lastAccessRelease!._id!,
+      personId,
+      tenantId,
       picture: lastAccessRelease!.object.picture
     })
-
-    return await this.accessControlRepositoryImp.create(accessControlModel)
   }
 
-  async create (accessControl: AccessControlModel): Promise<AccessControlModel> {
-    const { tenantId, accessPointId, personId } = accessControl
-
-    const accessPoint = await AccessPointServiceImp.findById({
-      id: accessPointId,
-      tenantId
-    })
-
-    const lastAccessRelease = await AccessReleaseServiceImp.findLastByPersonId({
-      personId,
-      tenantId
-    })
-
-    await this.validateAccessControlCreation({
-      accessPoint,
-      accessRelease: lastAccessRelease,
-      tenantId
-    })
-
-    return await this.accessControlRepositoryImp.create(accessControl)
-  }
-
-  private async validateAccessControlCreation ({
+  async validateAccessControlCreation ({
     accessRelease,
     accessPoint,
     tenantId

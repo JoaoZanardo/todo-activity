@@ -234,6 +234,26 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     return this._areasIds
   }
 
+  get person (): IAccessRelease['person'] {
+    return this._person
+  }
+
+  get personType (): IAccessRelease['personType'] {
+    return this._personType
+  }
+
+  get personTypeCategory (): IAccessRelease['personTypeCategory'] {
+    return this._personTypeCategory
+  }
+
+  get accessPoint (): IAccessRelease['accessPoint'] {
+    return this._accessPoint
+  }
+
+  get responsible (): IAccessRelease['responsible'] {
+    return this._responsible
+  }
+
   get object (): IAccessRelease {
     return {
       _id: this._id,

@@ -98,11 +98,11 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
     return !!updated.modifiedCount
   }
 
-  async list ({ limit, page, ...filters }: IListPersonsFilters): Promise<IAggregatePaginate<IPerson>> {
+  async list ({ limit, page, lastAccess, ...filters }: IListPersonsFilters): Promise<IAggregatePaginate<IPerson>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
-      ...(filters.lastAccess ? [{ $limit: 2 }] : []),
-      ...this.$lookupAndUnwindStages(filters.lastAccess),
+      ...(lastAccess ? [{ $limit: 2 }] : []),
+      ...this.$lookupAndUnwindStages(lastAccess),
       { $sort: { _id: -1 } }
     ])
 

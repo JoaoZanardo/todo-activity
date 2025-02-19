@@ -35,50 +35,77 @@ export enum AccessControlType {
   'exit' = 'exit'
 }
 
-export interface IAccessControl extends IModel {
+export interface IAccessControlCreationServiceExecuteProps {
   picture?: string
-  personTypeCategoryId?: Types.ObjectId
+  observation?: string
+  userId?: Types.ObjectId
 
-  type: AccessControlType
   personId: Types.ObjectId
-  personTypeId: Types.ObjectId
-  accessPointId: Types.ObjectId
   accessReleaseId: Types.ObjectId
+  tenantId: Types.ObjectId
+  accessPointId: Types.ObjectId
+}
+
+export interface IAccessControl extends IModel {
+  responsible?: {
+    id?: Types.ObjectId
+    name?: string
+  },
+  observation?: string
+  type?: AccessControlType
+
+  accessReleaseId: Types.ObjectId
+  person: {
+    picture?: string
+    personTypeCategory?: {
+      id?: Types.ObjectId
+      name?: string
+    }
+
+    id: Types.ObjectId
+    name: string
+    personType: {
+      id: Types.ObjectId
+      name: string
+    }
+  }
+  accessPoint: {
+    area?: {
+      id: Types.ObjectId
+      name: string
+    }
+    accessArea?: {
+      id: Types.ObjectId
+      name: string
+    }
+
+    id: Types.ObjectId
+    name: string
+  }
 }
 
 export class AccessControlModel extends Model<IAccessControl> {
-  private _picture?: IAccessControl['picture']
-  private _personTypeCategoryId?: IAccessControl['personTypeCategoryId']
+  private _responsible?: IAccessControl['responsible']
+  private _observation?: IAccessControl['observation']
+  private _type?: IAccessControl['type']
 
-  private _type: IAccessControl['type']
-  private _personId: IAccessControl['personId']
-  private _personTypeId: IAccessControl['personTypeId']
-  private _accessPointId: IAccessControl['accessPointId']
+  private _person: IAccessControl['person']
+  private _accessPoint: IAccessControl['accessPoint']
   private _accessReleaseId: IAccessControl['accessReleaseId']
 
   constructor (accessControl: IAccessControl) {
     super(accessControl)
 
-    this._picture = accessControl.picture
-    this._personTypeCategoryId = accessControl.personTypeCategoryId ? ObjectId(accessControl.personTypeCategoryId) : undefined
+    this._responsible = accessControl.responsible
 
-    this._accessPointId = ObjectId(accessControl.accessPointId)
-    this._accessReleaseId = ObjectId(accessControl.accessReleaseId)
     this._type = accessControl.type
-    this._personId = ObjectId(accessControl.personId)
-    this._personTypeId = ObjectId(accessControl.personTypeId)
+    this._person = accessControl.person
+    this._accessPoint = accessControl.accessPoint
+    this._accessReleaseId = ObjectId(accessControl.accessReleaseId)
     this.actions = accessControl.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
     }]
-  }
-
-  get personId (): IAccessControl['personId'] {
-    return this._personId
-  }
-
-  get accessPointId (): IAccessControl['accessPointId'] {
-    return this._accessPointId
   }
 
   get object (): IAccessControl {
@@ -89,13 +116,12 @@ export class AccessControlModel extends Model<IAccessControl> {
       active: this.active,
       createdAt: this.createdAt,
       deletionDate: this.deletionDate,
-      accessPointId: this._accessPointId,
-      picture: this._picture,
-      personTypeCategoryId: this._personTypeCategoryId,
+      responsible: this._responsible,
+      observation: this._observation,
 
       type: this._type,
-      personId: this._personId,
-      personTypeId: this._personTypeId,
+      person: this._person,
+      accessPoint: this._accessPoint,
       accessReleaseId: this._accessReleaseId
     }
   }
@@ -126,6 +152,11 @@ export class AccessControlModel extends Model<IAccessControl> {
     if (search) {
       Object.assign(filters, {
         $or: [
+          { 'person.name': { $regex: search, $options: 'i' } },
+          { 'accessPoint.name': { $regex: search, $options: 'i' } },
+          { 'accessPoint.area.name': { $regex: search, $options: 'i' } },
+          { 'accessPoint.accessArea.name': { $regex: search, $options: 'i' } },
+          { 'responsible.name': { $regex: search, $options: 'i' } },
           { observation: { $regex: search, $options: 'i' } }
         ]
       })

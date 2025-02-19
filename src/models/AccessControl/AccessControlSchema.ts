@@ -11,25 +11,51 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
   constructor () {
     const accessControl = new mongoose.Schema({
       ...coreSchema,
-      picture: String,
-      personTypeCategoryId: Types.ObjectId,
+      responsible: {
+        id: Types.ObjectId,
+        name: String
+      },
+      observation: String,
 
       type: {
         type: String,
-        enum: AccessControlType,
-        required: true
+        enum: AccessControlType
       },
-      personId: {
-        type: Types.ObjectId,
-        required: true
+      person: {
+        id: Types.ObjectId,
+        name: {
+          type: String,
+          required: true
+        },
+        picture: {
+          type: String
+        },
+        personType: {
+          id: Types.ObjectId,
+          name: {
+            type: String,
+            required: true
+          }
+        },
+        personTypeCategory: {
+          id: Types.ObjectId,
+          name: String
+        }
       },
-      personTypeId: {
-        type: Types.ObjectId,
-        required: true
-      },
-      accessPointId: {
-        type: Types.ObjectId,
-        required: true
+      accessPoint: {
+        id: Types.ObjectId,
+        name: {
+          type: String,
+          required: true
+        },
+        area: {
+          id: Types.ObjectId,
+          name: String
+        },
+        accessArea: {
+          id: Types.ObjectId,
+          name: String
+        }
       },
       accessReleaseId: {
         type: Types.ObjectId,
