@@ -27,6 +27,20 @@ export class PersonService {
     return person
   }
 
+  async findByCpf ({
+    cpf,
+    tenantId
+  }: IFindPersonByCpfProps): Promise<PersonModel> {
+    const person = await this.personRepositoryImp.findByCpf({
+      cpf,
+      tenantId
+    })
+
+    if (!person) throw CustomResponse.NOT_FOUND('Pessoa não cadastrada!')
+
+    return person
+  }
+
   async findAllByPersonTypeId ({
     personTypeId,
     tenantId
@@ -60,7 +74,8 @@ export class PersonService {
     id,
     tenantId,
     responsibleId,
-    data
+    data,
+    session
   }: IUpdatePersonProps): Promise<void> {
     const person = await this.findById({
       id,
@@ -101,7 +116,8 @@ export class PersonService {
             }
           )
         ]
-      }
+      },
+      session
     })
 
     if (!updated) {

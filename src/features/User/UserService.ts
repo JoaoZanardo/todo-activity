@@ -21,20 +21,6 @@ export class UserService {
   async create (user: UserModel, session?: ClientSession): Promise<UserModel> {
     await this.validateDuplicatedLogin(user.object)
 
-    // const count = await CountServiceImp.findByTenantId(tenantId)
-
-    // if (count.usersCount! >= tenant.usersNumber!) {
-    //   throw CustomResponse.CONFLICT('Número máximo de usuários atingido, atualize seu plano para cadastrar mais usuários!')
-    // }
-
-    // await CountServiceImp.update({
-    //   id: count._id!,
-    //   tenantId,
-    //   data: {
-    //     usersCount: (count.usersCount! + 1)
-    //   }
-    // })
-
     const createdUser = await this.userRepositoryImp.create(user, session)
 
     return createdUser
