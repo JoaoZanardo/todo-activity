@@ -1,7 +1,7 @@
 import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
-import { INotice } from './NoticeModel'
+import { INotice, NoticeType } from './NoticeModel'
 
 export interface INoticeDocument extends Document, Omit<INotice, '_id'> { }
 
@@ -15,6 +15,9 @@ class NoticeSchema extends Schema<INoticeDocument> {
       initDate: Date,
       endDate: Date,
       discharged: Boolean,
+      servicetype: String,
+      serviceProviderName: String,
+      deliveryType: String,
 
       title: {
         type: String,
@@ -22,9 +25,14 @@ class NoticeSchema extends Schema<INoticeDocument> {
       },
       type: {
         type: String,
+        enum: NoticeType,
         required: true
       },
       personId: {
+        type: Types.ObjectId,
+        required: true
+      },
+      areaId: {
         type: Types.ObjectId,
         required: true
       }

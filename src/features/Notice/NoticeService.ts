@@ -23,17 +23,17 @@ export class NoticeService {
     id,
     tenantId
   }: IFindModelByIdProps): Promise<NoticeModel> {
-    const Notice = await this.noticeRepositoryImp.findById({
+    const notice = await this.noticeRepositoryImp.findById({
       id,
       tenantId
     })
-    if (!Notice) throw CustomResponse.NOT_FOUND('Aviso não cadastrado!')
+    if (!notice) throw CustomResponse.NOT_FOUND('Aviso não cadastrado!')
 
-    return Notice
+    return notice
   }
 
-  async create (Notice: NoticeModel): Promise<NoticeModel> {
-    const createdNotice = await this.noticeRepositoryImp.create(Notice)
+  async create (notice: NoticeModel): Promise<NoticeModel> {
+    const createdNotice = await this.noticeRepositoryImp.create(notice)
 
     return createdNotice
   }
@@ -44,7 +44,7 @@ export class NoticeService {
     responsibleId,
     data
   }: IUpdateNoticeProps): Promise<void> {
-    const Notice = await this.findById({
+    const notice = await this.findById({
       id,
       tenantId
     })
@@ -55,7 +55,7 @@ export class NoticeService {
       data: {
         ...data,
         actions: [
-          ...Notice.actions!,
+          ...notice.actions!,
           (
             data.deletionDate ? {
               action: ModelAction.delete,
@@ -73,7 +73,7 @@ export class NoticeService {
 
     if (!updated) {
       throw CustomResponse.INTERNAL_SERVER_ERROR('Ocorreu um erro ao tentar atualizar aviso!', {
-        NoticeId: id
+        noticeId: id
       })
     }
   }

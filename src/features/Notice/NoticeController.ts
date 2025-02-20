@@ -80,7 +80,11 @@ class NoticeController extends Controller {
             type,
             endDate,
             initDate,
-            observation
+            observation,
+            areaId,
+            deliveryType,
+            serviceProviderName,
+            servicetype
           } = request.body
 
           this.rules.validate(
@@ -88,6 +92,10 @@ class NoticeController extends Controller {
             { personId },
             { title },
             { type },
+            { areaId },
+            { deliveryType, isRequiredField: false },
+            { serviceProviderName, isRequiredField: false },
+            { servicetype, isRequiredField: false },
             { endDate, isRequiredField: false },
             { initDate, isRequiredField: false },
             { observation, isRequiredField: false }
@@ -102,8 +110,11 @@ class NoticeController extends Controller {
             }],
             active,
             personId,
-            title,
             type,
+            areaId,
+            deliveryType,
+            serviceProviderName,
+            servicetype,
             initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined,
             endDate: endDate ? DateUtils.parse(endDate) ?? undefined : undefined,
             observation

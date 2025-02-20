@@ -1,6 +1,7 @@
 /* eslint-disable no-useless-constructor */
 import Rules from '../../core/Rules'
 import is from '../../utils/is'
+import { nameValidator } from '../../utils/nameValidator'
 
 export class NoticeRules extends Rules {
   constructor () {
@@ -29,7 +30,22 @@ export class NoticeRules extends Rules {
 
     this.validator.addRule('observation', {
       validator: (value: string) => is.string(value),
-      message: 'Observação inválida. Informe um observação válida'
+      message: 'Observação inválida. Informe um observação válida!'
+    })
+
+    this.validator.addRule('deliveryType', {
+      validator: (value: string) => is.string(value),
+      message: 'Tipo de entrega inválido. Informe um tipo válido!'
+    })
+
+    this.validator.addRule('serviceProviderName', {
+      validator: (value: string) => nameValidator(value),
+      message: 'informe o nome completo do prestador de serviço!'
+    })
+
+    this.validator.addRule('servicetype', {
+      validator: (value: string) => is.string(value),
+      message: 'Tipo de serviço inválido. Informe um tipo válido!'
     })
   }
 }
