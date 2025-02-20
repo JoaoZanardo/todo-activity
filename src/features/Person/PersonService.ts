@@ -1,10 +1,12 @@
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
+import { IArea } from '../../models/Area/AreaModel'
 import { IDeletePersonProps, IFindAllByPersonTypeId, IFindPersonByCpfProps, IListPersonsFilters, IPerson, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
 import { PersonRepositoryImp } from '../../models/Person/PersonMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
+import { AreaServiceImp } from '../Area/AreaController'
 
 export class PersonService {
   constructor (
@@ -25,6 +27,33 @@ export class PersonService {
     if (!person) throw CustomResponse.NOT_FOUND('Pessoa não cadastrada!')
 
     return person
+  }
+
+  async findAllBondAreas ({
+    id,
+    tenantId
+  }: IFindModelByIdProps): Promise<Array<IArea>> {
+    const person = await this.findById({
+      id,
+      tenantId
+    })
+
+    const bondAreasIds = person.object.bondAreasIds
+
+    if (!bondAreasIds?.length) return []
+
+    const bondAreas = await Promise.all(
+      bondAreasIds.map(async bondAreadId => {
+        const bondArea = await AreaServiceImp.findById({
+          id: bondAreadId,
+          tenantId
+        })
+
+        return bondArea.object
+      })
+    )
+
+    return bondAreas
   }
 
   async findByCpf ({
@@ -163,7 +192,8 @@ export class PersonService {
       tenantId,
       data: {
         active: false,
-        deletionDate: DateUtils.getCurrent()
+        deletionDate: DateUtils.getCurrent(),
+        appAccess: false
       },
       responsibleId
     })

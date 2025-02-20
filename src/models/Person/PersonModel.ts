@@ -22,7 +22,9 @@ export interface IListPersonsFilters extends IListModelsFilters {
   cnpj?: string
   register?: string
   bondAreaId?: Types.ObjectId
+  bondAreasIds?: Array<Types.ObjectId>
   lastAccess?: boolean
+  appAccess?: boolean
 }
 
 export interface IUpdatePersonProps extends IUpdateModelProps<IPerson> { }
@@ -70,7 +72,7 @@ export interface IPerson extends IModel {
   creationType?: PersonCreationType
   responsibleId?: Types.ObjectId
   personTypeCategoryId?: Types.ObjectId
-  bondAreaId?: Types.ObjectId
+  bondAreasIds?: Array<Types.ObjectId>
   userId?: Types.ObjectId
   appAccess?: boolean
 
@@ -103,7 +105,7 @@ export class PersonModel extends Model<IPerson> {
   private _creationType?: IPerson['creationType']
   private _responsibleId?: IPerson['responsibleId']
   private _personTypeCategoryId?: IPerson['personTypeCategoryId']
-  private _bondAreaId?: IPerson['bondAreaId']
+  private _bondAreasIds?: IPerson['bondAreasIds']
   private _userId?: IPerson['userId']
   private _appAccess?: IPerson['appAccess']
 
@@ -137,7 +139,7 @@ export class PersonModel extends Model<IPerson> {
     this._lastAccessControl = person.lastAccessControl
     this._lastAccessPoint = person.lastAccessPoint
     this._lastAccessArea = person.lastAccessArea
-    this._bondAreaId = person.bondAreaId
+    this._bondAreasIds = person.bondAreasIds ?? []
     this._code = person.code || getRandomCode()
     this._landline = person.landline
     this._creationType = person.creationType ?? PersonCreationType.default
@@ -200,7 +202,7 @@ export class PersonModel extends Model<IPerson> {
       cpf: this._cpf,
       picture: this._picture,
       personTypeCategoryId: this._personTypeCategoryId,
-      bondAreaId: this._bondAreaId,
+      bondAreasIds: this._bondAreasIds,
       code: this._code,
       landline: this._landline,
       userId: this._userId,
@@ -239,13 +241,15 @@ export class PersonModel extends Model<IPerson> {
       rg,
       cpf,
       bondAreaId,
-      lastAccess
+      lastAccess,
+      appAccess
     }: Partial<IListPersonsFilters>
   ): IListPersonsFilters {
     const filters = {
       deletionDate: undefined
     } as IListPersonsFilters
 
+    if (appAccess) Object.assign(filters, { appAccess: format.boolean(appAccess) })
     if (lastAccess) Object.assign(filters, { lastAccess: format.boolean(lastAccess) })
     if (cnh) Object.assign(filters, { 'cnh.value': { $regex: cnh, $options: 'i' } })
     if (cpf) Object.assign(filters, { cpf: { $regex: cpf, $options: 'i' } })
@@ -257,7 +261,7 @@ export class PersonModel extends Model<IPerson> {
     if (email) Object.assign(filters, { email: { $regex: email, $options: 'i' } })
 
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
-    if (bondAreaId) Object.assign(filters, { bondAreaId: ObjectId(bondAreaId) })
+    if (bondAreaId) Object.assign(filters, { bondAreasIds: { $in: [ObjectId(bondAreaId)] } })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
     if (search) {
       Object.assign(filters, {

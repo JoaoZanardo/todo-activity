@@ -6,6 +6,7 @@ declare global {
   namespace Express {
     interface Request {
       userId: Types.ObjectId
+      personId: Types.ObjectId
       user: IUser
       tenantId: Types.ObjectId
       filePath?: string

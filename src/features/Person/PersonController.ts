@@ -96,7 +96,7 @@ class PersonController extends Controller {
             cpf,
             picture,
             personTypeCategoryId,
-            bondAreaId,
+            bondAreasIds,
             active,
             landline,
             appAccess,
@@ -124,7 +124,7 @@ class PersonController extends Controller {
             { cpf, isRequiredField: false },
             { picture, isRequiredField: false },
             { personTypeCategoryId, isRequiredField: false },
-            { bondAreaId, isRequiredField: false },
+            { bondAreasIds, isRequiredField: false },
             { landline, isRequiredField: false },
             { appAccess, isRequiredField: false },
             { creationType, isRequiredField: false }
@@ -156,7 +156,7 @@ class PersonController extends Controller {
             cpf,
             picture,
             personTypeCategoryId,
-            bondAreaId,
+            bondAreasIds,
             landline,
             appAccess,
             creationType
@@ -201,7 +201,7 @@ class PersonController extends Controller {
             picture,
             personTypeCategoryId,
             personTypeId,
-            bondAreaId,
+            bondAreasIds,
             landline,
             appAccess
 
@@ -227,7 +227,7 @@ class PersonController extends Controller {
             { picture, isRequiredField: false },
             { personTypeCategoryId, isRequiredField: false },
             { personTypeId, isRequiredField: false },
-            { bondAreaId, isRequiredField: false },
+            { bondAreasIds, isRequiredField: false },
             { landline, isRequiredField: false },
             { appAccess, isRequiredField: false },
             { personId }
@@ -255,7 +255,7 @@ class PersonController extends Controller {
               picture,
               personTypeCategoryId,
               personTypeId,
-              bondAreaId,
+              bondAreasIds,
               landline,
               appAccess
             },
@@ -288,6 +288,32 @@ class PersonController extends Controller {
           })
 
           response.OK('Pessoa removida com sucesso!')
+        } catch (error) {
+          next(error)
+        }
+      })
+
+    this.router.get(
+      '/:personId/bond-areas',
+      permissionAuthMiddleware(Permission.delete),
+      async (request: Request, response: Response, next: NextFunction) => {
+        try {
+          const { tenantId } = request
+
+          const { personId } = request.params
+
+          this.rules.validate(
+            { personId }
+          )
+
+          const bondAreas = await PersonServiceImp.findAllBondAreas({
+            id: ObjectId(personId),
+            tenantId
+          })
+
+          response.OK('Áreas de veínculo encontradas com sucesso!', {
+            bondAreas
+          })
         } catch (error) {
           next(error)
         }

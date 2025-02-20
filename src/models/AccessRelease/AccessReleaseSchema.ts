@@ -58,6 +58,7 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         type: Array<Number>,
         default: []
       },
+      acccessReleseInvitationId: Types.ObjectId,
 
       type: {
         type: String,

@@ -30,14 +30,17 @@ class PersonSchema extends Schema<IPersonDocument> {
       cpf: String,
       picture: String,
       personTypeCategoryId: Types.ObjectId,
-      bondAreaId: Types.ObjectId,
+      bondAreasIds: Array<Types.ObjectId>,
       userId: Types.ObjectId,
       creationType: {
         type: String,
         enum: PersonCreationType,
         default: PersonCreationType.default
       },
-      appAccess: Boolean,
+      appAccess: {
+        type: Boolean,
+        default: false
+      },
       landline: String,
 
       code: {

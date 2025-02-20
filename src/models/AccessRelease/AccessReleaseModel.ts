@@ -87,7 +87,7 @@ export interface IRemoveAllAccessFromPersonProps {
 }
 
 export enum AccessReleaseType {
-  manually = 'manually',
+  default = 'default',
   invite = 'invite'
 }
 
@@ -126,6 +126,7 @@ export interface IAccessRelease extends IModel {
   accessPointId?: Types.ObjectId
   noticeId?: Types.ObjectId
   workSchedulesCodes?: Array<number>
+  acccessReleseInvitationId?: Types.ObjectId
 
   person?: IPerson
   personType?: IPersonType
@@ -154,6 +155,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _accessPointId?: IAccessRelease['accessPointId']
   private _noticeId?: IAccessRelease['noticeId']
   private _workSchedulesCodes?: IAccessRelease['workSchedulesCodes']
+  private _acccessReleseInvitationId?: IAccessRelease['acccessReleseInvitationId']
 
   private _person?: IAccessRelease['person']
   private _responsible?: IAccessRelease['responsible']
@@ -184,6 +186,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._accessPointId = accessRelease.accessPointId ? ObjectId(accessRelease.accessPointId) : undefined
     this._noticeId = accessRelease.noticeId ? ObjectId(accessRelease.noticeId) : undefined
     this._workSchedulesCodes = accessRelease.workSchedulesCodes ?? []
+    this._acccessReleseInvitationId = accessRelease.acccessReleseInvitationId ? ObjectId(accessRelease.acccessReleseInvitationId) : undefined
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
@@ -276,6 +279,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       noticeId: this._noticeId,
       workSchedulesCodes: this._workSchedulesCodes,
       synchronizations: this._synchronizations,
+      acccessReleseInvitationId: this._acccessReleseInvitationId,
 
       type: this._type,
       personId: this._personId,
