@@ -36,7 +36,10 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
         }
       },
       {
-        $unwind: '$person'
+        $unwind: {
+          path: '$accessGroup',
+          preserveNullAndEmptyArrays: true
+        }
       },
       {
         $project: {
@@ -84,8 +87,6 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     const result = await this.mongoDB.aggregate(pipeline)
 
     if (!result.length) return null
-
-    console.log(result[0])
 
     return new UserModel(result[0])
   }

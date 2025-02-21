@@ -24,7 +24,7 @@ export interface IAccessReleaseInvitation extends IModel {
   observation?: string
   status?: AccessReleaseInvitationStatus
   accessReleaseId?: Types.ObjectId
-  groupId?: Types.ObjectId
+  accessReleaseInvitationGroupId?: Types.ObjectId
   guestName?: string
   guestId?: Types.ObjectId
 
@@ -38,7 +38,7 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
   private _observation?: IAccessReleaseInvitation['observation']
   private _status?: IAccessReleaseInvitation['status']
   private _accessReleaseId?: IAccessReleaseInvitation['accessReleaseId']
-  private _groupId?: IAccessReleaseInvitation['groupId']
+  private _accessReleaseInvitationGroupId?: IAccessReleaseInvitation['accessReleaseInvitationGroupId']
   private _guestName?: IAccessReleaseInvitation['guestName']
   private _guestId?: IAccessReleaseInvitation['guestId']
 
@@ -53,7 +53,7 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
     this._observation = accessReleaseInvitation.observation
     this._status = accessReleaseInvitation.status
     this._accessReleaseId = accessReleaseInvitation.accessReleaseId ? ObjectId(accessReleaseInvitation.accessReleaseId) : undefined
-    this._groupId = accessReleaseInvitation.groupId ? ObjectId(accessReleaseInvitation.groupId) : undefined
+    this._accessReleaseInvitationGroupId = accessReleaseInvitation.accessReleaseInvitationGroupId ? ObjectId(accessReleaseInvitation.accessReleaseInvitationGroupId) : undefined
     this._guestName = accessReleaseInvitation.guestName
     this._guestId = accessReleaseInvitation.guestId ? ObjectId(accessReleaseInvitation.guestId) : undefined
 
@@ -82,7 +82,7 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
       observation: this._observation,
       status: this._status,
       accessReleaseId: this._accessReleaseId,
-      groupId: this._groupId,
+      accessReleaseInvitationGroupId: this._accessReleaseInvitationGroupId,
       guestName: this._guestName,
       guestId: this._guestId,
 

@@ -295,7 +295,6 @@ class PersonController extends Controller {
 
     this.router.get(
       '/:personId/bond-areas',
-      permissionAuthMiddleware(Permission.delete),
       async (request: Request, response: Response, next: NextFunction) => {
         try {
           const { tenantId } = request

@@ -42,7 +42,7 @@ class AccessReleaseInvitationController extends Controller {
 
         const {
           observation,
-          groupId,
+          accessReleaseInvitationGroupId,
           initDate,
           endDate,
           areaId,
@@ -52,7 +52,7 @@ class AccessReleaseInvitationController extends Controller {
 
         this.rules.validate(
           { observation, isRequiredField: false },
-          { groupId, isRequiredField: false },
+          { accessReleaseInvitationGroupId, isRequiredField: false },
           { guestId, isRequiredField: false },
           { guestName, isRequiredField: false },
           { initDate },
@@ -68,7 +68,7 @@ class AccessReleaseInvitationController extends Controller {
           }],
           tenantId,
           observation,
-          groupId,
+          accessReleaseInvitationGroupId,
           initDate,
           endDate,
           areaId,
