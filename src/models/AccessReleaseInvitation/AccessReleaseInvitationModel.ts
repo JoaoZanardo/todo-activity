@@ -4,6 +4,8 @@ import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, Model
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
+import { IPerson } from '../Person/PersonModel'
+import { ITenant } from '../Tenant/TenantModel'
 
 export interface IListAccessReleaseInvitationsFilters extends IListModelsFilters {
   status?: AccessReleaseInvitationStatus
@@ -28,6 +30,9 @@ export interface IAccessReleaseInvitation extends IModel {
   guestName?: string
   guestId?: Types.ObjectId
 
+  guest?: IPerson
+  tenant?: ITenant
+
   initDate: Date
   endDate: Date
   areaId: Types.ObjectId
@@ -41,6 +46,9 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
   private _accessReleaseInvitationGroupId?: IAccessReleaseInvitation['accessReleaseInvitationGroupId']
   private _guestName?: IAccessReleaseInvitation['guestName']
   private _guestId?: IAccessReleaseInvitation['guestId']
+
+  private _guest?: IAccessReleaseInvitation['guest']
+  private _tenant?: IAccessReleaseInvitation['tenant']
 
   private _initDate: IAccessReleaseInvitation['initDate']
   private _endDate: IAccessReleaseInvitation['endDate']
@@ -56,6 +64,9 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
     this._accessReleaseInvitationGroupId = accessReleaseInvitation.accessReleaseInvitationGroupId ? ObjectId(accessReleaseInvitation.accessReleaseInvitationGroupId) : undefined
     this._guestName = accessReleaseInvitation.guestName
     this._guestId = accessReleaseInvitation.guestId ? ObjectId(accessReleaseInvitation.guestId) : undefined
+
+    this._guest = accessReleaseInvitation.guest
+    this._tenant = accessReleaseInvitation.tenant
 
     this._initDate = accessReleaseInvitation.initDate
     this._endDate = accessReleaseInvitation.endDate
@@ -93,9 +104,11 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
     }
   }
 
-  get show () {
+  get show (): IAccessReleaseInvitation {
     return {
-      ...this.object
+      ...this.object,
+      guest: this._guest,
+      tenant: this._tenant
     }
   }
 

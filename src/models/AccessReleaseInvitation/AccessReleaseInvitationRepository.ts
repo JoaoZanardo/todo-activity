@@ -1,4 +1,4 @@
-import { Aggregate, FilterQuery } from 'mongoose'
+import { Aggregate } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
@@ -12,16 +12,53 @@ export class AccessReleaseInvitationRepository extends Repository<IAccessRelease
     id,
     tenantId
   }: IFindModelByIdProps): Promise<AccessReleaseInvitationModel | null> {
-    const match: FilterQuery<IAccessReleaseInvitation> = {
-      _id: id,
-      tenantId,
-      deletionDate: null
-    }
+    console.log({ tenantId, id })
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $match: {
+          _id: id,
+          tenantId,
+          deletionDate: null
+        }
+      },
+      {
+        $lookup: {
+          from: 'tenants',
+          localField: 'tenantId',
+          foreignField: '_id',
+          as: 'tenant'
+        }
+      },
+      {
+        $unwind: {
+          path: '$tenant',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'guestId',
+          foreignField: '_id',
+          as: 'guest'
+        }
+      },
+      {
+        $unwind: {
+          path: '$guest',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $sort: { _id: -1 } }
+    ])
 
-    const document = await this.mongoDB.findOne(match).lean()
-    if (!document) return null
+    const accessReleaseInvitations = await this.mongoDB.aggregatePaginate(aggregationStages)
 
-    return new AccessReleaseInvitationModel(document)
+    const accessReleaseInvitation = accessReleaseInvitations.docs[0]
+
+    if (!accessReleaseInvitation) return null
+
+    return new AccessReleaseInvitationModel(accessReleaseInvitation)
   }
 
   async create (accessReleaseInvitation: AccessReleaseInvitationModel): Promise<AccessReleaseInvitationModel> {

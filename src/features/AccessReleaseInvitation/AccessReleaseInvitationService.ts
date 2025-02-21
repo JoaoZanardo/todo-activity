@@ -24,7 +24,7 @@ export class AccessReleaseInvitationService {
       id,
       tenantId
     })
-    if (!accessReleaseInvitation) throw CustomResponse.NOT_FOUND('Liberação de acesso não cadastrado!')
+    if (!accessReleaseInvitation) throw CustomResponse.NOT_FOUND('Convite não cadastrado!')
 
     return accessReleaseInvitation
   }
