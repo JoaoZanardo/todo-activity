@@ -42,10 +42,10 @@ interface IAddWorkScheduleProps {
   endTime: string
 }
 
-class EquipmentServer {
+class HikvisionServer {
   private baseUrl: string
 
-  constructor (baseUrl: string = env.equipmentServerUrl) {
+  constructor (baseUrl: string = env.hikvisionServerUrl) {
     this.baseUrl = baseUrl
   }
 
@@ -142,4 +142,4 @@ class EquipmentServer {
   }
 }
 
-export default new EquipmentServer()
+export default new HikvisionServer()

@@ -16,12 +16,22 @@ export interface IFindEquipmentByIpProps {
   tenantId: Types.ObjectId
 }
 
+export enum EquipmentPatternBrand {
+  hikvision = 'hikvision',
+  zkteco = 'zkteco'
+}
+
 export interface IEquipmentPattern {
   code: string
   type: string
-  brand: string
+  brand: EquipmentPatternBrand
   name: string
   firmwares: Array<string>
+}
+
+export enum EquipamentRequestType {
+  add = 'add',
+  remove = 'remove'
 }
 
 export interface IEquipment extends IModel {
@@ -54,6 +64,10 @@ export class EquipmentModel extends Model<IEquipment> {
 
   get ip (): IEquipment['ip'] {
     return this._ip
+  }
+
+  get pattern (): IEquipment['pattern'] {
+    return this._pattern
   }
 
   get name (): IEquipment['name'] {

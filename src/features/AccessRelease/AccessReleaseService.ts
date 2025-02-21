@@ -1,11 +1,13 @@
 import to from 'await-to-js'
 import schedule from 'node-schedule'
+import { EquipamentRequestType, EquipmentPatternBrand } from 'src/models/Equipment/EquipmentModel'
+import HikvisionServer from 'src/services/HikvisionServer'
+import ZkTecoServer from 'src/services/ZkTecoServer'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAllAccessFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
-import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { getErrorMessage } from '../../utils/getErrorMessage'
@@ -307,20 +309,24 @@ export class AccessReleaseService {
             })
             : []
 
+          let request: Promise<void> = HikvisionServer.addAccess({
+            equipmentIp: equipment.ip,
+            personCode: person.code!,
+            personId: person._id!,
+            personName: person.name,
+            personPictureUrl: person.object.picture!,
+            initDate: DateUtils.getCurrent(),
+            endDate,
+            schedules
+          })
+
+          if (equipment.pattern.brand === EquipmentPatternBrand.zkteco) {
+            request = ZkTecoServer.addAccess()
+          }
+
           // try to create all access, if one throw errors, do not cancel all the session
           // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-          const [error, _] = await to(
-            EquipmentServer.addAccess({
-              equipmentIp: equipment.ip,
-              personCode: person.code!,
-              personId: person._id!,
-              personName: person.name,
-              personPictureUrl: person.object.picture!,
-              initDate: DateUtils.getCurrent(),
-              endDate,
-              schedules
-            })
-          )
+          const [error, _] = await to(request)
 
           const synchronization: IAccessReleaseSynchronization = {
             accessPoint,
@@ -344,5 +350,22 @@ export class AccessReleaseService {
         }
       })
     )
+  }
+
+  private getEquipmentRequest (requestType: EquipamentRequestType, equipmentBrand: EquipmentPatternBrand): Promise<void> {
+    let request: Promise<void> = HikvisionServer.addAccess({
+      equipmentIp: equipment.ip,
+      personCode: person.code!,
+      personId: person._id!,
+      personName: person.name,
+      personPictureUrl: person.object.picture!,
+      initDate: DateUtils.getCurrent(),
+      endDate,
+      schedules
+    })
+
+    if (equipment.pattern.brand === EquipmentPatternBrand.zkteco) {
+      request = ZkTecoServer.addAccess()
+    }
   }
 }
