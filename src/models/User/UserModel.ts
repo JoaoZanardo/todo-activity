@@ -1,10 +1,10 @@
 import { ClientSession, Types } from 'mongoose'
-import { IPerson } from 'src/models/Person/PersonModel'
 
 import { IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import ObjectId from '../../utils/ObjectId'
 import { IAccessGroup } from '../AccessGroup/AccessGroupModel'
+import { IPerson } from '../Person/PersonModel'
 
 export interface IListUsersFilters extends IListModelsFilters {
   accessGroupId?: Types.ObjectId
@@ -88,6 +88,14 @@ export class UserModel extends Model<IUser> {
     this._login = user.login
     this._password = user.password
     this._accessGroupId = user.accessGroupId
+  }
+
+  get accessGroup (): IUser['accessGroup'] {
+    return this._accessGroup
+  }
+
+  get person (): IUser['person'] {
+    return this._person
   }
 
   get object (): IUser {

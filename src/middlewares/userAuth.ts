@@ -27,6 +27,10 @@ export const userAuthMiddleware = async (request: Request, response: Response, n
 
     if (!user.active) throw CustomResponse.FORBIDDEN('Acesso negado!')
 
+    const accessGroup = user.accessGroup
+
+    if (accessGroup && !accessGroup.active) throw CustomResponse.FORBIDDEN('Acesso negado!')
+
     if (user.object.creationType === UserCreationType.app) {
       const person = await PersonServiceImp.findById({
         id: user.object.personId!,

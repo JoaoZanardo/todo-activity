@@ -1,7 +1,7 @@
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
 import { IArea } from '../../models/Area/AreaModel'
-import { IDeletePersonProps, IFindAllByPersonTypeId, IFindPersonByCpfProps, IListPersonsFilters, IPerson, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
+import { IDeletePersonProps, IFindAllByPersonTypeId, IFindPersonByCnhProps, IFindPersonByCpfProps, IListPersonsFilters, IPerson, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
 import { PersonRepositoryImp } from '../../models/Person/PersonMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
@@ -85,14 +85,21 @@ export class PersonService {
   }
 
   async create (person: PersonModel): Promise<PersonModel> {
-    // await Promise.all([
-    //   this.validateDuplicatedName(person)
-    // ])
+    const tenantId = person.tenantId
 
     if (person.cpf) {
       await this.validateDuplicatedCpf({
         cpf: person.cpf,
-        tenantId: person.tenantId
+        tenantId
+      })
+    }
+
+    const cnh = person.object.cnh
+
+    if (cnh) {
+      await this.validateDuplicatedCnh({
+        cnh: cnh.value,
+        tenantId
       })
     }
 
@@ -205,6 +212,18 @@ export class PersonService {
   }: IFindPersonByCpfProps): Promise<void> {
     const person = await this.personRepositoryImp.findByCpf({
       cpf,
+      tenantId
+    })
+
+    if (person) throw CustomResponse.CONFLICT('Pessoa já cadastrada!')
+  }
+
+  private async validateDuplicatedCnh ({
+    cnh,
+    tenantId
+  }: IFindPersonByCnhProps): Promise<void> {
+    const person = await this.personRepositoryImp.findByCnh({
+      cnh,
       tenantId
     })
 

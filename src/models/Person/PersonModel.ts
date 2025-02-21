@@ -36,6 +36,11 @@ export interface IFindPersonByCpfProps {
   tenantId: Types.ObjectId
 }
 
+export interface IFindPersonByCnhProps {
+  cnh: string
+  tenantId: Types.ObjectId
+}
+
 export interface IFindAllByPersonTypeId {
   personTypeId: Types.ObjectId
   tenantId: Types.ObjectId

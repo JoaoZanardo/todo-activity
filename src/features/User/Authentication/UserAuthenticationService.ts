@@ -70,6 +70,10 @@ export class UserAuthenticationService {
       tenantId
     })
 
+    const accessGroup = user.accessGroup
+
+    if (accessGroup && !accessGroup.active) throw CustomResponse.FORBIDDEN('Acesso negado!')
+
     const isValid = await Bcrypt.compare(password, user.object.password!)
     if (!isValid) throw CustomResponse.UNPROCESSABLE_ENTITY('As credenciais fornecidas estão incorretas!')
 
