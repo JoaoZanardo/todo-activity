@@ -63,7 +63,7 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
       type: {
         type: String,
         enum: AccessReleaseType,
-        required: true
+        default: AccessReleaseType.default
       },
       personId: {
         type: Types.ObjectId,

@@ -14,10 +14,13 @@ class AccessReleaseInvitationSchema extends Schema<IAccessReleaseInvitationDocum
       observation: String,
       status: {
         type: String,
-        enum: AccessReleaseInvitationStatus
+        enum: AccessReleaseInvitationStatus,
+        default: AccessReleaseInvitationStatus.pending
       },
       accessReleaseId: Types.ObjectId,
       groupId: Types.ObjectId,
+      guestName: String,
+      guestId: Types.ObjectId,
 
       initDate: {
         type: Date,
@@ -28,6 +31,10 @@ class AccessReleaseInvitationSchema extends Schema<IAccessReleaseInvitationDocum
         required: true
       },
       areaId: {
+        type: Types.ObjectId,
+        required: true
+      },
+      personId: {
         type: Types.ObjectId,
         required: true
       }

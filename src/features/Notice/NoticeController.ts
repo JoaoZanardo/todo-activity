@@ -84,7 +84,8 @@ class NoticeController extends Controller {
             areaId,
             deliveryType,
             serviceProviderName,
-            servicetype
+            serviceType,
+            deliveryProviderName
           } = request.body
 
           this.rules.validate(
@@ -95,10 +96,11 @@ class NoticeController extends Controller {
             { areaId },
             { deliveryType, isRequiredField: false },
             { serviceProviderName, isRequiredField: false },
-            { servicetype, isRequiredField: false },
+            { serviceType, isRequiredField: false },
             { endDate, isRequiredField: false },
             { initDate, isRequiredField: false },
-            { observation, isRequiredField: false }
+            { observation, isRequiredField: false },
+            { deliveryProviderName, isRequiredField: false }
           )
 
           const noticeModel = new NoticeModel({
@@ -114,7 +116,8 @@ class NoticeController extends Controller {
             areaId,
             deliveryType,
             serviceProviderName,
-            servicetype,
+            serviceType,
+            deliveryProviderName,
             initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined,
             endDate: endDate ? DateUtils.parse(endDate) ?? undefined : undefined,
             observation

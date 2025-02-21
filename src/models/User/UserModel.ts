@@ -1,4 +1,5 @@
 import { ClientSession, Types } from 'mongoose'
+import { IPerson } from 'src/models/Person/PersonModel'
 
 import { IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -45,11 +46,13 @@ export enum UserCreationType {
 
 export interface IUser extends IModel {
   admin?: boolean
-  accessGroup?: IAccessGroup
   accessGroupId?: Types.ObjectId
   email?: string
   personId?: Types.ObjectId
   creationType?: UserCreationType
+
+  accessGroup?: IAccessGroup
+  person?: IPerson
 
   name: string
   login: string
@@ -58,11 +61,13 @@ export interface IUser extends IModel {
 
 export class UserModel extends Model<IUser> {
   private _admin?: IUser['admin']
-  private _accessGroup?: IUser['accessGroup']
   private _accessGroupId?: IUser['accessGroupId']
   private _email?: IUser['email']
   private _personId?: IUser['personId']
   private _creationType?: IUser['creationType']
+
+  private _accessGroup?: IUser['accessGroup']
+  private _person?: IUser['person']
 
   private _name: IUser['name']
   private _login: IUser['login']
@@ -72,10 +77,12 @@ export class UserModel extends Model<IUser> {
     super(user)
 
     this._admin = user.admin
-    this._accessGroup = user.accessGroup
     this._email = user.email
     this._personId = user.personId
     this._creationType = user.creationType
+
+    this._accessGroup = user.accessGroup
+    this._person = user.person
 
     this._name = user.name
     this._login = user.login
@@ -105,7 +112,8 @@ export class UserModel extends Model<IUser> {
   get show (): IUser {
     return {
       ...this.object,
-      accessGroup: this._accessGroup
+      accessGroup: this._accessGroup,
+      person: this._person
     }
   }
 

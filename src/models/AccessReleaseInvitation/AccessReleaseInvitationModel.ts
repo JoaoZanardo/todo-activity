@@ -6,7 +6,8 @@ import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
 
 export interface IListAccessReleaseInvitationsFilters extends IListModelsFilters {
-  status: AccessReleaseInvitationStatus
+  status?: AccessReleaseInvitationStatus
+  personId?: Types.ObjectId
 }
 
 export interface IUpdateAccessReleaseInvitationProps extends IUpdateModelProps<IAccessReleaseInvitation> { }
@@ -24,10 +25,13 @@ export interface IAccessReleaseInvitation extends IModel {
   status?: AccessReleaseInvitationStatus
   accessReleaseId?: Types.ObjectId
   groupId?: Types.ObjectId
+  guestName?: string
+  guestId?: Types.ObjectId
 
   initDate: Date
   endDate: Date
   areaId: Types.ObjectId
+  personId: Types.ObjectId
 }
 
 export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation> {
@@ -35,22 +39,28 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
   private _status?: IAccessReleaseInvitation['status']
   private _accessReleaseId?: IAccessReleaseInvitation['accessReleaseId']
   private _groupId?: IAccessReleaseInvitation['groupId']
+  private _guestName?: IAccessReleaseInvitation['guestName']
+  private _guestId?: IAccessReleaseInvitation['guestId']
 
   private _initDate: IAccessReleaseInvitation['initDate']
   private _endDate: IAccessReleaseInvitation['endDate']
   private _areaId: IAccessReleaseInvitation['areaId']
+  private _personId: IAccessReleaseInvitation['personId']
 
   constructor (accessReleaseInvitation: IAccessReleaseInvitation) {
     super(accessReleaseInvitation)
 
     this._observation = accessReleaseInvitation.observation
     this._status = accessReleaseInvitation.status
-    this._accessReleaseId = accessReleaseInvitation.accessReleaseId
-    this._groupId = accessReleaseInvitation.groupId
+    this._accessReleaseId = accessReleaseInvitation.accessReleaseId ? ObjectId(accessReleaseInvitation.accessReleaseId) : undefined
+    this._groupId = accessReleaseInvitation.groupId ? ObjectId(accessReleaseInvitation.groupId) : undefined
+    this._guestName = accessReleaseInvitation.guestName
+    this._guestId = accessReleaseInvitation.guestId ? ObjectId(accessReleaseInvitation.guestId) : undefined
 
     this._initDate = accessReleaseInvitation.initDate
     this._endDate = accessReleaseInvitation.endDate
-    this._areaId = accessReleaseInvitation.areaId
+    this._areaId = ObjectId(accessReleaseInvitation.areaId)
+    this._personId = ObjectId(accessReleaseInvitation.personId)
     this.actions = accessReleaseInvitation.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
@@ -73,10 +83,13 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
       status: this._status,
       accessReleaseId: this._accessReleaseId,
       groupId: this._groupId,
+      guestName: this._guestName,
+      guestId: this._guestId,
 
       initDate: this._initDate,
       endDate: this._endDate,
-      areaId: this._areaId
+      areaId: this._areaId,
+      personId: this._personId
     }
   }
 
@@ -92,7 +105,8 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
       limit,
       page,
       tenantId,
-      status
+      status,
+      personId
     }: Partial<IListAccessReleaseInvitationsFilters>
   ): IListAccessReleaseInvitationsFilters {
     const filters = {
@@ -100,6 +114,7 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
     } as IListAccessReleaseInvitationsFilters
 
     if (status) Object.assign(filters, { status })
+    if (personId) Object.assign(filters, { personId: ObjectId(personId) })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (search) {
       Object.assign(filters, {

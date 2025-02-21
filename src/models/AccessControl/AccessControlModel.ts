@@ -8,8 +8,10 @@ import { AccessPointModel } from '../AccessPoint/AccessPointModel'
 import { AccessReleaseModel } from '../AccessRelease/AccessReleaseModel'
 
 export interface IListAccessControlsFilters extends IListModelsFilters {
-  personId?: Types.ObjectId
   personTypeId?: Types.ObjectId
+  areaId?: Types.ObjectId
+  accessAreaId?: Types.ObjectId
+  accessPointId?: Types.ObjectId
   type?: AccessControlType
 }
 
@@ -136,17 +138,21 @@ export class AccessControlModel extends Model<IAccessControl> {
       limit,
       page,
       tenantId,
+      type,
       personTypeId,
-      personId,
-      type
+      areaId,
+      accessAreaId,
+      accessPointId
     }: Partial<IListAccessControlsFilters>
   ): IListAccessControlsFilters {
     const filters = {
       deletionDate: undefined
     } as IListAccessControlsFilters
 
-    if (personId) Object.assign(filters, { personId: ObjectId(personId) })
-    if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
+    if (personTypeId) Object.assign(filters, { 'person.personType.id': ObjectId(personTypeId) })
+    if (areaId) Object.assign(filters, { 'accessPoint.area.id': ObjectId(areaId) })
+    if (accessAreaId) Object.assign(filters, { 'accessPoint.accessArea.id': ObjectId(accessAreaId) })
+    if (accessPointId) Object.assign(filters, { 'accessPoint.id': ObjectId(accessPointId) })
     if (type) Object.assign(filters, { type })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (search) {

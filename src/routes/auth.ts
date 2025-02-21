@@ -77,7 +77,7 @@ class AuthRouter {
     this.authRouter.use('/users', UserController)
     this.authRouter.use('/access-groups', AccessGroupController)
     this.authRouter.use('/notices', NoticeController)
-    this.authRouter.use('/access-releases-invitations', AccessReleaseInvitationController)
+    this.authRouter.use('/access-release-invitations', AccessReleaseInvitationController)
 
     return this.authRouter
   }

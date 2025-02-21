@@ -25,9 +25,10 @@ export interface INotice extends IModel {
   initDate?: Date
   endDate?: Date
   discharged?: boolean
-  servicetype?: string
+  serviceType?: string
   serviceProviderName?: string
   deliveryType?: string
+  deliveryProviderName?: string
 
   type: NoticeType
   personId: Types.ObjectId
@@ -39,9 +40,10 @@ export class NoticeModel extends Model<INotice> {
   private _initDate?: INotice['initDate']
   private _endDate?: INotice['endDate']
   private _discharged?: INotice['discharged']
-  private _servicetype?: INotice['servicetype']
+  private _serviceType?: INotice['serviceType']
   private _serviceProviderName?: INotice['serviceProviderName']
   private _deliveryType?: INotice['deliveryType']
+  private _deliveryProviderName?: INotice['deliveryProviderName']
 
   private _type: INotice['type']
   private _personId: INotice['personId']
@@ -54,9 +56,10 @@ export class NoticeModel extends Model<INotice> {
     this._initDate = notice.initDate
     this._endDate = notice.endDate
     this._discharged = notice.discharged
-    this._servicetype = notice.servicetype
+    this._serviceType = notice.serviceType
     this._serviceProviderName = notice.serviceProviderName
     this._deliveryType = notice.deliveryType
+    this._deliveryProviderName = notice.deliveryProviderName
 
     this._type = notice.type
     this._personId = ObjectId(notice.personId)
@@ -81,7 +84,8 @@ export class NoticeModel extends Model<INotice> {
       discharged: this._discharged,
       deliveryType: this._deliveryType,
       serviceProviderName: this._serviceProviderName,
-      servicetype: this._servicetype,
+      serviceType: this._serviceType,
+      deliveryProviderName: this._deliveryProviderName,
 
       areaId: this._areaId,
       type: this._type,
@@ -121,7 +125,7 @@ export class NoticeModel extends Model<INotice> {
       Object.assign(filters, {
         $or: [
           { observation: { $regex: search, $options: 'i' } },
-          { servicetype: { $regex: search, $options: 'i' } },
+          { serviceType: { $regex: search, $options: 'i' } },
           { serviceProviderName: { $regex: search, $options: 'i' } },
           { deliveryType: { $regex: search, $options: 'i' } }
         ]

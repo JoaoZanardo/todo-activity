@@ -28,6 +28,17 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
         }
       },
       {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
+        }
+      },
+      {
+        $unwind: '$person'
+      },
+      {
         $project: {
           password: 0
         }
@@ -73,6 +84,8 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
     const result = await this.mongoDB.aggregate(pipeline)
 
     if (!result.length) return null
+
+    console.log(result[0])
 
     return new UserModel(result[0])
   }

@@ -15,9 +15,10 @@ class NoticeSchema extends Schema<INoticeDocument> {
       initDate: Date,
       endDate: Date,
       discharged: Boolean,
-      servicetype: String,
+      serviceType: String,
       serviceProviderName: String,
       deliveryType: String,
+      deliveryProviderName: String,
 
       title: {
         type: String,

@@ -26,12 +26,10 @@ export class UserAuthenticationService {
 
     if (!person.appAccess) throw CustomResponse.BAD_REQUEST('Pessoa não possui liberação para acessar o APP!')
 
-    const encryptedPassword = await Bcrypt.hash(password)
-
     const userModel = new UserModel({
       login,
       name: person.name,
-      password: encryptedPassword,
+      password,
       tenantId,
       personId: person._id!,
       actions: [{

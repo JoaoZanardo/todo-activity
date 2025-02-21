@@ -3,7 +3,8 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { AccessReleaseInvitationModel, IAccessReleaseInvitation, IListAccessReleaseInvitationsFilters } from './AccessReleaseInvitationModel'
+import { DateUtils } from '../../utils/Date'
+import { AccessReleaseInvitationModel, AccessReleaseInvitationStatus, IAccessReleaseInvitation, IListAccessReleaseInvitationsFilters } from './AccessReleaseInvitationModel'
 import { IAccessReleaseInvitationMongoDB } from './AccessReleaseInvitationSchema'
 
 export class AccessReleaseInvitationRepository extends Repository<IAccessReleaseInvitationMongoDB, AccessReleaseInvitationModel> {
@@ -27,6 +28,23 @@ export class AccessReleaseInvitationRepository extends Repository<IAccessRelease
     const document = await this.mongoDB.create(accessReleaseInvitation.object)
 
     return new AccessReleaseInvitationModel(document)
+  }
+
+  async findAllExpiring (): Promise<Array<Partial<IAccessReleaseInvitation>>> {
+    const currentDate = DateUtils.getCurrent()
+
+    // add tenantId
+
+    const documents = await this.mongoDB.find({
+      deletionDate: null,
+      endDate: {
+        $lte: currentDate
+      },
+      active: true,
+      status: AccessReleaseInvitationStatus.pending
+    }, ['_id', 'tenantId'])
+
+    return documents
   }
 
   async update ({

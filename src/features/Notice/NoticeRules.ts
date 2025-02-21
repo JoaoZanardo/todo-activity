@@ -43,7 +43,7 @@ export class NoticeRules extends Rules {
       message: 'informe o nome completo do prestador de serviço!'
     })
 
-    this.validator.addRule('servicetype', {
+    this.validator.addRule('serviceType', {
       validator: (value: string) => is.string(value),
       message: 'Tipo de serviço inválido. Informe um tipo válido!'
     })
