@@ -127,6 +127,7 @@ export interface IAccessRelease extends IModel {
   noticeId?: Types.ObjectId
   workSchedulesCodes?: Array<number>
   acccessReleseInvitationId?: Types.ObjectId
+  areasIds?: Array<Types.ObjectId>
 
   person?: IPerson
   personType?: IPersonType
@@ -136,7 +137,6 @@ export interface IAccessRelease extends IModel {
 
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
-  areasIds: Array<Types.ObjectId>
   finalAreaId: Types.ObjectId
 }
 
@@ -156,6 +156,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _noticeId?: IAccessRelease['noticeId']
   private _workSchedulesCodes?: IAccessRelease['workSchedulesCodes']
   private _acccessReleseInvitationId?: IAccessRelease['acccessReleseInvitationId']
+  private _areasIds?: IAccessRelease['areasIds']
 
   private _person?: IAccessRelease['person']
   private _responsible?: IAccessRelease['responsible']
@@ -165,7 +166,6 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
 
   private _personId: IAccessRelease['personId']
   private _personTypeId: IAccessRelease['personTypeId']
-  private _areasIds: IAccessRelease['areasIds']
   private _finalAreaId: IAccessRelease['finalAreaId']
 
   constructor (accessRelease: IAccessRelease) {
@@ -187,6 +187,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._noticeId = accessRelease.noticeId ? ObjectId(accessRelease.noticeId) : undefined
     this._workSchedulesCodes = accessRelease.workSchedulesCodes ?? []
     this._acccessReleseInvitationId = accessRelease.acccessReleseInvitationId ? ObjectId(accessRelease.acccessReleseInvitationId) : undefined
+    this._areasIds = accessRelease.areasIds?.map(areaId => ObjectId(areaId)) ?? []
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
@@ -198,7 +199,6 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._personId = ObjectId(accessRelease.personId)
     this._personTypeId = ObjectId(accessRelease.personTypeId)
     this._finalAreaId = ObjectId(accessRelease.finalAreaId)
-    this._areasIds = accessRelease.areasIds.map(areaId => ObjectId(areaId))
     this.actions = accessRelease.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()

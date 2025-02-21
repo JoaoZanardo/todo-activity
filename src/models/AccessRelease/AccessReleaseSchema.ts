@@ -59,6 +59,7 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         default: []
       },
       acccessReleseInvitationId: Types.ObjectId,
+      areasIds: Array<Types.ObjectId>,
 
       type: {
         type: String,
@@ -71,10 +72,6 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
       },
       personTypeId: {
         type: Types.ObjectId,
-        required: true
-      },
-      areasIds: {
-        type: Array<Types.ObjectId>,
         required: true
       },
       finalAreaId: {

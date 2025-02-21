@@ -1,4 +1,5 @@
 import to from 'await-to-js'
+import { Types } from 'mongoose'
 import schedule from 'node-schedule'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
@@ -11,6 +12,7 @@ import { DateUtils } from '../../utils/Date'
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
+import { AreaServiceImp } from '../Area/AreaController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
 import { PersonTypeServiceImp } from '../PersonType/PersonTypeController'
@@ -144,8 +146,10 @@ export class AccessReleaseService {
       tenantId
     })
 
+    const areasIds = accessRelease.areasIds ?? await this.getAllAreasIdsByFinalAreaId(accessRelease.finalAreaId, tenantId)
+
     await Promise.all(
-      accessRelease.areasIds.map(async areaId => {
+      areasIds.map(async areaId => {
         try {
           const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
 
@@ -344,5 +348,25 @@ export class AccessReleaseService {
         }
       })
     )
+  }
+
+  private async getAllAreasIdsByFinalAreaId (finalAreaId: Types.ObjectId, tenantId: Types.ObjectId): Promise<Array<Types.ObjectId>> {
+    const areasIds: Array<Types.ObjectId> = []
+
+    let currentArea = await AreaServiceImp.findById({
+      id: finalAreaId,
+      tenantId
+    })
+
+    while (currentArea?.areaId) {
+      areasIds.push(currentArea.areaId)
+
+      currentArea = await AreaServiceImp.findById({
+        id: currentArea.areaId,
+        tenantId
+      })
+    }
+
+    return areasIds.reverse()
   }
 }

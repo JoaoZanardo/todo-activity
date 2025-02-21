@@ -17,7 +17,7 @@ class AccessReleaseCreationService {
 
     this.validateAccessReleaseStatus(lastAccessRelease)
 
-    if (!accessRelease.expiringTime) accessRelease.endDate = DateUtils.getDefaultEndDate()
+    if (!accessRelease.endDate && !accessRelease.expiringTime) accessRelease.endDate = DateUtils.getDefaultEndDate()
 
     const { initDate, endDate } = accessRelease.object
 
