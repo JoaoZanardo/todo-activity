@@ -58,7 +58,7 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         type: Array<Number>,
         default: []
       },
-      acccessReleseInvitationId: Types.ObjectId,
+      accessReleaseInvitationId: Types.ObjectId,
       areasIds: Array<Types.ObjectId>,
 
       type: {

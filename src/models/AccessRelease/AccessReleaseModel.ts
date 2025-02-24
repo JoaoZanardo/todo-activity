@@ -1,4 +1,4 @@
-import { Types } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -34,6 +34,7 @@ export interface IUpdateAccessReleaseSynchronizationsProps {
 
 export interface IDisableAccessReleaseProps {
   responsibleId?: Types.ObjectId
+  type?: RemoveAccessesFromPersonType
 
   id: Types.ObjectId
   tenantId: Types.ObjectId
@@ -47,6 +48,11 @@ export interface IFindAllAccessReleaseByPersonTypeId {
 
 export interface IFindLastAccessReleaseByPersonId {
   personId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
+export interface IFindAccessReleaseByAccessReleaseInvitationId {
+  accessReleaseInvitationId: Types.ObjectId
   tenantId: Types.ObjectId
 }
 
@@ -80,10 +86,25 @@ export interface ISyncPersonAccessWithEquipmentsProps {
   tenantId: Types.ObjectId
 }
 
-export interface IRemoveAllAccessFromPersonProps {
+export enum RemoveAccessesFromPersonType {
+  all = 'all',
+  generalEntries = 'generalEntries'
+}
+
+export interface IRemoveAccessesFromPersonProps {
   person: PersonModel
   accessReleaseId: Types.ObjectId
   tenantId: Types.ObjectId
+  type: RemoveAccessesFromPersonType
+}
+
+export interface ICreateAccessReleaseByAccessReleaseInvitationIdProps {
+  accessReleaseInvitationId: Types.ObjectId
+  tenantId: Types.ObjectId
+  guestId: Types.ObjectId
+  personTypeId: Types.ObjectId
+  picture: string
+  session: ClientSession
 }
 
 export enum AccessReleaseType {
@@ -126,7 +147,7 @@ export interface IAccessRelease extends IModel {
   accessPointId?: Types.ObjectId
   noticeId?: Types.ObjectId
   workSchedulesCodes?: Array<number>
-  acccessReleseInvitationId?: Types.ObjectId
+  accessReleaseInvitationId?: Types.ObjectId
   areasIds?: Array<Types.ObjectId>
 
   person?: IPerson
@@ -155,7 +176,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _accessPointId?: IAccessRelease['accessPointId']
   private _noticeId?: IAccessRelease['noticeId']
   private _workSchedulesCodes?: IAccessRelease['workSchedulesCodes']
-  private _acccessReleseInvitationId?: IAccessRelease['acccessReleseInvitationId']
+  private _accessReleaseInvitationId?: IAccessRelease['accessReleaseInvitationId']
   private _areasIds?: IAccessRelease['areasIds']
 
   private _person?: IAccessRelease['person']
@@ -186,7 +207,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._accessPointId = accessRelease.accessPointId ? ObjectId(accessRelease.accessPointId) : undefined
     this._noticeId = accessRelease.noticeId ? ObjectId(accessRelease.noticeId) : undefined
     this._workSchedulesCodes = accessRelease.workSchedulesCodes ?? []
-    this._acccessReleseInvitationId = accessRelease.acccessReleseInvitationId ? ObjectId(accessRelease.acccessReleseInvitationId) : undefined
+    this._accessReleaseInvitationId = accessRelease.accessReleaseInvitationId ? ObjectId(accessRelease.accessReleaseInvitationId) : undefined
     this._areasIds = accessRelease.areasIds?.map(areaId => ObjectId(areaId)) ?? []
 
     this._person = accessRelease.person
@@ -207,6 +228,10 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
 
   get status (): IAccessRelease['status'] {
     return this._status
+  }
+
+  get singleAccess (): IAccessRelease['singleAccess'] {
+    return this._singleAccess
   }
 
   get expiringTime (): IAccessRelease['expiringTime'] {
@@ -279,7 +304,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       noticeId: this._noticeId,
       workSchedulesCodes: this._workSchedulesCodes,
       synchronizations: this._synchronizations,
-      acccessReleseInvitationId: this._acccessReleseInvitationId,
+      accessReleaseInvitationId: this._accessReleaseInvitationId,
 
       type: this._type,
       personId: this._personId,

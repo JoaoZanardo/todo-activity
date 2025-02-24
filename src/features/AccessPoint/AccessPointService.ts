@@ -23,6 +23,10 @@ export class AccessPointService {
     return await this.accessPointRepositoryImp.findAll(tenantId)
   }
 
+  async findAllGeneralEntry (tenantId: Types.ObjectId): Promise<Array<Partial<IAccessPoint>>> {
+    return await this.accessPointRepositoryImp.findAllGeneralEntry(tenantId)
+  }
+
   async findById ({
     id,
     tenantId

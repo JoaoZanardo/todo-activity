@@ -8,7 +8,7 @@ import { DateUtils } from '../utils/Date'
 
 export const UpdateStartingAccessReleases = async () => {
   try {
-    const accessReleases = await AccessReleaseServiceImp.findAllStartingToday()
+    const accessReleases = await AccessReleaseRepositoryImp.findAllStartingToday()
 
     console.log(`UpdateStartingAccessReleases - ${accessReleases.length}`)
 

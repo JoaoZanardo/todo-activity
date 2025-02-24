@@ -12,7 +12,6 @@ export class AccessReleaseInvitationRepository extends Repository<IAccessRelease
     id,
     tenantId
   }: IFindModelByIdProps): Promise<AccessReleaseInvitationModel | null> {
-    console.log({ tenantId, id })
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       {
         $match: {
@@ -87,13 +86,16 @@ export class AccessReleaseInvitationRepository extends Repository<IAccessRelease
   async update ({
     id,
     data,
-    tenantId
+    tenantId,
+    session
   }: IUpdateProps<IAccessReleaseInvitation>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
     }, {
       $set: data
+    }, {
+      session
     })
 
     return !!updated.modifiedCount

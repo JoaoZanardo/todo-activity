@@ -67,8 +67,6 @@ class AccessControlController extends Controller {
           const accessControl = await AccessControlCreationService.execute({
             personId: ObjectId(personId),
             accessPointId: ObjectId(accessPointId),
-            picture,
-            accessReleaseId: ObjectId(accessReleaseId),
             tenantId: ObjectId(tenantId),
             userId: ObjectId(userId),
             observation

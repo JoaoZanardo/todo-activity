@@ -4,7 +4,7 @@ import schedule from 'node-schedule'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAllAccessFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAccessesFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps, RemoveAccessesFromPersonType } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
@@ -36,7 +36,7 @@ export class AccessReleaseService {
       id,
       tenantId
     })
-    if (!accessRelease) throw CustomResponse.NOT_FOUND('Liberação de acesso não cadastrado!')
+    if (!accessRelease) throw CustomResponse.NOT_FOUND('Liberação de acesso não cadastrada!')
 
     return accessRelease
   }
@@ -53,12 +53,14 @@ export class AccessReleaseService {
     return accessRelease
   }
 
-  async findAllExpiringToday (): Promise<Array<Partial<IAccessRelease>>> {
-    return await this.accessReleaseRepositoryImp.findAllExpiringToday()
-  }
-
-  async findAllStartingToday (): Promise<Array<Partial<IAccessRelease>>> {
-    return await this.accessReleaseRepositoryImp.findAllStartingToday()
+  async findByAccessReleaseInvitationId ({
+    accessReleaseInvitationId,
+    tenantId
+  }: IFindAccessReleaseByAccessReleaseInvitationId): Promise<AccessReleaseModel | null > {
+    return await this.accessReleaseRepositoryImp.findByAccessReleaseInvitationId({
+      accessReleaseInvitationId,
+      tenantId
+    })
   }
 
   async findAllByPersonTypeId ({
@@ -75,7 +77,8 @@ export class AccessReleaseService {
     id,
     tenantId,
     responsibleId,
-    status
+    status,
+    type = RemoveAccessesFromPersonType.all
   }: IDisableAccessReleaseProps): Promise<void> {
     const accessRelease = await this.findById({
       id,
@@ -87,28 +90,37 @@ export class AccessReleaseService {
       tenantId
     })
 
-    await this.removeAllAccessFromPerson({
+    await this.removeAccessesFromPerson({
       accessReleaseId: accessRelease._id!,
       person,
-      tenantId
+      tenantId,
+      type
     })
+
+    let updateData: Partial<IAccessRelease> = {
+      actions: [
+        ...accessRelease.actions!,
+        {
+          action: ModelAction.update,
+          date: DateUtils.getCurrent(),
+          userId: responsibleId
+        }
+      ]
+    }
+
+    if (type === RemoveAccessesFromPersonType.all) {
+      updateData = {
+        ...updateData,
+        active: false,
+        status,
+        endDate: DateUtils.getCurrent()
+      }
+    }
 
     const updated = await this.accessReleaseRepositoryImp.update({
       id,
       tenantId,
-      data: {
-        active: false,
-        status,
-        endDate: DateUtils.getCurrent(),
-        actions: [
-          ...accessRelease.actions!,
-          {
-            action: ModelAction.update,
-            date: DateUtils.getCurrent(),
-            userId: responsibleId
-          }
-        ]
-      }
+      data: updateData
     })
 
     if (!updated) {
@@ -132,6 +144,7 @@ export class AccessReleaseService {
         id: accessReleaseId,
         tenantId,
         status
+
       })
     })
   }
@@ -146,7 +159,7 @@ export class AccessReleaseService {
       tenantId
     })
 
-    const areasIds = accessRelease.areasIds ?? await this.getAllAreasIdsByFinalAreaId(accessRelease.finalAreaId, tenantId)
+    const areasIds = accessRelease.areasIds?.length ? accessRelease.areasIds : await this.getAllAreasIdsByFinalAreaId(accessRelease.finalAreaId, tenantId)
 
     await Promise.all(
       areasIds.map(async areaId => {
@@ -184,15 +197,17 @@ export class AccessReleaseService {
     })
   }
 
-  private async removeAllAccessFromPerson ({
+  private async removeAccessesFromPerson ({
     accessReleaseId,
     person,
-    tenantId
-  }: IRemoveAllAccessFromPersonProps) {
-    const accessPoints = await AccessPointServiceImp.findAllByPersonTypeId({
-      personTypeId: person.personTypeId,
-      tenantId
-    })
+    tenantId,
+    type
+  }: IRemoveAccessesFromPersonProps) {
+    const accessPoints = type === RemoveAccessesFromPersonType.all
+      ? await AccessPointServiceImp.findAllByPersonTypeId({
+        personTypeId: person.personTypeId,
+        tenantId
+      }) : await AccessPointServiceImp.findAllGeneralEntry(tenantId)
 
     if (accessPoints.length) {
       await Promise.all(

@@ -54,6 +54,17 @@ export class AccessPointRepository extends Repository<IAccessPointMongoDB, Acces
     return documents
   }
 
+  async findAllGeneralEntry (tenantId: Types.ObjectId): Promise<Array<Partial<IAccessPoint>>> {
+    const documents = await this.mongoDB.find({
+      tenantId,
+      active: true,
+      generalEntry: true,
+      deletionDate: null
+    }, ['_id', 'generalExit', 'equipmentsIds', 'personTypesIds'])
+
+    return documents
+  }
+
   async findAllByAreaId ({
     areaId,
     tenantId

@@ -1,10 +1,11 @@
 import { AccessReleaseServiceImp } from '../features/AccessRelease/AccessReleaseController'
 import { AccessReleaseStatus } from '../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseRepositoryImp } from '../models/AccessRelease/AccessReleaseMongoDB'
 import { DateUtils } from '../utils/Date'
 
 export const UpdateExpiringAccessReleases = async () => {
   try {
-    const accessReleases = await AccessReleaseServiceImp.findAllExpiringToday()
+    const accessReleases = await AccessReleaseRepositoryImp.findAllExpiringToday()
 
     console.log(`UpdateExpiringAccessReleases - ${accessReleases.length}`)
 

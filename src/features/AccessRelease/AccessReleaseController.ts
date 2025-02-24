@@ -91,7 +91,7 @@ class AccessReleaseController extends Controller {
             active,
             noticeId,
             workSchedulesCodes,
-            acccessReleseInvitationId
+            accessReleaseInvitationId
           } = request.body
 
           this.rules.validate(
@@ -107,7 +107,7 @@ class AccessReleaseController extends Controller {
             { active, isRequiredField: false },
             { noticeId, isRequiredField: false },
             { workSchedulesCodes, isRequiredField: false },
-            { acccessReleseInvitationId, isRequiredField: false },
+            { accessReleaseInvitationId, isRequiredField: false },
             { personId },
             { personTypeId },
             { type },
@@ -136,11 +136,11 @@ class AccessReleaseController extends Controller {
             finalAreaId,
             noticeId,
             workSchedulesCodes,
-            acccessReleseInvitationId,
+            accessReleaseInvitationId,
             initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined
           })
 
-          const accessRelease = await AccessReleaseCreationService.execute(accessReleaseModel)
+          const accessRelease = await AccessReleaseCreationService.execute(accessReleaseModel, session)
 
           await session.commitTransaction()
           session.endSession()

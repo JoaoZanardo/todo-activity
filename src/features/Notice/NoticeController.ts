@@ -18,27 +18,24 @@ class NoticeController extends Controller {
   protected rules: Rules = new NoticeRules()
 
   handle (): Router {
-    this.router.get(
-      '/',
-      permissionAuthMiddleware(Permission.read),
-      async (request: Request, response: Response, next: NextFunction) => {
-        try {
-          const { tenantId } = request
+    this.router.get('/', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request
 
-          const filters = NoticeModel.listFilters({
-            tenantId,
-            ...request.query
-          })
+        const filters = NoticeModel.listFilters({
+          tenantId,
+          ...request.query
+        })
 
-          const notices = await NoticeServiceImp.list(filters)
+        const notices = await NoticeServiceImp.list(filters)
 
-          response.OK('Avisos encontrados com sucesso!', {
-            notices
-          })
-        } catch (error) {
-          next(error)
-        }
-      })
+        response.OK('Avisos encontrados com sucesso!', {
+          notices
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
 
     this.router.get(
       '/one/:noticeId',
@@ -66,72 +63,69 @@ class NoticeController extends Controller {
         }
       })
 
-    this.router.post(
-      '/',
-      permissionAuthMiddleware(Permission.create),
-      async (request: Request, response: Response, next: NextFunction) => {
-        try {
-          const { tenantId, userId } = request
+    this.router.post('/', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId, userId } = request
 
-          const {
-            active,
-            personId,
-            title,
-            type,
-            endDate,
-            initDate,
-            observation,
-            areaId,
-            deliveryType,
-            serviceProviderName,
-            serviceType,
-            deliveryProviderName
-          } = request.body
+        const {
+          active,
+          personId,
+          title,
+          type,
+          endDate,
+          initDate,
+          observation,
+          areaId,
+          deliveryType,
+          serviceProviderName,
+          serviceType,
+          deliveryProviderName
+        } = request.body
 
-          this.rules.validate(
-            { active, isRequiredField: false },
-            { personId },
-            { title },
-            { type },
-            { areaId },
-            { deliveryType, isRequiredField: false },
-            { serviceProviderName, isRequiredField: false },
-            { serviceType, isRequiredField: false },
-            { endDate, isRequiredField: false },
-            { initDate, isRequiredField: false },
-            { observation, isRequiredField: false },
-            { deliveryProviderName, isRequiredField: false }
-          )
+        this.rules.validate(
+          { active, isRequiredField: false },
+          { personId },
+          { title },
+          { type },
+          { areaId },
+          { deliveryType, isRequiredField: false },
+          { serviceProviderName, isRequiredField: false },
+          { serviceType, isRequiredField: false },
+          { endDate, isRequiredField: false },
+          { initDate, isRequiredField: false },
+          { observation, isRequiredField: false },
+          { deliveryProviderName, isRequiredField: false }
+        )
 
-          const noticeModel = new NoticeModel({
-            tenantId,
-            actions: [{
-              action: ModelAction.create,
-              date: DateUtils.getCurrent(),
-              userId
-            }],
-            active,
-            personId,
-            type,
-            areaId,
-            deliveryType,
-            serviceProviderName,
-            serviceType,
-            deliveryProviderName,
-            initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined,
-            endDate: endDate ? DateUtils.parse(endDate) ?? undefined : undefined,
-            observation
-          })
+        const noticeModel = new NoticeModel({
+          tenantId,
+          actions: [{
+            action: ModelAction.create,
+            date: DateUtils.getCurrent(),
+            userId
+          }],
+          active,
+          personId,
+          type,
+          areaId,
+          deliveryType,
+          serviceProviderName,
+          serviceType,
+          deliveryProviderName,
+          initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined,
+          endDate: endDate ? DateUtils.parse(endDate) ?? undefined : undefined,
+          observation
+        })
 
-          const notice = await NoticeServiceImp.create(noticeModel)
+        const notice = await NoticeServiceImp.create(noticeModel)
 
-          response.CREATED('Aviso cadastrado com sucesso!', {
-            notice: notice.show
-          })
-        } catch (error) {
-          next(error)
-        }
-      })
+        response.CREATED('Aviso cadastrado com sucesso!', {
+          notice: notice.show
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
 
     this.router.patch(
       '/:noticeId',

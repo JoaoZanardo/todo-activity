@@ -41,12 +41,17 @@ export class AccessReleaseInvitationService {
     id,
     tenantId,
     responsibleId,
-    data
+    data,
+    session
   }: IUpdateAccessReleaseInvitationProps): Promise<void> {
     const accessReleaseInvitation = await this.findById({
       id,
       tenantId
     })
+
+    if (accessReleaseInvitation.status === AccessReleaseInvitationStatus.expired) {
+      throw CustomResponse.CONFLICT('Convite expirado!')
+    }
 
     const updated = await this.accessReleaseInvitationRepositoryImp.update({
       id,
@@ -67,7 +72,8 @@ export class AccessReleaseInvitationService {
             }
           )
         ]
-      }
+      },
+      session
     })
 
     if (!updated) {

@@ -3,11 +3,10 @@ import { NextFunction, Request, Response, Router } from 'express'
 import database from '../config/database'
 import { ModelAction } from '../core/interfaces/Model'
 import { AccessControlServiceImp } from '../features/AccessControl/AccessControlController'
+import AccessReleaseCreationService from '../features/AccessRelease/AccessReleaseCreationService'
 import { AccessReleaseInvitationServiceImp } from '../features/AccessReleaseInvitation/AccessReleaseInvitationController'
 import { PersonServiceImp } from '../features/Person/PersonController'
 import UserAuthenticationController from '../features/User/Authentication/UserAuthenticationController'
-import { AccessReleaseModel, AccessReleaseStatus, AccessReleaseType } from '../models/AccessRelease/AccessReleaseModel'
-import { AccessReleaseRepositoryImp } from '../models/AccessRelease/AccessReleaseMongoDB'
 import { PersonCreationType, PersonModel } from '../models/Person/PersonModel'
 import { DateUtils } from '../utils/Date'
 import ObjectId from '../utils/ObjectId'
@@ -18,39 +17,36 @@ class UnauthRouter {
   route (): Router {
     this.unauthRouter.use('/', UserAuthenticationController)
 
-    this.unauthRouter.post(
-      '/access-controls/equipment',
-      // permissionAuthMiddleware(Permission.create),
-      async (request: Request, response: Response, next: NextFunction) => {
-        const session = await database.startSession()
-        session.startTransaction()
+    this.unauthRouter.post('/access-controls/equipment', async (request: Request, response: Response, next: NextFunction) => {
+      const session = await database.startSession()
+      session.startTransaction()
 
-        try {
-          const { tenantId } = request
+      try {
+        const { tenantId } = request
 
-          const {
-            equipmentIp,
-            personId
-          } = request.body
+        const {
+          equipmentIp,
+          personId
+        } = request.body
 
-          const accessControl = await AccessControlServiceImp.createByEquipmentIp({
-            equipmentIp,
-            personId: ObjectId(personId),
-            tenantId
-          })
+        const accessControl = await AccessControlServiceImp.createByEquipmentIp({
+          equipmentIp,
+          personId: ObjectId(personId),
+          tenantId
+        })
 
-          await session.commitTransaction()
-          session.endSession()
+        await session.commitTransaction()
+        session.endSession()
 
-          response.CREATED('Controle de acesso cadastrado com sucesso!', {
-            accessControl: accessControl.show
-          })
-        } catch (error) {
-          session.endSession()
+        response.CREATED('Controle de acesso cadastrado com sucesso!', {
+          accessControl: accessControl.show
+        })
+      } catch (error) {
+        session.endSession()
 
-          next(error)
-        }
-      })
+        next(error)
+      }
+    })
 
     this.unauthRouter.get('/access-release-invitations/:accessReleaseInvitationId', async (request: Request, response: Response, next: NextFunction) => {
       try {
@@ -112,47 +108,37 @@ class UnauthRouter {
     })
 
     this.unauthRouter.post('/access-releases', async (request: Request, response: Response, next: NextFunction) => {
+      const session = await database.startSession()
+      session.startTransaction()
+
       try {
-        const { tenantId, userId } = request
+        const { tenantId } = request
 
         const {
-          personId,
+          accessReleaseInvitationId,
+          guestId,
           personTypeId,
-          observation,
-          responsibleId,
-          picture,
-          initDate,
-          finalAreaId,
-          acccessReleseInvitationId,
-          endDate
+          picture
         } = request.body
 
-        const accessReleaseModel = new AccessReleaseModel({
-          responsibleId,
-          observation,
+        const accessRelease = await AccessReleaseCreationService.createByAccessReleaseInvitationId({
+          accessReleaseInvitationId: ObjectId(accessReleaseInvitationId),
           tenantId,
+          guestId: ObjectId(guestId),
+          personTypeId: ObjectId(personTypeId),
           picture,
-          actions: [{
-            action: ModelAction.create,
-            date: DateUtils.getCurrent(),
-            userId
-          }],
-          personId,
-          personTypeId,
-          type: AccessReleaseType.invite,
-          status: AccessReleaseStatus.scheduled,
-          finalAreaId,
-          acccessReleseInvitationId,
-          initDate: DateUtils.parse(initDate)!,
-          endDate: DateUtils.parse(endDate)!
+          session
         })
 
-        const accessRelease = await AccessReleaseRepositoryImp.create(accessReleaseModel)
+        await session.commitTransaction()
+        session.endSession()
 
         response.CREATED('Liberação de acesso cadastrada com sucesso!', {
           accessRelease: accessRelease.show
         })
       } catch (error) {
+        session.endSession()
+
         next(error)
       }
     })

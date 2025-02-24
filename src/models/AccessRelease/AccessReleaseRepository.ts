@@ -1,10 +1,10 @@
-import { Aggregate, FilterQuery } from 'mongoose'
+import { Aggregate, ClientSession, FilterQuery } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { DateUtils } from '../../utils/Date'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
 import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
 export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, AccessReleaseModel> {
@@ -14,6 +14,22 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   }: IFindModelByIdProps): Promise<AccessReleaseModel | null> {
     const match: FilterQuery<IAccessRelease> = {
       _id: id,
+      tenantId,
+      deletionDate: null
+    }
+
+    const document = await this.mongoDB.findOne(match).lean()
+    if (!document) return null
+
+    return new AccessReleaseModel(document)
+  }
+
+  async findByAccessReleaseInvitationId ({
+    accessReleaseInvitationId,
+    tenantId
+  }: IFindAccessReleaseByAccessReleaseInvitationId): Promise<AccessReleaseModel | null> {
+    const match: FilterQuery<IAccessRelease> = {
+      accessReleaseInvitationId,
       tenantId,
       deletionDate: null
     }
@@ -70,7 +86,7 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       },
       active: true,
       status: AccessReleaseStatus.scheduled
-    }, ['_id', 'tenantId', 'initDate', 'endDate', 'areasIds', 'personId', 'actions'])
+    }, ['_id', 'tenantId', 'initDate', 'endDate', 'areasIds', 'personId', 'actions', 'finalAreaId'])
 
     return documents
   }
@@ -228,10 +244,12 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
     return new AccessReleaseModel(accessRelease)
   }
 
-  async create (accessRelease: AccessReleaseModel): Promise<AccessReleaseModel> {
-    const document = await this.mongoDB.create(accessRelease.object)
+  async create (accessRelease: AccessReleaseModel, session: ClientSession): Promise<AccessReleaseModel> {
+    const document = await this.mongoDB.create([accessRelease.object], {
+      session
+    })
 
-    return new AccessReleaseModel(document)
+    return new AccessReleaseModel(document[0])
   }
 
   async update ({

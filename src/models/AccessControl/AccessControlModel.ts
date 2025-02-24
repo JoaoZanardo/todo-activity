@@ -43,7 +43,6 @@ export interface IAccessControlCreationServiceExecuteProps {
   userId?: Types.ObjectId
 
   personId: Types.ObjectId
-  accessReleaseId: Types.ObjectId
   tenantId: Types.ObjectId
   accessPointId: Types.ObjectId
 }

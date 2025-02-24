@@ -17,7 +17,6 @@ class AccessReleaseInvitationSchema extends Schema<IAccessReleaseInvitationDocum
         enum: AccessReleaseInvitationStatus,
         default: AccessReleaseInvitationStatus.pending
       },
-      accessReleaseId: Types.ObjectId,
       accessReleaseInvitationGroupId: Types.ObjectId,
       guestName: String,
       guestId: Types.ObjectId,
