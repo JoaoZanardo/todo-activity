@@ -11,6 +11,7 @@ import { ITenant } from '../Tenant/TenantModel'
 export interface IListAccessReleaseInvitationsFilters extends IListModelsFilters {
   status?: AccessReleaseInvitationStatus
   personId?: Types.ObjectId
+  accessReleaseInvitationGroup?: Types.ObjectId
 }
 
 export interface IUpdateAccessReleaseInvitationProps extends IUpdateModelProps<IAccessReleaseInvitation> { }
@@ -124,13 +125,15 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
       page,
       tenantId,
       status,
-      personId
+      personId,
+      accessReleaseInvitationGroup
     }: Partial<IListAccessReleaseInvitationsFilters>
   ): IListAccessReleaseInvitationsFilters {
     const filters = {
       deletionDate: undefined
     } as IListAccessReleaseInvitationsFilters
 
+    if (accessReleaseInvitationGroup) Object.assign(filters, { accessReleaseInvitationGroup: ObjectId(accessReleaseInvitationGroup) })
     if (status) Object.assign(filters, { status })
     if (personId) Object.assign(filters, { personId: ObjectId(personId) })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })

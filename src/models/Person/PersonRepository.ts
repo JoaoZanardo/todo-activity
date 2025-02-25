@@ -20,7 +20,7 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
           deletionDate: null
         }
       },
-      ...this.$lookupAndUnwindStages(),
+      ...this.$lookupAndUnwindStages(true),
       { $sort: { _id: -1 } }
     ])
 
