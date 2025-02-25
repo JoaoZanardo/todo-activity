@@ -47,6 +47,7 @@ class AccessReleaseInvitationController extends Controller {
           endDate,
           areaId,
           guestName,
+          guestPhone,
           guestId
         } = request.body
 
@@ -55,6 +56,7 @@ class AccessReleaseInvitationController extends Controller {
           { accessReleaseInvitationGroupId, isRequiredField: false },
           { guestId, isRequiredField: false },
           { guestName, isRequiredField: false },
+          { guestPhone, isRequiredField: false },
           { initDate },
           { endDate },
           { areaId }
@@ -74,6 +76,7 @@ class AccessReleaseInvitationController extends Controller {
           areaId,
           guestId,
           guestName,
+          guestPhone,
           personId
         })
 

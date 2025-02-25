@@ -19,6 +19,7 @@ class AccessReleaseInvitationSchema extends Schema<IAccessReleaseInvitationDocum
       },
       accessReleaseInvitationGroupId: Types.ObjectId,
       guestName: String,
+      guestPhone: String,
       guestId: Types.ObjectId,
 
       initDate: {

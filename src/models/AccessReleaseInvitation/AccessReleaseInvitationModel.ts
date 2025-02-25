@@ -27,6 +27,7 @@ export interface IAccessReleaseInvitation extends IModel {
   status?: AccessReleaseInvitationStatus
   accessReleaseInvitationGroupId?: Types.ObjectId
   guestName?: string
+  guestPhone?: string
   guestId?: Types.ObjectId
 
   guest?: IPerson
@@ -43,6 +44,7 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
   private _status?: IAccessReleaseInvitation['status']
   private _accessReleaseInvitationGroupId?: IAccessReleaseInvitation['accessReleaseInvitationGroupId']
   private _guestName?: IAccessReleaseInvitation['guestName']
+  private _guestPhone?: IAccessReleaseInvitation['guestName']
   private _guestId?: IAccessReleaseInvitation['guestId']
 
   private _guest?: IAccessReleaseInvitation['guest']
@@ -60,6 +62,7 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
     this._status = accessReleaseInvitation.status
     this._accessReleaseInvitationGroupId = accessReleaseInvitation.accessReleaseInvitationGroupId ? ObjectId(accessReleaseInvitation.accessReleaseInvitationGroupId) : undefined
     this._guestName = accessReleaseInvitation.guestName
+    this._guestPhone = accessReleaseInvitation.guestPhone
     this._guestId = accessReleaseInvitation.guestId ? ObjectId(accessReleaseInvitation.guestId) : undefined
 
     this._guest = accessReleaseInvitation.guest
@@ -91,6 +94,7 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
       status: this._status,
       accessReleaseInvitationGroupId: this._accessReleaseInvitationGroupId,
       guestName: this._guestName,
+      guestPhone: this._guestPhone,
       guestId: this._guestId,
 
       initDate: this._initDate,
