@@ -42,6 +42,12 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
         }
       },
       {
+        $unwind: {
+          path: '$person',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
         $project: {
           password: 0
         }
