@@ -25,6 +25,7 @@ export interface IListPersonsFilters extends IListModelsFilters {
   bondAreasIds?: Array<Types.ObjectId>
   lastAccess?: boolean
   appAccess?: boolean
+  updatedData?: boolean
 }
 
 export interface IUpdatePersonProps extends IUpdateModelProps<IPerson> { }
@@ -261,13 +262,15 @@ export class PersonModel extends Model<IPerson> {
       cpf,
       bondAreaId,
       lastAccess,
-      appAccess
+      appAccess,
+      updatedData
     }: Partial<IListPersonsFilters>
   ): IListPersonsFilters {
     const filters = {
       deletionDate: undefined
     } as IListPersonsFilters
 
+    if (updatedData) Object.assign(filters, { 'updationInfo.updatedData': format.boolean(updatedData) })
     if (appAccess) Object.assign(filters, { appAccess: format.boolean(appAccess) })
     if (lastAccess) Object.assign(filters, { lastAccess: format.boolean(lastAccess) })
     if (cnh) Object.assign(filters, { 'cnh.value': { $regex: cnh, $options: 'i' } })

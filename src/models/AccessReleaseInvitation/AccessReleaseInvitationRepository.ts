@@ -48,6 +48,20 @@ export class AccessReleaseInvitationRepository extends Repository<IAccessRelease
           preserveNullAndEmptyArrays: true
         }
       },
+      {
+        $lookup: {
+          from: 'AccessReleaseInvitationGroups',
+          localField: 'accessReleaseInvitationGroupId',
+          foreignField: '_id',
+          as: 'accessReleaseInvitationGroup'
+        }
+      },
+      {
+        $unwind: {
+          path: '$accessReleaseInvitationGroup',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       { $sort: { _id: -1 } }
     ])
 
