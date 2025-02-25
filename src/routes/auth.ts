@@ -7,6 +7,7 @@ import AccessGroupController from '../features/AccessGroup/AccessGroupController
 import AccessPointController from '../features/AccessPoint/AccessPointController'
 import AccessReleaseController from '../features/AccessRelease/AccessReleaseController'
 import AccessReleaseInvitationController from '../features/AccessReleaseInvitation/AccessReleaseInvitationController'
+import AccessReleaseInvitationGroupController from '../features/AccessReleaseInvitationGroup/AccessReleaseInvitationGroupController'
 import AccessSynchronizationController from '../features/AccessSynchronization/AccessSynchronizationController'
 import AreaController from '../features/Area/AreaController'
 import EquipmentController from '../features/Equipment/EquipmentController'
@@ -78,6 +79,7 @@ class AuthRouter {
     this.authRouter.use('/access-groups', AccessGroupController)
     this.authRouter.use('/notices', NoticeController)
     this.authRouter.use('/access-release-invitations', AccessReleaseInvitationController)
+    this.authRouter.use('/access-release-invitation-groups', AccessReleaseInvitationGroupController)
 
     return this.authRouter
   }

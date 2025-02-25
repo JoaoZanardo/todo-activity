@@ -94,8 +94,6 @@ class AccessReleaseInvitationController extends Controller {
       try {
         const { tenantId, userId } = request
 
-        console.log('Delete')
-
         const {
           accessReleaseInvitationId
         } = request.params

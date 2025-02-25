@@ -71,6 +71,11 @@ export default class Rules {
       validator: (value: string) => is.objectId(value),
       message: 'Identificador de convite. Informe um identificador válido!'
     })
+
+    this.validator.addRule('accessReleaseInvitationId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de grupo de convite. Informe um identificador válido!'
+    })
   }
 
   public invalid (...args: Array<{ [key: string]: any, isRequiredField?: boolean } | null | undefined>): any {
