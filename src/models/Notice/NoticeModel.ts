@@ -2,13 +2,15 @@ import { Types } from 'mongoose'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
+import { DateUtils } from '../../utils/Date'
 import { format } from '../../utils/format'
 import ObjectId from '../../utils/ObjectId'
 
 export interface IListNoticesFilters extends IListModelsFilters {
-  personId: Types.ObjectId
-  areaId: Types.ObjectId
-  type: NoticeType
+  personId?: Types.ObjectId
+  areaId?: Types.ObjectId
+  type?: NoticeType
+  today?: boolean
 }
 
 export interface IUpdateNoticeProps extends IUpdateModelProps<INotice> { }
@@ -108,13 +110,29 @@ export class NoticeModel extends Model<INotice> {
       active,
       areaId,
       personId,
-      type
+      type,
+      today
     }: Partial<IListNoticesFilters>
   ): IListNoticesFilters {
     const filters = {
       tenantId,
       deletionDate: undefined
     } as IListNoticesFilters
+
+    const parsedToday = format.boolean(today)
+
+    if (parsedToday) {
+      const startOfDay = new Date()
+      startOfDay.setHours(0, 0, 0, 0)
+
+      const endOfDay = new Date()
+      endOfDay.setHours(23, 59, 59, 999)
+
+      const createdAtFilter: any = {}
+
+      createdAtFilter.$gte = DateUtils.parse(startOfDay)
+      createdAtFilter.$lte = DateUtils.parse(endOfDay)
+    }
 
     if (areaId) Object.assign(filters, { areaId: ObjectId(areaId) })
     if (personId) Object.assign(filters, { personId: ObjectId(personId) })

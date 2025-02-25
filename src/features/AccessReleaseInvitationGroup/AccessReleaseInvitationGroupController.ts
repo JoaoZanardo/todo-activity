@@ -67,8 +67,8 @@ class AccessReleaseInvitationGroupController extends Controller {
           }],
           tenantId,
           areaId,
-          endDate,
-          initDate,
+          endDate: DateUtils.parse(endDate)!,
+          initDate: DateUtils.parse(initDate)!,
           personId,
           title,
           description
