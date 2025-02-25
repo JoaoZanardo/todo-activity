@@ -54,7 +54,12 @@ export class AccessControlService {
     return await AccessControlCreationService.execute({
       personId,
       tenantId,
-      accessPointId: accessPoint._id!
+      accessPointId: accessPoint._id!,
+      equipment: {
+        id: equipment._id,
+        ip: equipment.ip,
+        name: equipment.name
+      }
     })
   }
 

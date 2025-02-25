@@ -16,6 +16,11 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
         name: String
       },
       observation: String,
+      equipment: {
+        id: Types.ObjectId,
+        name: String,
+        ip: String
+      },
 
       type: {
         type: String,

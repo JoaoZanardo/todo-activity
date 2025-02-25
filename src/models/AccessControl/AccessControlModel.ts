@@ -3,6 +3,7 @@ import { Types } from 'mongoose'
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
+import { format } from '../../utils/format'
 import ObjectId from '../../utils/ObjectId'
 import { AccessPointModel } from '../AccessPoint/AccessPointModel'
 import { AccessReleaseModel } from '../AccessRelease/AccessReleaseModel'
@@ -12,7 +13,11 @@ export interface IListAccessControlsFilters extends IListModelsFilters {
   areaId?: Types.ObjectId
   accessAreaId?: Types.ObjectId
   accessPointId?: Types.ObjectId
+  equipmentId?: Types.ObjectId
   type?: AccessControlType
+  photo?: boolean
+  initDate?: Date
+  endDate?: Date
 }
 
 export interface IUpdateAccessControlProps extends IUpdateModelProps<IAccessControl> { }
@@ -41,6 +46,11 @@ export interface IAccessControlCreationServiceExecuteProps {
   picture?: string
   observation?: string
   userId?: Types.ObjectId
+  equipment?: {
+    id?: Types.ObjectId
+    name?: string
+    ip?: string
+  }
 
   personId: Types.ObjectId
   tenantId: Types.ObjectId
@@ -54,6 +64,11 @@ export interface IAccessControl extends IModel {
   },
   observation?: string
   type?: AccessControlType
+  equipment?: {
+    id?: Types.ObjectId
+    name?: string
+    ip?: string
+  }
 
   accessReleaseId: Types.ObjectId
   person: {
@@ -89,6 +104,7 @@ export class AccessControlModel extends Model<IAccessControl> {
   private _responsible?: IAccessControl['responsible']
   private _observation?: IAccessControl['observation']
   private _type?: IAccessControl['type']
+  private _equipment?: IAccessControl['equipment']
 
   private _person: IAccessControl['person']
   private _accessPoint: IAccessControl['accessPoint']
@@ -100,6 +116,7 @@ export class AccessControlModel extends Model<IAccessControl> {
     this._responsible = accessControl.responsible
 
     this._type = accessControl.type
+    this._equipment = accessControl.equipment
     this._person = accessControl.person
     this._accessPoint = accessControl.accessPoint
     this._accessReleaseId = ObjectId(accessControl.accessReleaseId)
@@ -119,6 +136,7 @@ export class AccessControlModel extends Model<IAccessControl> {
       deletionDate: this.deletionDate,
       responsible: this._responsible,
       observation: this._observation,
+      equipment: this._equipment,
 
       type: this._type,
       person: this._person,
@@ -141,13 +159,39 @@ export class AccessControlModel extends Model<IAccessControl> {
       personTypeId,
       areaId,
       accessAreaId,
-      accessPointId
+      accessPointId,
+      photo,
+      equipmentId,
+      initDate,
+      endDate
     }: Partial<IListAccessControlsFilters>
   ): IListAccessControlsFilters {
     const filters = {
       deletionDate: undefined
     } as IListAccessControlsFilters
 
+    if (initDate || endDate) {
+      const createdAtFilter: any = {}
+
+      if (initDate) {
+        createdAtFilter.$gte = DateUtils.parse(initDate)
+      }
+
+      if (endDate) {
+        createdAtFilter.$lte = DateUtils.parse(endDate)
+      }
+
+      Object.assign(filters, { createdAt: createdAtFilter })
+    }
+
+    if (photo) {
+      const hasPhoto = format.boolean(photo)
+
+      const condition = { $exists: hasPhoto }
+
+      Object.assign(filters, { 'person.picture': condition })
+    }
+    if (equipmentId) Object.assign(filters, { 'equipment.id': ObjectId(equipmentId) })
     if (personTypeId) Object.assign(filters, { 'person.personType.id': ObjectId(personTypeId) })
     if (areaId) Object.assign(filters, { 'accessPoint.area.id': ObjectId(areaId) })
     if (accessAreaId) Object.assign(filters, { 'accessPoint.accessArea.id': ObjectId(accessAreaId) })
