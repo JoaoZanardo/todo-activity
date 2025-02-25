@@ -20,10 +20,6 @@ class NoticeSchema extends Schema<INoticeDocument> {
       deliveryType: String,
       deliveryProviderName: String,
 
-      title: {
-        type: String,
-        required: true
-      },
       type: {
         type: String,
         enum: NoticeType,
