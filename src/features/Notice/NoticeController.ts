@@ -65,12 +65,10 @@ class NoticeController extends Controller {
 
     this.router.post('/', async (request: Request, response: Response, next: NextFunction) => {
       try {
-        const { tenantId, userId } = request
+        const { tenantId, userId, personId } = request
 
         const {
           active,
-          personId,
-          title,
           type,
           endDate,
           initDate,
@@ -84,8 +82,6 @@ class NoticeController extends Controller {
 
         this.rules.validate(
           { active, isRequiredField: false },
-          { personId },
-          { title },
           { type },
           { areaId },
           { deliveryType, isRequiredField: false },
