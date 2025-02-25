@@ -98,6 +98,7 @@ class PersonTypeController extends Controller {
             name,
             description,
             expiringTime,
+            updationTime,
             appAccess,
             workSchedulesCodes
           } = request.body
@@ -106,6 +107,7 @@ class PersonTypeController extends Controller {
             { name },
             { description, isRequiredField: false },
             { expiringTime, isRequiredField: false },
+            { updationTime, isRequiredField: false },
             { appAccess, isRequiredField: false },
             { workSchedulesCodes, isRequiredField: false }
           )
@@ -120,6 +122,7 @@ class PersonTypeController extends Controller {
             name,
             description,
             expiringTime,
+            updationTime,
             appAccess,
             workSchedulesCodes
           })
@@ -154,6 +157,7 @@ class PersonTypeController extends Controller {
             expiringTime,
             appAccess,
             active,
+            updationTime,
             workSchedulesCodes
           } = request.body
 
@@ -161,6 +165,7 @@ class PersonTypeController extends Controller {
             { name, isRequiredField: false },
             { description, isRequiredField: false },
             { expiringTime, isRequiredField: false },
+            { updationTime, isRequiredField: false },
             { appAccess, isRequiredField: false },
             { active, isRequiredField: false },
             { workSchedulesCodes, isRequiredField: false },
@@ -175,7 +180,8 @@ class PersonTypeController extends Controller {
               description,
               expiringTime,
               appAccess,
-              active
+              active,
+              updationTime
             },
             responsibleId: userId
           })

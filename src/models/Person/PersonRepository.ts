@@ -3,6 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
+import { DateUtils } from '../../utils/Date'
 import { IFindAllByPersonTypeId, IFindPersonByCnhProps, IFindPersonByCpfProps, IListPersonsFilters, IPerson, PersonModel } from './PersonModel'
 import { IPersonMongoDB } from './PersonSchema'
 
@@ -89,6 +90,22 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
       tenantId,
       deletionDate: null
     }, ['_id'])
+
+    return documents
+  }
+
+  async findAllExpired (): Promise<Array<Partial<IPerson>>> {
+    const currentDate = DateUtils.getCurrent()
+
+    // Add storaged TenantId
+
+    const documents = await this.mongoDB.find({
+      'updationInfo.updatedData': true,
+      'updationInfo.nextUpdationdate': {
+        $le: currentDate
+      },
+      deletionDate: null
+    }, ['_id', 'tenantId'])
 
     return documents
   }

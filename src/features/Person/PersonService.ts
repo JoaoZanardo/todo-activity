@@ -3,6 +3,7 @@ import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseMod
 import { IArea } from '../../models/Area/AreaModel'
 import { IDeletePersonProps, IFindAllByPersonTypeId, IFindPersonByCnhProps, IFindPersonByCpfProps, IListPersonsFilters, IPerson, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
 import { PersonRepositoryImp } from '../../models/Person/PersonMongoDB'
+import { addExpiringTime } from '../../utils/addExpiringTime'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
@@ -133,6 +134,10 @@ export class PersonService {
       }
     }
 
+    const currentdate = DateUtils.getCurrent()
+
+    const updationTime = person.updationInfo?.updationTime
+
     const updated = await this.personRepositoryImp.update({
       id,
       tenantId,
@@ -151,7 +156,13 @@ export class PersonService {
               userId: responsibleId
             }
           )
-        ]
+        ],
+        updationInfo: updationTime ? {
+          updatedData: true,
+          lastUpdationdate: currentdate,
+          nextUpdationdate: addExpiringTime(updationTime, currentdate),
+          updationTime
+        } : undefined
       },
       session
     })

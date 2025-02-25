@@ -1,6 +1,7 @@
 import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
+import { TimeUnit } from '../../models/PersonType/PersonTypeModel'
 import { IPerson, PersonCreationType } from './PersonModel'
 
 export interface IPersonDocument extends Document, Omit<IPerson, '_id'> { }
@@ -32,6 +33,19 @@ class PersonSchema extends Schema<IPersonDocument> {
       personTypeCategoryId: Types.ObjectId,
       bondAreasIds: Array<Types.ObjectId>,
       userId: Types.ObjectId,
+      updationInfo: {
+        updatedData: Boolean,
+        lastUpdationdate: Date,
+        nextUpdationdate: Date,
+        updationTime: {
+          value: Number,
+          unit: {
+            type: String,
+            enum: TimeUnit
+          }
+        }
+      },
+
       creationType: {
         type: String,
         enum: PersonCreationType,

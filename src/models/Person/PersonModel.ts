@@ -9,7 +9,7 @@ import ObjectId from '../../utils/ObjectId'
 import { IAccessArea } from '../AccessArea/AccessAreaModel'
 import { IAccessControl } from '../AccessControl/AccessControlModel'
 import { IAccessPoint } from '../AccessPoint/AccessPointModel'
-import { IPersonType } from '../PersonType/PersonTypeModel'
+import { IPersonType, UpdationTime } from '../PersonType/PersonTypeModel'
 
 export interface IListPersonsFilters extends IListModelsFilters {
   personTypeId?: Types.ObjectId
@@ -81,6 +81,13 @@ export interface IPerson extends IModel {
   userId?: Types.ObjectId
   appAccess?: boolean
 
+  updationInfo?: {
+    updatedData?: boolean
+    lastUpdationdate?: Date
+    nextUpdationdate?: Date
+    updationTime?: UpdationTime
+  }
+
   personType?: IPersonType
   lastAccessControl?: IAccessControl
   lastAccessPoint?: IAccessPoint
@@ -113,6 +120,7 @@ export class PersonModel extends Model<IPerson> {
   private _bondAreasIds?: IPerson['bondAreasIds']
   private _userId?: IPerson['userId']
   private _appAccess?: IPerson['appAccess']
+  private _updationInfo?: IPerson['updationInfo']
 
   private _lastAccessArea?: IPerson['lastAccessArea']
   private _personType?: IPerson['personType']
@@ -150,6 +158,7 @@ export class PersonModel extends Model<IPerson> {
     this._creationType = person.creationType ?? PersonCreationType.default
     this._userId = person.userId
     this._appAccess = person.appAccess
+    this._updationInfo = person.updationInfo
 
     this._personTypeId = person.personTypeId
     this._name = person.name
@@ -159,6 +168,10 @@ export class PersonModel extends Model<IPerson> {
       action: ModelAction.create,
       date: DateUtils.getCurrent()
     }]
+  }
+
+  get updationInfo (): IPerson['updationInfo'] {
+    return this._updationInfo
   }
 
   get personTypeId (): IPerson['personTypeId'] {
@@ -212,7 +225,8 @@ export class PersonModel extends Model<IPerson> {
       landline: this._landline,
       userId: this._userId,
       creationType: this._creationType,
-      appAccess: this._appAccess
+      appAccess: this._appAccess,
+      updationInfo: this._updationInfo
     }
   }
 

@@ -22,10 +22,16 @@ export interface ExpiringTime {
   unit: TimeUnit
 }
 
+export interface UpdationTime {
+  value: number,
+  unit: TimeUnit
+}
+
 export interface IPersonType extends IModel {
   description?: string
   appAccess?: boolean
   expiringTime?: ExpiringTime
+  updationTime?: UpdationTime
   workSchedulesCodes?: Array<number>
 
   name: string
@@ -35,6 +41,7 @@ export class PersonTypeModel extends Model<IPersonType> {
   private _description?: IPersonType['description']
   private _appAccess?: IPersonType['appAccess']
   private _expiringTime?: IPersonType['expiringTime']
+  private _updationTime?: IPersonType['updationTime']
   private _workSchedulesCodes?: IPersonType['workSchedulesCodes']
 
   private _name: IPersonType['name']
@@ -45,6 +52,7 @@ export class PersonTypeModel extends Model<IPersonType> {
     this._description = personType.description
     this._appAccess = personType.appAccess
     this._expiringTime = personType.expiringTime
+    this._updationTime = personType.updationTime
     this._workSchedulesCodes = personType.workSchedulesCodes ?? []
 
     this._name = personType.name
@@ -66,6 +74,7 @@ export class PersonTypeModel extends Model<IPersonType> {
       name: this._name,
       appAccess: this._appAccess,
       expiringTime: this._expiringTime,
+      updationTime: this._updationTime,
       workSchedulesCodes: this._workSchedulesCodes
     }
   }

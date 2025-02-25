@@ -23,6 +23,13 @@ class PersonTypeSchema extends Schema<IPersonTypeDocument> {
           enum: TimeUnit
         }
       },
+      updationTime: {
+        value: Number,
+        unit: {
+          type: String,
+          enum: TimeUnit
+        }
+      },
       workSchedulesCodes: {
         type: Array<Number>,
         default: []

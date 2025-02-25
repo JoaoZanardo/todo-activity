@@ -7,6 +7,7 @@ import { permissionAuthMiddleware } from '../../middlewares/permissionAuth'
 import { Permission } from '../../models/AccessGroup/AccessGroupModel'
 import { PersonModel } from '../../models/Person/PersonModel'
 import { PersonRepositoryImp } from '../../models/Person/PersonMongoDB'
+import { addExpiringTime } from '../../utils/addExpiringTime'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
 import { PersonRules } from './PersonRules'
@@ -100,7 +101,8 @@ class PersonController extends Controller {
             active,
             landline,
             appAccess,
-            creationType
+            creationType,
+            updationTime
           } = request.body
 
           this.rules.validate(
@@ -130,12 +132,14 @@ class PersonController extends Controller {
             { creationType, isRequiredField: false }
           )
 
+          const currentdate = DateUtils.getCurrent()
+
           const personModel = new PersonModel({
             tenantId,
             active,
             actions: [{
               action: ModelAction.create,
-              date: DateUtils.getCurrent(),
+              date: currentdate,
               userId
             }],
             personTypeId: ObjectId(personTypeId),
@@ -159,7 +163,13 @@ class PersonController extends Controller {
             bondAreasIds,
             landline,
             appAccess,
-            creationType
+            creationType,
+            updationInfo: updationTime ? {
+              updatedData: true,
+              lastUpdationdate: currentdate,
+              nextUpdationdate: addExpiringTime(updationTime, currentdate),
+              updationTime
+            } : undefined
           })
 
           const person = await PersonServiceImp.create(personModel)

@@ -5,6 +5,7 @@ import { UpdateActiveExpiredAccessReleases } from './UpdateActiveExpiredAccessRe
 import { UpdateAllScheduledAccessReleasesThatStarted } from './UpdateAllScheduledAccessReleasesThatStarted'
 import { UpdateExpiringAccessReleaseInvitations } from './UpdateExpiringAccessReleaseInvitations'
 import { UpdateExpiringAccessReleases } from './UpdateExpiringAccessReleases'
+import { UpdateExpiringPeople } from './UpdateExpiringPeople'
 import { UpdateExpiringTenants } from './UpdateExpiringTenants'
 import { UpdateStartingAccessReleases } from './UpdateStartingAccessReleases'
 
@@ -17,12 +18,14 @@ const executeJobs = () => {
   // const updateActiveExpiredAccessReleasesJob = new CronJob('0 * * * *', UpdateActiveExpiredAccessReleases)
   const updateActiveExpiredAccessReleasesJob = new CronJob('*/10 * * * *', UpdateActiveExpiredAccessReleases)
   const updateAllScheduledAccessReleasesThatStartedJob = new CronJob('*/10 * * * *', UpdateAllScheduledAccessReleasesThatStarted)
-  const updateExpiringAccessReleaseInvitations = new CronJob('*/1 * * * *', UpdateExpiringAccessReleaseInvitations)
+  const updateExpiringAccessReleaseInvitationsJob = new CronJob('*/1 * * * *', UpdateExpiringAccessReleaseInvitations)
+  const updateExpiringPeopleJob = new CronJob('0 */6 * * *', UpdateExpiringPeople)
 
   updateExpiringTenantsJob.start()
   updateActiveExpiredAccessReleasesJob.start()
   updateAllScheduledAccessReleasesThatStartedJob.start()
-  updateExpiringAccessReleaseInvitations.start()
+  updateExpiringAccessReleaseInvitationsJob.start()
+  updateExpiringPeopleJob.start()
 }
 
 export default executeJobs
