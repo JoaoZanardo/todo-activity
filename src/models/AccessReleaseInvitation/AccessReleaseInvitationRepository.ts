@@ -50,7 +50,7 @@ export class AccessReleaseInvitationRepository extends Repository<IAccessRelease
       },
       {
         $lookup: {
-          from: 'AccessReleaseInvitationGroups',
+          from: 'accessreleaseinvitationgroups',
           localField: 'accessReleaseInvitationGroupId',
           foreignField: '_id',
           as: 'accessReleaseInvitationGroup'

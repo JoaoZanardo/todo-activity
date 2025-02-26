@@ -36,6 +36,29 @@ class AccessReleaseInvitationController extends Controller {
       }
     })
 
+    this.router.get('/:accessReleaseInvitationId', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request
+
+        const { accessReleaseInvitationId } = request.params
+
+        this.rules.validate(
+          { accessReleaseInvitationId }
+        )
+
+        const accessReleaseInvitation = await AccessReleaseInvitationServiceImp.findById({
+          id: ObjectId(accessReleaseInvitationId),
+          tenantId
+        })
+
+        response.OK('Convite encontrado com sucesso!', {
+          accessReleaseInvitation: accessReleaseInvitation.show
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
+
     this.router.post('/', async (request: Request, response: Response, next: NextFunction) => {
       try {
         const { tenantId, userId, personId } = request
