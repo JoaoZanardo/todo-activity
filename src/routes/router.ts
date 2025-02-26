@@ -1,10 +1,12 @@
 import { NextFunction, Request, Response, Router } from 'express'
+import { Aggregate } from 'mongoose'
 
-import { AccessReleaseInvitationServiceImp } from '../features/AccessReleaseInvitation/AccessReleaseInvitationController'
 import TenantController from '../features/Tenant/TenantController'
 import { customResponseMiddleware } from '../middlewares/customResponse'
 import { errorMiddleware } from '../middlewares/error'
 import { tenantAuthMiddleware } from '../middlewares/tenantAuth'
+import { AccessReleaseInvitationModel } from '../models/AccessReleaseInvitation/AccessReleaseInvitationModel'
+import AccessReleaseInvitationMongoDB from '../models/AccessReleaseInvitation/AccessReleaseInvitationMongoDB'
 import ObjectId from '../utils/ObjectId'
 import auth from './auth'
 import unauth from './unauth'
@@ -24,19 +26,72 @@ router.use('/tenants', TenantController)
 
 router.get('/unauth/access-release-invitations/:accessReleaseInvitationId', async (request: Request, response: Response, next: NextFunction) => {
   try {
-    const { tenantId } = request
-
     const {
       accessReleaseInvitationId
     } = request.params
 
-    const accessReleaseInvitation = await AccessReleaseInvitationServiceImp.findById({
-      id: ObjectId(accessReleaseInvitationId),
-      tenantId
-    })
+    const aggregationStages: Aggregate<Array<any>> = AccessReleaseInvitationMongoDB.aggregate([
+      {
+        $match: {
+          _id: ObjectId(accessReleaseInvitationId),
+          deletionDate: null
+        }
+      },
+      {
+        $lookup: {
+          from: 'tenants',
+          localField: 'tenantId',
+          foreignField: '_id',
+          as: 'tenant'
+        }
+      },
+      {
+        $unwind: {
+          path: '$tenant',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'guestId',
+          foreignField: '_id',
+          as: 'guest'
+        }
+      },
+      {
+        $unwind: {
+          path: '$guest',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'accessreleaseinvitationgroups',
+          localField: 'accessReleaseInvitationGroupId',
+          foreignField: '_id',
+          as: 'accessReleaseInvitationGroup'
+        }
+      },
+      {
+        $unwind: {
+          path: '$accessReleaseInvitationGroup',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      { $sort: { _id: -1 } }
+    ])
+
+    const accessReleaseInvitations = await AccessReleaseInvitationMongoDB.aggregatePaginate(aggregationStages)
+
+    const accessReleaseInvitation = accessReleaseInvitations.docs[0]
+
+    if (!accessReleaseInvitation) return null
+
+    const accessReleaseInvitationModel = new AccessReleaseInvitationModel(accessReleaseInvitation)
 
     response.OK('Convite encontrado com sucesso!', {
-      accessReleaseInvitation: accessReleaseInvitation.show
+      accessReleaseInvitation: accessReleaseInvitationModel.show
     })
   } catch (error) {
     next(error)
