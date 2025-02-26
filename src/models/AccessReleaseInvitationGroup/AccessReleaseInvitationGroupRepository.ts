@@ -3,6 +3,7 @@ import { Aggregate } from 'mongoose'
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
+import { DateUtils } from '../../utils/Date'
 import { AccessReleaseInvitationGroupModel, IAccessReleaseInvitationGroup, IFindAccessReleaseInvitationGroupByTitle, IListAccessReleaseInvitationGroupsFilters } from './AccessReleaseInvitationGroupModel'
 import { IAccessReleaseInvitationGroupMongoDB } from './AccessReleaseInvitationGroupSchema'
 
@@ -19,6 +20,23 @@ export class AccessReleaseInvitationGroupRepository extends Repository<IAccessRe
     if (!accessReleaseInvitationGroup) return null
 
     return new AccessReleaseInvitationGroupModel(accessReleaseInvitationGroup)
+  }
+
+  async findAllExpiring (): Promise<Array<Partial<IAccessReleaseInvitationGroup>>> {
+    const currentDate = DateUtils.getCurrent()
+
+    // add tenantId
+
+    const documents = await this.mongoDB.find({
+      deletionDate: null,
+      endDate: {
+        $lte: currentDate
+      },
+      active: true,
+      expired: false
+    }, ['_id', 'tenantId'])
+
+    return documents
   }
 
   async findByTitle ({

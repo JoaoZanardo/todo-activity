@@ -12,6 +12,10 @@ class AccessReleaseInvitationGroupSchema extends Schema<IAccessReleaseInvitation
     const accessReleaseInvitationGroup = new mongoose.Schema({
       ...coreSchema,
       description: String,
+      expired: {
+        type: Boolean,
+        default: false
+      },
 
       title: {
         type: String,

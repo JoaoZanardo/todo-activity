@@ -50,6 +50,10 @@ export class AccessReleaseInvitationGroupService {
       tenantId
     })
 
+    if (accessReleaseInvitationGroup.object.expired) {
+      throw CustomResponse.CONFLICT('Evento já expirado!')
+    }
+
     const updated = await this.accessReleaseInvitationGroupRepositoryImp.update({
       id,
       tenantId,

@@ -20,6 +20,7 @@ export interface IFindAccessReleaseInvitationGroupByTitle {
 
 export interface IAccessReleaseInvitationGroup extends IModel {
   description?: string
+  expired?: boolean
 
   title: string
   areaId: string
@@ -30,6 +31,7 @@ export interface IAccessReleaseInvitationGroup extends IModel {
 
 export class AccessReleaseInvitationGroupModel extends Model<IAccessReleaseInvitationGroup> {
   private _description?: IAccessReleaseInvitationGroup['description']
+  private _expired?: IAccessReleaseInvitationGroup['expired']
 
   private _title: IAccessReleaseInvitationGroup['title']
   private _areaId: IAccessReleaseInvitationGroup['areaId']
@@ -41,6 +43,7 @@ export class AccessReleaseInvitationGroupModel extends Model<IAccessReleaseInvit
     super(accessReleaseInvitationGroup)
 
     this._description = accessReleaseInvitationGroup.description
+    this._expired = accessReleaseInvitationGroup.expired
 
     this._title = accessReleaseInvitationGroup.title
     this._areaId = accessReleaseInvitationGroup.areaId
@@ -66,6 +69,7 @@ export class AccessReleaseInvitationGroupModel extends Model<IAccessReleaseInvit
       createdAt: this.createdAt,
       deletionDate: this.deletionDate,
       description: this._description,
+      expired: this._expired,
 
       title: this._title,
       areaId: this._areaId,
