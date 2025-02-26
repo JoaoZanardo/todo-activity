@@ -69,12 +69,17 @@ export default class Rules {
 
     this.validator.addRule('accessReleaseInvitationId', {
       validator: (value: string) => is.objectId(value),
-      message: 'Identificador de convite. Informe um identificador válido!'
+      message: 'Identificador de convite inválido. Informe um identificador válido!'
     })
 
     this.validator.addRule('accessReleaseInvitationGroupId', {
       validator: (value: string) => is.objectId(value),
-      message: 'Identificador de grupo de convite. Informe um identificador válido!'
+      message: 'Identificador de grupo de convite inválido. Informe um identificador válido!'
+    })
+
+    this.validator.addRule('guestId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador do convidado inválido. Informe um identificador válido!'
     })
   }
 

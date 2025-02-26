@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express'
+import { Types } from 'mongoose'
 
 import database from '../config/database'
 import { ModelAction } from '../core/interfaces/Model'
@@ -63,12 +64,14 @@ class UnauthRouter {
           name,
           responsibleId,
           cpf,
-          picture
+          picture,
+          guestId
         } = request.body
 
         new Rules().validate(
           { phone, isRequiredField: false },
           { picture, isRequiredField: false },
+          { guestId, isRequiredField: false },
           { accessReleaseInvitationId },
           { name },
           { responsibleId },
@@ -86,27 +89,33 @@ class UnauthRouter {
           })
         }
 
-        const personModel = new PersonModel({
-          tenantId,
-          actions: [{
-            action: ModelAction.create,
-            date: DateUtils.getCurrent()
-          }],
-          personTypeId: personType._id,
-          name,
-          phone,
-          responsibleId,
-          cpf,
-          picture,
-          creationType: PersonCreationType.invite
-        })
+        let personId: Types.ObjectId | undefined = guestId ? ObjectId(guestId) : undefined
 
-        const person = await PersonServiceImp.create(personModel, session)
+        if (!personId) {
+          const personModel = new PersonModel({
+            tenantId,
+            actions: [{
+              action: ModelAction.create,
+              date: DateUtils.getCurrent()
+            }],
+            personTypeId: personType._id,
+            name,
+            phone,
+            responsibleId,
+            cpf,
+            picture,
+            creationType: PersonCreationType.invite
+          })
+
+          const person = await PersonServiceImp.create(personModel, session)
+
+          personId = person._id!
+        }
 
         const accessRelease = await AccessReleaseCreationService.createByAccessReleaseInvitationId({
           accessReleaseInvitationId: ObjectId(accessReleaseInvitationId),
           tenantId,
-          guestId: person._id!,
+          guestId: personId!,
           personTypeId: personType._id,
           picture,
           session
