@@ -6,9 +6,7 @@ import { DateUtils } from '../../utils/Date'
 import { format } from '../../utils/format'
 import { getRandomCode } from '../../utils/getRandomCode'
 import ObjectId from '../../utils/ObjectId'
-import { IAccessArea } from '../AccessArea/AccessAreaModel'
 import { IAccessControl } from '../AccessControl/AccessControlModel'
-import { IAccessPoint } from '../AccessPoint/AccessPointModel'
 import { IPersonType, UpdationTime } from '../PersonType/PersonTypeModel'
 
 export interface IListPersonsFilters extends IListModelsFilters {
@@ -91,8 +89,6 @@ export interface IPerson extends IModel {
 
   personType?: IPersonType
   lastAccessControl?: IAccessControl
-  lastAccessPoint?: IAccessPoint
-  lastAccessArea?: IAccessArea
 
   personTypeId: Types.ObjectId
   name: string
@@ -123,9 +119,7 @@ export class PersonModel extends Model<IPerson> {
   private _appAccess?: IPerson['appAccess']
   private _updationInfo?: IPerson['updationInfo']
 
-  private _lastAccessArea?: IPerson['lastAccessArea']
   private _personType?: IPerson['personType']
-  private _lastAccessPoint?: IPerson['lastAccessPoint']
   private _lastAccessControl?: IPerson['lastAccessControl']
 
   private _personTypeId: IPerson['personTypeId']
@@ -151,8 +145,6 @@ export class PersonModel extends Model<IPerson> {
     this._personTypeCategoryId = person.personTypeCategoryId
     this._personType = person.personType
     this._lastAccessControl = person.lastAccessControl
-    this._lastAccessPoint = person.lastAccessPoint
-    this._lastAccessArea = person.lastAccessArea
     this._bondAreasIds = person.bondAreasIds ?? []
     this._code = person.code || getRandomCode()
     this._landline = person.landline
@@ -235,9 +227,7 @@ export class PersonModel extends Model<IPerson> {
     return {
       ...this.object,
       personType: this._personType,
-      lastAccessControl: this._lastAccessControl,
-      lastAccessPoint: this._lastAccessPoint,
-      lastAccessArea: this._lastAccessArea
+      lastAccessControl: this._lastAccessControl
     }
   }
 

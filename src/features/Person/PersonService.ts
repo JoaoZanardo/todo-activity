@@ -97,7 +97,7 @@ export class PersonService {
 
     const cnh = person.object.cnh
 
-    if (cnh) {
+    if (cnh?.value) {
       await this.validateDuplicatedCnh({
         cnh: cnh.value,
         tenantId

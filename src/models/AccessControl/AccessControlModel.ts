@@ -18,6 +18,7 @@ export interface IListAccessControlsFilters extends IListModelsFilters {
   photo?: boolean
   initDate?: Date
   endDate?: Date
+  personId?: Types.ObjectId
 }
 
 export interface IUpdateAccessControlProps extends IUpdateModelProps<IAccessControl> { }
@@ -163,7 +164,8 @@ export class AccessControlModel extends Model<IAccessControl> {
       photo,
       equipmentId,
       initDate,
-      endDate
+      endDate,
+      personId
     }: Partial<IListAccessControlsFilters>
   ): IListAccessControlsFilters {
     const filters = {
@@ -191,6 +193,7 @@ export class AccessControlModel extends Model<IAccessControl> {
 
       Object.assign(filters, { 'person.picture': condition })
     }
+    if (personId) Object.assign(filters, { 'person.id': ObjectId(personId) })
     if (equipmentId) Object.assign(filters, { 'equipment.id': ObjectId(equipmentId) })
     if (personTypeId) Object.assign(filters, { 'person.personType.id': ObjectId(personTypeId) })
     if (areaId) Object.assign(filters, { 'accessPoint.area.id': ObjectId(areaId) })

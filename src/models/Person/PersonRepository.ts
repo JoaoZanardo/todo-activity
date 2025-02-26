@@ -147,38 +147,12 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
 
   private $lookupAndUnwindStages (lastAccess?: boolean): Array<any> {
     const lastAccessStages = [
-      {
-        $lookup: {
-          from: 'accessreleases',
-          localField: '_id',
-          foreignField: 'personId',
-          as: 'lastAccessRelease'
-        }
-      },
-      {
-        $set: {
-          accessReleasesNumber: {
-            $size: '$lastAccessRelease'
-          }
-        }
-      },
-      {
-        $set: {
-          lastAccessRelease: {
-            $arrayElemAt: [
-              {
-                $sortArray: { input: '$lastAccessRelease', sortBy: { _id: -1 } }
-              },
-              0
-            ]
-          }
-        }
-      },
+
       {
         $lookup: {
           from: 'accesscontrols',
           localField: '_id',
-          foreignField: 'personId',
+          foreignField: 'person.id',
           as: 'lastAccessControl'
         }
       },
@@ -192,34 +166,6 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
               0
             ]
           }
-        }
-      },
-      {
-        $lookup: {
-          from: 'accesspoints',
-          localField: 'lastAccessControl.accessPointId',
-          foreignField: '_id',
-          as: 'lastAccessPoint'
-        }
-      },
-      {
-        $unwind: {
-          path: '$lastAccessPoint',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $lookup: {
-          from: 'accessareas',
-          localField: 'lastAccessPoint.accessAreaId',
-          foreignField: '_id',
-          as: 'lastAccessArea'
-        }
-      },
-      {
-        $unwind: {
-          path: '$lastAccessArea',
-          preserveNullAndEmptyArrays: true
         }
       }
     ]
