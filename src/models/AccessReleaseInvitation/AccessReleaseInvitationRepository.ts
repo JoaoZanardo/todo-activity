@@ -118,6 +118,21 @@ export class AccessReleaseInvitationRepository extends Repository<IAccessRelease
   async list ({ limit, page, ...filters }: IListAccessReleaseInvitationsFilters): Promise<IAggregatePaginate<IAccessReleaseInvitation>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'guestId',
+          foreignField: '_id',
+          as: 'guest'
+        }
+      },
+      {
+        $unwind: {
+          path: '$guest',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+
       { $sort: { _id: -1 } }
     ])
 

@@ -100,7 +100,8 @@ class AccessReleaseCreationService {
       id: accessReleaseInvitation._id!,
       tenantId,
       data: {
-        status: AccessReleaseInvitationStatus.filled
+        status: AccessReleaseInvitationStatus.filled,
+        guestId
       },
       session
     })
