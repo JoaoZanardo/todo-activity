@@ -5,7 +5,7 @@ import { AreaModel } from '../../models/Area/AreaModel'
 import { PersonTypeModel, TimeUnit } from '../../models/PersonType/PersonTypeModel'
 import { PersonTypeRepositoryImp } from '../../models/PersonType/PersonTypeMongoDB'
 import { PersonTypeFormModel } from '../../models/PersonTypeForm/PersonTypeFormModel'
-import { TenantModel } from '../../models/Tenant/TenantModel'
+import { ITenant, TenantModel } from '../../models/Tenant/TenantModel'
 import { TenantRepositoryImp } from '../../models/Tenant/TenantMongoDB'
 import { UserModel } from '../../models/User/UserModel'
 import MailerServer from '../../services/MailerServer'
@@ -28,6 +28,10 @@ export class TenantService {
     if (!tenant) throw CustomResponse.NOT_FOUND('Tenente não cadastrado!')
 
     return tenant
+  }
+
+  async findAll (): Promise<Array<Partial<ITenant>>> {
+    return await this.tenantRepositoryImp.findAll()
   }
 
   async create (tenant: TenantModel, session: ClientSession): Promise<TenantModel> {

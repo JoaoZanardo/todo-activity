@@ -35,6 +35,18 @@ class TenantController extends Controller {
       }
     })
 
+    this.router.get('/', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const tenants = await TenantServiceImp.findAll()
+
+        response.OK('Tenentes encontrados com sucesso!', {
+          tenants
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
+
     this.router.post('/', async (request: Request, response: Response, next: NextFunction) => {
       const session = await database.startSession()
       session.startTransaction()

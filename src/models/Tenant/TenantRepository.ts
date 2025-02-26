@@ -47,12 +47,8 @@ export class TenantRepository extends Repository<ITenantMongoDB, TenantModel> {
     return new TenantModel(document)
   }
 
-  async findAll (): Promise<Array<TenantModel>> {
-    const documents = await this.mongoDB.find()
-
-    const models = documents.map(document => new TenantModel(document))
-
-    return models
+  async findAll (): Promise<Array<Partial<ITenant>>> {
+    return await this.mongoDB.find().sort({ _id: -1 }).select(['_id', 'name'])
   }
 
   async create (tenant: TenantModel, session: ClientSession): Promise<TenantModel> {
