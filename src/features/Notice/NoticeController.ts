@@ -123,63 +123,57 @@ class NoticeController extends Controller {
       }
     })
 
-    this.router.patch(
-      '/:noticeId',
-      permissionAuthMiddleware(Permission.update),
-      async (request: Request, response: Response, next: NextFunction) => {
-        try {
-          const { tenantId, userId } = request
+    this.router.patch('/:noticeId', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId, userId } = request
 
-          const { noticeId } = request.params
+        const { noticeId } = request.params
 
-          const {
+        const {
+          discharged
+        } = request.body
+
+        this.rules.validate(
+          { noticeId },
+          { discharged }
+        )
+
+        await NoticeServiceImp.update({
+          id: ObjectId(noticeId),
+          tenantId,
+          data: {
             discharged
-          } = request.body
+          },
+          responsibleId: userId
+        })
 
-          this.rules.validate(
-            { noticeId },
-            { discharged }
-          )
+        response.OK('Aviso atualizado com sucesso!')
+      } catch (error) {
+        next(error)
+      }
+    })
 
-          await NoticeServiceImp.update({
-            id: ObjectId(noticeId),
-            tenantId,
-            data: {
-              discharged
-            },
-            responsibleId: userId
-          })
+    this.router.delete('/:noticeId', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId, userId } = request
 
-          response.OK('Aviso atualizado com sucesso!')
-        } catch (error) {
-          next(error)
-        }
-      })
+        const { noticeId } = request.params
 
-    this.router.delete(
-      '/:noticeId',
-      permissionAuthMiddleware(Permission.delete),
-      async (request: Request, response: Response, next: NextFunction) => {
-        try {
-          const { tenantId, userId } = request
+        this.rules.validate(
+          { noticeId }
+        )
 
-          const { noticeId } = request.params
+        await NoticeServiceImp.delete({
+          id: ObjectId(noticeId),
+          tenantId,
+          responsibleId: userId
+        })
 
-          this.rules.validate(
-            { noticeId }
-          )
-
-          await NoticeServiceImp.delete({
-            id: ObjectId(noticeId),
-            tenantId,
-            responsibleId: userId
-          })
-
-          response.OK('Aviso removido com sucesso!')
-        } catch (error) {
-          next(error)
-        }
-      })
+        response.OK('Aviso removido com sucesso!')
+      } catch (error) {
+        next(error)
+      }
+    })
 
     return this.router
   }
