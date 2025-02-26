@@ -36,7 +36,7 @@ class AccessReleaseInvitationController extends Controller {
       }
     })
 
-    this.router.get('/:accessReleaseInvitationId', async (request: Request, response: Response, next: NextFunction) => {
+    this.router.get('/one/:accessReleaseInvitationId', async (request: Request, response: Response, next: NextFunction) => {
       try {
         const { tenantId } = request
 
