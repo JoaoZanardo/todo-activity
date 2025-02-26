@@ -130,7 +130,8 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
     }: Partial<IListAccessReleaseInvitationsFilters>
   ): IListAccessReleaseInvitationsFilters {
     const filters = {
-      deletionDate: undefined
+      deletionDate: undefined,
+      accessReleaseInvitationGroupId: undefined
     } as IListAccessReleaseInvitationsFilters
 
     if (accessReleaseInvitationGroupId) Object.assign(filters, { accessReleaseInvitationGroupId: ObjectId(accessReleaseInvitationGroupId) })
