@@ -3,8 +3,6 @@ import { NextFunction, Request, Response, Router } from 'express'
 import { Controller } from '../../core/Controller'
 import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
-import { permissionAuthMiddleware } from '../../middlewares/permissionAuth'
-import { Permission } from '../../models/AccessGroup/AccessGroupModel'
 import { NoticeModel } from '../../models/Notice/NoticeModel'
 import { NoticeRepositoryImp } from '../../models/Notice/NoticeMongoDB'
 import { DateUtils } from '../../utils/Date'
@@ -37,31 +35,28 @@ class NoticeController extends Controller {
       }
     })
 
-    this.router.get(
-      '/one/:noticeId',
-      permissionAuthMiddleware(Permission.read),
-      async (request: Request, response: Response, next: NextFunction) => {
-        try {
-          const { tenantId } = request
+    this.router.get('/one/:noticeId', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request
 
-          const { noticeId } = request.params
+        const { noticeId } = request.params
 
-          this.rules.validate(
-            { noticeId }
-          )
+        this.rules.validate(
+          { noticeId }
+        )
 
-          const notice = await NoticeServiceImp.findById({
-            id: ObjectId(noticeId),
-            tenantId
-          })
+        const notice = await NoticeServiceImp.findById({
+          id: ObjectId(noticeId),
+          tenantId
+        })
 
-          response.OK('Aviso encontrado com sucesso!', {
-            notice: notice.show
-          })
-        } catch (error) {
-          next(error)
-        }
-      })
+        response.OK('Aviso encontrado com sucesso!', {
+          notice: notice.show
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
 
     this.router.post('/', async (request: Request, response: Response, next: NextFunction) => {
       try {
