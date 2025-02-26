@@ -68,22 +68,26 @@ export class EquipmentService {
 
     if (workSchedules.length) {
       await Promise.all(
-        workSchedules.map(async workSchedule => {
-          await EquipmentServer.addWorkScheduleTemplate({
-            equipmentIp: equipment.ip,
-            workSchedule: {
-              id: workSchedule.code!,
-              name: workSchedule.name!
-            }
-          })
+        workSchedules.map(async (workSchedule) => {
+          try {
+            await EquipmentServer.addWorkScheduleTemplate({
+              equipmentIp: equipment.ip,
+              workSchedule: {
+                id: workSchedule.code!,
+                name: workSchedule.name!
+              }
+            })
 
-          await EquipmentServer.addWorkSchedule({
-            days: workSchedule.days!,
-            startTime: workSchedule.startTime!,
-            endTime: workSchedule.endTime!,
-            equipmentIp: equipment.ip,
-            workScheduleId: workSchedule.code!
-          })
+            await EquipmentServer.addWorkSchedule({
+              days: workSchedule.days!,
+              startTime: workSchedule.startTime!,
+              endTime: workSchedule.endTime!,
+              equipmentIp: equipment.ip,
+              workScheduleId: workSchedule.code!
+            })
+          } catch (error) {
+            throw CustomResponse.BAD_REQUEST('Algo deu errado tentando sincronizar jornadas de horário com o equipamento!')
+          }
         })
       )
     }

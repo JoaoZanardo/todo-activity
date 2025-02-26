@@ -7,6 +7,7 @@ import { errorMiddleware } from '../middlewares/error'
 import { tenantAuthMiddleware } from '../middlewares/tenantAuth'
 import { AccessReleaseInvitationModel } from '../models/AccessReleaseInvitation/AccessReleaseInvitationModel'
 import AccessReleaseInvitationMongoDB from '../models/AccessReleaseInvitation/AccessReleaseInvitationMongoDB'
+import CustomResponse from '../utils/CustomResponse'
 import ObjectId from '../utils/ObjectId'
 import auth from './auth'
 import unauth from './unauth'
@@ -86,7 +87,7 @@ router.get('/unauth/access-release-invitations/:accessReleaseInvitationId', asyn
 
     const accessReleaseInvitation = accessReleaseInvitations.docs[0]
 
-    if (!accessReleaseInvitation) return null
+    if (!accessReleaseInvitation) throw CustomResponse.NOT_FOUND('Convite não cadastrado!')
 
     const accessReleaseInvitationModel = new AccessReleaseInvitationModel(accessReleaseInvitation)
 
