@@ -286,6 +286,15 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
 
   async list ({ limit, page, ...filters }: IListAccessReleasesFilters): Promise<IAggregatePaginate<IAccessRelease>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
+        }
+      },
+      { $unwind: '$person' },
       { $match: filters },
       {
         $lookup: {
@@ -296,17 +305,8 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         }
       },
       {
-        $lookup: {
-          from: 'people',
-          localField: 'personId',
-          foreignField: '_id',
-          as: 'person'
-        }
-      },
-      {
         $unwind: '$personType'
       },
-      { $unwind: '$person' },
       { $sort: { _id: -1 } }
     ])
 

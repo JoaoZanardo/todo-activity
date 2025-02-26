@@ -4,7 +4,6 @@ import database from '../config/database'
 import { ModelAction } from '../core/interfaces/Model'
 import { AccessControlServiceImp } from '../features/AccessControl/AccessControlController'
 import AccessReleaseCreationService from '../features/AccessRelease/AccessReleaseCreationService'
-import { AccessReleaseInvitationServiceImp } from '../features/AccessReleaseInvitation/AccessReleaseInvitationController'
 import { PersonServiceImp } from '../features/Person/PersonController'
 import UserAuthenticationController from '../features/User/Authentication/UserAuthenticationController'
 import { PersonCreationType, PersonModel } from '../models/Person/PersonModel'
@@ -44,27 +43,6 @@ class UnauthRouter {
       } catch (error) {
         session.endSession()
 
-        next(error)
-      }
-    })
-
-    this.unauthRouter.get('/access-release-invitations/:accessReleaseInvitationId', async (request: Request, response: Response, next: NextFunction) => {
-      try {
-        const { tenantId } = request
-
-        const {
-          accessReleaseInvitationId
-        } = request.params
-
-        const accessReleaseInvitation = await AccessReleaseInvitationServiceImp.findById({
-          id: ObjectId(accessReleaseInvitationId),
-          tenantId
-        })
-
-        response.OK('Convite encontrado com sucesso!', {
-          accessReleaseInvitation: accessReleaseInvitation.show
-        })
-      } catch (error) {
         next(error)
       }
     })

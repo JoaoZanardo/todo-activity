@@ -356,7 +356,15 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     if (search) {
       Object.assign(filters, {
         $or: [
-          { observation: { $regex: search, $options: 'i' } }
+          { 'person.name': { $regex: search, $options: 'i' } },
+          { 'person.cpf': { $regex: search, $options: 'i' } },
+          { 'person.cnpj': { $regex: search, $options: 'i' } },
+          { 'person.register': { $regex: search, $options: 'i' } },
+          { 'person.passport': { $regex: search, $options: 'i' } },
+          { 'person.email': { $regex: search, $options: 'i' } },
+          { 'person.phone': { $regex: search, $options: 'i' } },
+          { 'person.rg': { $regex: search, $options: 'i' } },
+          { 'person.role': { $regex: search, $options: 'i' } }
         ]
       })
     }
