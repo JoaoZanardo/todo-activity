@@ -1,5 +1,5 @@
-import { AccessReleaseInvitationGroupServiceImp } from 'src/features/AccessReleaseInvitationGroup/AccessReleaseInvitationGroupController'
-import { AccessReleaseInvitationGroupRepositoryImp } from 'src/models/AccessReleaseInvitationGroup/AccessReleaseInvitationGroupMongoDB'
+import { AccessReleaseInvitationGroupServiceImp } from '../features/AccessReleaseInvitationGroup/AccessReleaseInvitationGroupController'
+import { AccessReleaseInvitationGroupRepositoryImp } from '../models/AccessReleaseInvitationGroup/AccessReleaseInvitationGroupMongoDB'
 
 export const UpdateExpiringAccessReleaseInvitationGroups = async () => {
   try {
