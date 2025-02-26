@@ -20,6 +20,12 @@ export class EquipmentService {
     this.equipmentRepositoryImp = equipmentRepositoryImp
   }
 
+  async healthCheck (equipmentIp: string): Promise<void> {
+    const [error, _] = await to(EquipmentServer.healthCheck(equipmentIp))
+
+    if (error) throw CustomResponse.NOT_FOUND('O IP cadastrado no equipamento não foi encontrado.')
+  }
+
   async list (filters: IListEquipmentsFilters): Promise<IAggregatePaginate<IEquipment>> {
     return await this.equipmentRepositoryImp.list(filters)
   }

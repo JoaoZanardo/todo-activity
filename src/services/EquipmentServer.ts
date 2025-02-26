@@ -140,6 +140,18 @@ class EquipmentServer {
       })
     }
   }
+
+  async healthCheck (equipmentIp: string): Promise<void> {
+    const response = await axios.post<IResponseData>(`${this.baseUrl}/sistema/equipamento-health-check`, {
+      ip: equipmentIp
+    })
+
+    if (response.data.code !== 200) {
+      throw CustomResponse.BAD_REQUEST('Ocorreu um erro ao consultar equipamento!', {
+        equipmentIp
+      })
+    }
+  }
 }
 
 export default new EquipmentServer()

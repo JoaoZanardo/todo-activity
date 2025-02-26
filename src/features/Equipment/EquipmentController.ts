@@ -202,6 +202,25 @@ class EquipmentController extends Controller {
         }
       })
 
+    this.router.get(
+      '/:equipmentIp/health-check',
+      permissionAuthMiddleware(Permission.delete),
+      async (request: Request, response: Response, next: NextFunction) => {
+        try {
+          const { equipmentIp } = request.params
+
+          this.rules.validate(
+            { equipmentIp }
+          )
+
+          await EquipmentServiceImp.healthCheck(equipmentIp)
+
+          response.OK('IP validado com sucesso!')
+        } catch (error) {
+          next(error)
+        }
+      })
+
     return this.router
   }
 }
