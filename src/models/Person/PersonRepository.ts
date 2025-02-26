@@ -1,4 +1,4 @@
-import { Aggregate, FilterQuery } from 'mongoose'
+import { Aggregate, ClientSession, FilterQuery } from 'mongoose'
 
 import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
@@ -110,10 +110,12 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
     return documents
   }
 
-  async create (person: PersonModel): Promise<PersonModel> {
-    const document = await this.mongoDB.create(person.object)
+  async create (person: PersonModel, session: ClientSession): Promise<PersonModel> {
+    const document = await this.mongoDB.create([person.object], {
+      session
+    })
 
-    return new PersonModel(document)
+    return new PersonModel(document[0])
   }
 
   async update ({

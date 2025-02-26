@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express'
 
+import database from '../../config/database'
 import { Controller } from '../../core/Controller'
 import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
@@ -72,8 +73,10 @@ class PersonController extends Controller {
     this.router.post(
       '/',
       permissionAuthMiddleware(Permission.create),
-
       async (request: Request, response: Response, next: NextFunction) => {
+        const session = await database.startSession()
+        session.startTransaction()
+
         try {
           const { tenantId, userId } = request
 
@@ -172,12 +175,17 @@ class PersonController extends Controller {
             } : undefined
           })
 
-          const person = await PersonServiceImp.create(personModel)
+          const person = await PersonServiceImp.create(personModel, session)
+
+          await session.commitTransaction()
+          session.endSession()
 
           response.CREATED('Pessoa cadastrada com sucesso!', {
             person: person.show
           })
         } catch (error) {
+          session.endSession()
+
           next(error)
         }
       })

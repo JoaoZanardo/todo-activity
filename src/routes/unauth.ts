@@ -2,11 +2,14 @@ import { NextFunction, Request, Response, Router } from 'express'
 
 import database from '../config/database'
 import { ModelAction } from '../core/interfaces/Model'
+import Rules from '../core/Rules'
 import { AccessControlServiceImp } from '../features/AccessControl/AccessControlController'
 import AccessReleaseCreationService from '../features/AccessRelease/AccessReleaseCreationService'
 import { PersonServiceImp } from '../features/Person/PersonController'
 import UserAuthenticationController from '../features/User/Authentication/UserAuthenticationController'
 import { PersonCreationType, PersonModel } from '../models/Person/PersonModel'
+import PersonTypeMongoDB from '../models/PersonType/PersonTypeMongoDB'
+import CustomResponse from '../utils/CustomResponse'
 import { DateUtils } from '../utils/Date'
 import ObjectId from '../utils/ObjectId'
 
@@ -47,45 +50,7 @@ class UnauthRouter {
       }
     })
 
-    this.unauthRouter.post('/people', async (request: Request, response: Response, next: NextFunction) => {
-      try {
-        const { tenantId } = request
-
-        const {
-          phone,
-          name,
-          personTypeId,
-          responsibleId,
-          cpf,
-          picture
-        } = request.body
-
-        const personModel = new PersonModel({
-          tenantId,
-          actions: [{
-            action: ModelAction.create,
-            date: DateUtils.getCurrent()
-          }],
-          personTypeId: ObjectId(personTypeId),
-          name,
-          phone,
-          responsibleId,
-          cpf,
-          picture,
-          creationType: PersonCreationType.invite
-        })
-
-        const person = await PersonServiceImp.create(personModel)
-
-        response.CREATED('Pessoa cadastrada com sucesso!', {
-          person: person.show
-        })
-      } catch (error) {
-        next(error)
-      }
-    })
-
-    this.unauthRouter.post('/access-releases', async (request: Request, response: Response, next: NextFunction) => {
+    this.unauthRouter.post('/people/access-releases', async (request: Request, response: Response, next: NextFunction) => {
       const session = await database.startSession()
       session.startTransaction()
 
@@ -94,16 +59,55 @@ class UnauthRouter {
 
         const {
           accessReleaseInvitationId,
-          guestId,
-          personTypeId,
+          phone,
+          name,
+          responsibleId,
+          cpf,
           picture
         } = request.body
+
+        new Rules().validate(
+          { phone, isRequiredField: false },
+          { picture, isRequiredField: false },
+          { accessReleaseInvitationId },
+          { name },
+          { responsibleId },
+          { cpf }
+        )
+
+        const personType = await PersonTypeMongoDB.findOne({
+          name: 'Visitante',
+          tenantId
+        })
+
+        if (!personType) {
+          throw CustomResponse.NOT_FOUND('Tipo de pessoa não cadastrado!', {
+            name: 'Visitante'
+          })
+        }
+
+        const personModel = new PersonModel({
+          tenantId,
+          actions: [{
+            action: ModelAction.create,
+            date: DateUtils.getCurrent()
+          }],
+          personTypeId: personType._id,
+          name,
+          phone,
+          responsibleId,
+          cpf,
+          picture,
+          creationType: PersonCreationType.invite
+        })
+
+        const person = await PersonServiceImp.create(personModel, session)
 
         const accessRelease = await AccessReleaseCreationService.createByAccessReleaseInvitationId({
           accessReleaseInvitationId: ObjectId(accessReleaseInvitationId),
           tenantId,
-          guestId: ObjectId(guestId),
-          personTypeId: ObjectId(personTypeId),
+          guestId: person._id!,
+          personTypeId: personType._id,
           picture,
           session
         })

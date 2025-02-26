@@ -1,3 +1,5 @@
+import { ClientSession } from 'mongoose'
+
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
 import { IArea } from '../../models/Area/AreaModel'
@@ -85,7 +87,7 @@ export class PersonService {
     return await this.personRepositoryImp.list(filters)
   }
 
-  async create (person: PersonModel): Promise<PersonModel> {
+  async create (person: PersonModel, session: ClientSession): Promise<PersonModel> {
     const tenantId = person.tenantId
 
     if (person.cpf) {
@@ -104,7 +106,7 @@ export class PersonService {
       })
     }
 
-    return await this.personRepositoryImp.create(person)
+    return await this.personRepositoryImp.create(person, session)
   }
 
   async update ({
