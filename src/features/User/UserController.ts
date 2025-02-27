@@ -3,7 +3,6 @@ import { NextFunction, Request, Response, Router } from 'express'
 import { Controller } from '../../core/Controller'
 import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
-import { adminAuthMiddleware } from '../../middlewares/adminAuth'
 import { UserModel } from '../../models/User/UserModel'
 import { UserRepositoryImp } from '../../models/User/UserMongoDB'
 import { DateUtils } from '../../utils/Date'
@@ -88,7 +87,7 @@ class UserController extends Controller {
       }
     })
 
-    this.router.get('/', adminAuthMiddleware, async (request: Request, response: Response, next: NextFunction) => {
+    this.router.get('/', async (request: Request, response: Response, next: NextFunction) => {
       try {
         const { tenantId } = request
 
@@ -107,7 +106,7 @@ class UserController extends Controller {
       }
     })
 
-    this.router.post('/', adminAuthMiddleware, async (request: Request, response: Response, next: NextFunction) => {
+    this.router.post('/', async (request: Request, response: Response, next: NextFunction) => {
       try {
         const { tenantId, user } = request
 
@@ -154,7 +153,7 @@ class UserController extends Controller {
       }
     })
 
-    this.router.delete('/:userId', adminAuthMiddleware, async (request: Request, response: Response, next: NextFunction) => {
+    this.router.delete('/:userId', async (request: Request, response: Response, next: NextFunction) => {
       try {
         const { tenantId, user } = request
 
