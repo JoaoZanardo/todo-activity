@@ -47,10 +47,29 @@ router.get('/unauth/access-release-invitations/:accessReleaseInvitationId', asyn
         }
       },
       {
-        $unwind: {
-          path: '$tenant',
-          preserveNullAndEmptyArrays: true
+        $unwind: '$tenant'
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
         }
+      },
+      {
+        $unwind: '$person'
+      },
+      {
+        $lookup: {
+          from: 'areas',
+          localField: 'areaId',
+          foreignField: '_id',
+          as: 'area'
+        }
+      },
+      {
+        $unwind: '$area'
       },
       {
         $lookup: {

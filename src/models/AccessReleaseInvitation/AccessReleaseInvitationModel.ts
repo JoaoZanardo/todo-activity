@@ -5,6 +5,7 @@ import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
 import ObjectId from '../../utils/ObjectId'
 import { IAccessReleaseInvitationGroup } from '../AccessReleaseInvitationGroup/AccessReleaseInvitationGroupModel'
+import { IArea } from '../Area/AreaModel'
 import { IPerson } from '../Person/PersonModel'
 import { ITenant } from '../Tenant/TenantModel'
 
@@ -34,6 +35,8 @@ export interface IAccessReleaseInvitation extends IModel {
 
   guest?: IPerson
   tenant?: ITenant
+  person?: IPerson
+  area?: IArea
   accessReleaseInvitationGroup?: IAccessReleaseInvitationGroup
 
   initDate: Date
@@ -51,6 +54,8 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
   private _guestId?: IAccessReleaseInvitation['guestId']
 
   private _guest?: IAccessReleaseInvitation['guest']
+  private _person?: IAccessReleaseInvitation['person']
+  private _area?: IAccessReleaseInvitation['area']
   private _tenant?: IAccessReleaseInvitation['tenant']
   private _accessReleaseInvitationGroup?: IAccessReleaseInvitation['accessReleaseInvitationGroup']
 
@@ -71,6 +76,8 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
 
     this._guest = accessReleaseInvitation.guest
     this._tenant = accessReleaseInvitation.tenant
+    this._area = accessReleaseInvitation.area
+    this._person = accessReleaseInvitation.person
     this._accessReleaseInvitationGroup = accessReleaseInvitation.accessReleaseInvitationGroup
 
     this._initDate = accessReleaseInvitation.initDate
@@ -114,7 +121,9 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
       ...this.object,
       guest: this._guest,
       tenant: this._tenant,
-      accessReleaseInvitationGroup: this._accessReleaseInvitationGroup
+      accessReleaseInvitationGroup: this._accessReleaseInvitationGroup,
+      person: this._person,
+      area: this._area
     }
   }
 
