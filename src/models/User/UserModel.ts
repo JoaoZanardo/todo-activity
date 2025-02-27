@@ -23,6 +23,7 @@ export interface ISignInProps {
 }
 
 export interface ISignUpProps {
+  email: string
   tenantId: Types.ObjectId
   login: string
   password: string

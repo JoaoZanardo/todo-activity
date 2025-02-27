@@ -50,12 +50,14 @@ class UserAuthenticationController extends Controller {
         const { tenantId } = request
 
         const {
+          email,
           login,
           password,
           passwordConfirmation
         } = request.body
 
         this.rules.validate(
+          { email },
           { login },
           { password },
           { passwordConfirmation },
@@ -63,6 +65,7 @@ class UserAuthenticationController extends Controller {
         )
 
         const { user, token } = await UserAuthenticationServiceImp.signup({
+          email,
           login,
           password,
           tenantId,
@@ -91,23 +94,14 @@ class UserAuthenticationController extends Controller {
           cpf
         } = request.params
 
-        const {
-          login,
-          password
-        } = request.body
-
-        this.rules.validate(
-          { login },
-          { password }
-        )
-
         const person = await PersonServiceImp.findByCpf({
           cpf,
           tenantId
         })
 
         response.OK('Accesso ao APP encontrada com sucesso!', {
-          appAccess: Boolean(person.appAccess)
+          appAccess: Boolean(person.appAccess),
+          userAccount: Boolean(person.object.userId)
         })
       } catch (error) {
         next(error)

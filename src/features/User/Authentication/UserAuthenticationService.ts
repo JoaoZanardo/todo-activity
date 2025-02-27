@@ -15,7 +15,8 @@ export class UserAuthenticationService {
     tenantId,
     login,
     password,
-    session
+    session,
+    email
   }: ISignUpProps): Promise<IAuthenticatedProps> {
     const cpf = login
 
@@ -27,6 +28,7 @@ export class UserAuthenticationService {
     if (!person.appAccess) throw CustomResponse.BAD_REQUEST('Pessoa não possui liberação para acessar o APP!')
 
     const userModel = new UserModel({
+      email,
       login,
       name: person.name,
       password,
