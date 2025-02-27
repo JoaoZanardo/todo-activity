@@ -107,9 +107,18 @@ class UnauthRouter {
             creationType: PersonCreationType.invite
           })
 
-          const person = await PersonServiceImp.create(personModel, session)
+          const person = await PersonServiceImp.findByCpf({
+            cpf,
+            tenantId
+          })
 
-          personId = person._id!
+          if (person) {
+            personId = person._id!
+          } else {
+            const createdPerson = await PersonServiceImp.create(personModel, session)
+
+            personId = createdPerson._id!
+          }
         }
 
         const accessRelease = await AccessReleaseCreationService.createByAccessReleaseInvitationId({

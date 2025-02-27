@@ -92,7 +92,7 @@ export class EquipmentService {
               workScheduleId: workSchedule.code!
             })
           } catch (error) {
-            throw CustomResponse.BAD_REQUEST('Algo deu errado tentando sincronizar jornadas de horário com o equipamento!')
+            throw CustomResponse.BAD_REQUEST('Equipamento desligado ou não encontrado!')
           }
         })
       )
