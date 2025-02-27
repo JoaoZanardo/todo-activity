@@ -4,7 +4,7 @@ import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { DateUtils } from '../../utils/Date'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindAllAccessReleaseByResponsibleId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
 import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
 export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, AccessReleaseModel> {
@@ -156,6 +156,39 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
     return documents.docs
   }
 
+  async findAllByResponsibleId ({
+    responsibleId,
+    tenantId
+  }: IFindAllAccessReleaseByResponsibleId): Promise<Array<Partial<IAccessRelease>>> {
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $match: {
+          responsibleId,
+          tenantId,
+          deletionDate: null
+        }
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
+        }
+      },
+      {
+        $unwind: '$person'
+      },
+      { $sort: { _id: -1 } }
+    ])
+
+    const documents = await this.mongoDB.aggregatePaginate(aggregationStages, {
+      limit: 5000
+    })
+
+    return documents.docs
+  }
+
   async findLastByPersonId ({
     personId,
     tenantId
@@ -286,6 +319,7 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
 
   async list ({ limit, page, ...filters }: IListAccessReleasesFilters): Promise<IAggregatePaginate<IAccessRelease>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      { $match: filters },
       {
         $lookup: {
           from: 'people',
@@ -295,18 +329,6 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         }
       },
       { $unwind: '$person' },
-      { $match: filters },
-      {
-        $lookup: {
-          from: 'persontypes',
-          localField: 'personTypeId',
-          foreignField: '_id',
-          as: 'personType'
-        }
-      },
-      {
-        $unwind: '$personType'
-      },
       { $sort: { _id: -1 } }
     ])
 

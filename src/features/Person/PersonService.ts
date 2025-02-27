@@ -59,6 +59,30 @@ export class PersonService {
     return bondAreas
   }
 
+  async findAllGuests ({
+    id,
+    tenantId
+  }: IFindModelByIdProps): Promise<Array<IPerson>> {
+    const accessReleases = await AccessReleaseServiceImp.findAllByResponsibleId({
+      responsibleId: id,
+      tenantId
+    })
+
+    const guests: Array<IPerson> = []
+    const uniqueCpfs = new Set<string>()
+
+    accessReleases.forEach(accessRelease => {
+      const person = accessRelease.person!
+
+      if (!uniqueCpfs.has(person.cpf!)) {
+        uniqueCpfs.add(person.cpf!)
+        guests.push(person)
+      }
+    })
+
+    return guests
+  }
+
   async findByCpf ({
     cpf,
     tenantId
@@ -89,13 +113,6 @@ export class PersonService {
 
   async create (person: PersonModel, session: ClientSession): Promise<PersonModel> {
     const tenantId = person.tenantId
-
-    if (person.cpf) {
-      await this.validateDuplicatedCpf({
-        cpf: person.cpf,
-        tenantId
-      })
-    }
 
     const cnh = person.object.cnh
 

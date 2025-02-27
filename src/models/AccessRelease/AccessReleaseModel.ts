@@ -46,6 +46,11 @@ export interface IFindAllAccessReleaseByPersonTypeId {
   tenantId: Types.ObjectId
 }
 
+export interface IFindAllAccessReleaseByResponsibleId {
+  responsibleId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
 export interface IFindLastAccessReleaseByPersonId {
   personId: Types.ObjectId
   tenantId: Types.ObjectId

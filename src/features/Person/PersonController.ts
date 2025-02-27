@@ -311,30 +311,51 @@ class PersonController extends Controller {
         }
       })
 
-    this.router.get(
-      '/:personId/bond-areas',
-      async (request: Request, response: Response, next: NextFunction) => {
-        try {
-          const { tenantId } = request
+    this.router.get('/:personId/bond-areas', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request
 
-          const { personId } = request.params
+        const { personId } = request.params
 
-          this.rules.validate(
-            { personId }
-          )
+        this.rules.validate(
+          { personId }
+        )
 
-          const bondAreas = await PersonServiceImp.findAllBondAreas({
-            id: ObjectId(personId),
-            tenantId
-          })
+        const bondAreas = await PersonServiceImp.findAllBondAreas({
+          id: ObjectId(personId),
+          tenantId
+        })
 
-          response.OK('Áreas de veínculo encontradas com sucesso!', {
-            bondAreas
-          })
-        } catch (error) {
-          next(error)
-        }
-      })
+        response.OK('Áreas de veínculo encontradas com sucesso!', {
+          bondAreas
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
+
+    this.router.get('/:personId/guests', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request
+
+        const { personId } = request.params
+
+        this.rules.validate(
+          { personId }
+        )
+
+        const guests = await PersonServiceImp.findAllGuests({
+          id: ObjectId(personId),
+          tenantId
+        })
+
+        response.OK('Covnidados encontrados com sucesso!', {
+          guests
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
 
     return this.router
   }
