@@ -92,21 +92,6 @@ class UnauthRouter {
         let personId: Types.ObjectId | undefined = guestId ? ObjectId(guestId) : undefined
 
         if (!personId) {
-          const personModel = new PersonModel({
-            tenantId,
-            actions: [{
-              action: ModelAction.create,
-              date: DateUtils.getCurrent()
-            }],
-            personTypeId: personType._id,
-            name,
-            phone,
-            responsibleId,
-            cpf,
-            picture,
-            creationType: PersonCreationType.invite
-          })
-
           const person = await PersonServiceImp.findByCpf({
             cpf,
             tenantId
@@ -114,7 +99,32 @@ class UnauthRouter {
 
           if (person) {
             personId = person._id!
+
+            if (picture) {
+              await PersonServiceImp.update({
+                id: personId,
+                tenantId,
+                data: {
+                  picture
+                }
+              })
+            }
           } else {
+            const personModel = new PersonModel({
+              tenantId,
+              actions: [{
+                action: ModelAction.create,
+                date: DateUtils.getCurrent()
+              }],
+              personTypeId: personType._id,
+              name,
+              phone,
+              responsibleId,
+              cpf,
+              picture,
+              creationType: PersonCreationType.invite
+            })
+
             const createdPerson = await PersonServiceImp.create(personModel, session)
 
             personId = createdPerson._id!
