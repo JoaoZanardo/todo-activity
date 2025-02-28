@@ -1,5 +1,6 @@
 import schedule from 'node-schedule'
 
+import database from '../config/database'
 import { ModelAction } from '../core/interfaces/Model'
 import { AccessReleaseServiceImp } from '../features/AccessRelease/AccessReleaseController'
 import { AccessReleaseStatus, IAccessRelease } from '../models/AccessRelease/AccessReleaseModel'
@@ -7,6 +8,9 @@ import { AccessReleaseRepositoryImp } from '../models/AccessRelease/AccessReleas
 import { DateUtils } from '../utils/Date'
 
 export const UpdateStartingAccessReleases = async () => {
+  const session = await database.startSession()
+  session.startTransaction()
+
   try {
     const accessReleases = await AccessReleaseRepositoryImp.findAllStartingToday()
 
@@ -43,35 +47,67 @@ export const UpdateStartingAccessReleases = async () => {
                 }
               })
             } else {
-              const syncWithEquips = async () => {
-                await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
-                  accessRelease: accessRelease as IAccessRelease,
-                  personId: accessRelease.personId!,
-                  tenantId
-                })
-              }
-
               if (accessRelease.initDate! > DateUtils.getCurrent()) {
                 const adjustedExecutionDate = new Date(accessRelease.initDate!)
                 adjustedExecutionDate.setHours(accessRelease.initDate!.getHours() + 3)
 
                 schedule.scheduleJob(adjustedExecutionDate, async () => {
-                  await syncWithEquips()
+                  const newSession = await database.startSession()
+                  newSession.startTransaction()
+
+                  try {
+                    await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
+                      accessRelease: accessRelease as IAccessRelease,
+                      personId: accessRelease.personId!,
+                      tenantId,
+                      session: newSession
+                    })
+
+                    await newSession.commitTransaction()
+                    newSession.endSession()
+                  } catch (error) {
+                    newSession.endSession()
+
+                    console.error('Erro ao adicionar acessos ao equipamentos:', error)
+                  }
                 })
               } else {
-                await syncWithEquips()
+                await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
+                  accessRelease: accessRelease as IAccessRelease,
+                  personId: accessRelease.personId!,
+                  tenantId,
+                  session
+                })
               }
 
               if (DateUtils.isToday(accessRelease.endDate!)) {
-                AccessReleaseServiceImp.scheduleDisable({
-                  endDate: accessRelease.endDate!,
-                  accessReleaseId: accessRelease._id!,
-                  tenantId,
-                  status: AccessReleaseStatus.expired
-                })
+                const newSession = await database.startSession()
+                newSession.startTransaction()
+
+                try {
+                  AccessReleaseServiceImp.scheduleDisable({
+                    endDate: accessRelease.endDate!,
+                    accessReleaseId: accessRelease._id!,
+                    tenantId,
+                    status: AccessReleaseStatus.expired,
+                    session
+                  })
+
+                  await newSession.commitTransaction()
+                  newSession.endSession()
+                } catch (error) {
+                  newSession.endSession()
+
+                  console.error('Erro ao remover acessos ao equipamentos:', error)
+                }
               }
             }
+
+            await session.commitTransaction()
+            session.endSession()
           } catch (error) {
+            session.endSession()
+
             console.log(`UpdateStartingAccessReleasesError - MAP: ${error}`)
           }
         })

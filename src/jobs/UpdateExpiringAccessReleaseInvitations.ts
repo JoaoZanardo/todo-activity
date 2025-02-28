@@ -10,17 +10,13 @@ export const UpdateExpiringAccessReleaseInvitations = async () => {
     if (accessReleasesinvitations.length) {
       await Promise.all(
         accessReleasesinvitations.map(async (accessReleaseInvitation) => {
-          try {
-            await AccessReleaseInvitationServiceImp.update({
-              id: accessReleaseInvitation._id!,
-              data: {
-                status: AccessReleaseInvitationStatus.expired
-              },
-              tenantId: accessReleaseInvitation.tenantId!
-            })
-          } catch (error) {
-            console.error(`UpdateExpiringAccessReleaseInvitationsError - MAP: ${error}`)
-          }
+          await AccessReleaseInvitationServiceImp.update({
+            id: accessReleaseInvitation._id!,
+            data: {
+              status: AccessReleaseInvitationStatus.expired
+            },
+            tenantId: accessReleaseInvitation.tenantId!
+          })
         })
       )
     }

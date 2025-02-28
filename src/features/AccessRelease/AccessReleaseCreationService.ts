@@ -1,6 +1,7 @@
 import { ClientSession } from 'mongoose'
 import schedule from 'node-schedule'
 
+import database from '../../config/database'
 import { ModelAction } from '../../core/interfaces/Model'
 import { AccessReleaseModel, AccessReleaseStatus, AccessReleaseType, ICreateAccessReleaseByAccessReleaseInvitationIdProps } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
@@ -30,34 +31,64 @@ class AccessReleaseCreationService {
     const createdAccessRelease = await AccessReleaseRepositoryImp.create(accessRelease, session)
 
     if (DateUtils.isToday(createdAccessRelease.endDate!)) {
-      AccessReleaseServiceImp.scheduleDisable({
-        endDate: createdAccessRelease.endDate!,
-        accessReleaseId: createdAccessRelease._id!,
-        tenantId,
-        status: AccessReleaseStatus.expired
-      })
+      const newSession = await database.startSession()
+      newSession.startTransaction()
+
+      try {
+        AccessReleaseServiceImp.scheduleDisable({
+          endDate: createdAccessRelease.endDate!,
+          accessReleaseId: createdAccessRelease._id!,
+          tenantId,
+          status: AccessReleaseStatus.expired,
+          session: newSession
+        })
+
+        await newSession.commitTransaction()
+        newSession.endSession()
+      } catch (error) {
+        newSession.endSession()
+
+        console.error('Erro ao remover acessos do equipamentos:', error)
+      }
     }
 
     if (DateUtils.isToday(createdAccessRelease.object.initDate!)) {
-      const syncWithEquips = async () => {
-        await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
-          personId,
-          tenantId,
-          accessRelease: createdAccessRelease.object
-        })
-      }
-
       if (createdAccessRelease.initDate! > DateUtils.getCurrent()) {
         const adjustedExecutionDate = new Date(createdAccessRelease.initDate!)
         adjustedExecutionDate.setHours(createdAccessRelease.initDate!.getHours() + 3)
 
         schedule.scheduleJob(adjustedExecutionDate, async () => {
-          await syncWithEquips()
+          const newSession = await database.startSession()
+          newSession.startTransaction()
+
+          try {
+            await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
+              personId,
+              tenantId,
+              accessRelease: createdAccessRelease.object,
+              session
+            })
+
+            await newSession.commitTransaction()
+            newSession.endSession()
+          } catch (error) {
+            newSession.endSession()
+
+            console.error('Erro ao adicionar acessos ao equipamentos:', error)
+          }
         })
       } else {
-        await syncWithEquips()
+        await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
+          personId,
+          tenantId,
+          accessRelease: createdAccessRelease.object,
+          session
+        })
       }
     }
+
+    await session.commitTransaction()
+    session.endSession()
 
     return await AccessReleaseServiceImp.findById({
       id: createdAccessRelease._id!,

@@ -194,6 +194,9 @@ class PersonController extends Controller {
       '/:personId',
       permissionAuthMiddleware(Permission.update),
       async (request: Request, response: Response, next: NextFunction) => {
+        const session = await database.startSession()
+        session.startTransaction()
+
         try {
           const { tenantId, userId } = request
 
@@ -277,11 +280,17 @@ class PersonController extends Controller {
               landline,
               appAccess
             },
-            responsibleId: userId
+            responsibleId: userId,
+            session
           })
+
+          await session.commitTransaction()
+          session.endSession()
 
           response.OK('Pessoa atualizada com sucesso!')
         } catch (error) {
+          session.endSession()
+
           next(error)
         }
       })
@@ -290,6 +299,9 @@ class PersonController extends Controller {
       '/:personId',
       permissionAuthMiddleware(Permission.delete),
       async (request: Request, response: Response, next: NextFunction) => {
+        const session = await database.startSession()
+        session.startTransaction()
+
         try {
           const { tenantId, userId } = request
 
@@ -302,11 +314,17 @@ class PersonController extends Controller {
           await PersonServiceImp.delete({
             id: ObjectId(personId),
             tenantId,
-            responsibleId: userId
+            responsibleId: userId,
+            session
           })
+
+          await session.commitTransaction()
+          session.endSession()
 
           response.OK('Pessoa removida com sucesso!')
         } catch (error) {
+          session.endSession()
+
           next(error)
         }
       })
