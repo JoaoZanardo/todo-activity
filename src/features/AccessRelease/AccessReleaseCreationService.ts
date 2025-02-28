@@ -35,7 +35,7 @@ class AccessReleaseCreationService {
       newSession.startTransaction()
 
       try {
-        AccessReleaseServiceImp.scheduleDisable({
+        await AccessReleaseServiceImp.scheduleDisable({
           endDate: createdAccessRelease.endDate!,
           accessReleaseId: createdAccessRelease._id!,
           tenantId,

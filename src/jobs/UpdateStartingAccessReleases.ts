@@ -85,7 +85,7 @@ export const UpdateStartingAccessReleases = async () => {
                 newSession.startTransaction()
 
                 try {
-                  AccessReleaseServiceImp.scheduleDisable({
+                  await AccessReleaseServiceImp.scheduleDisable({
                     endDate: accessRelease.endDate!,
                     accessReleaseId: accessRelease._id!,
                     tenantId,

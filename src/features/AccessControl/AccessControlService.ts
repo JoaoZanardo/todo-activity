@@ -78,7 +78,7 @@ export class AccessControlService {
 
     if (accessRelease.singleAccess) {
       if (accessPoint.generalEntry) {
-        Promise.all([
+        await Promise.all([
           AccessReleaseServiceImp.disable({
             id: accessRelease._id!,
             tenantId,
@@ -90,7 +90,7 @@ export class AccessControlService {
       }
 
       if (accessPoint.generalExit) {
-        Promise.all([
+        await Promise.all([
           AccessReleaseServiceImp.disable({
             id: accessRelease._id!,
             tenantId,
