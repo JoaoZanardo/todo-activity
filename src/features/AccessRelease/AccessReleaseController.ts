@@ -142,9 +142,6 @@ class AccessReleaseController extends Controller {
 
           const accessRelease = await AccessReleaseCreationService.execute(accessReleaseModel, session)
 
-          await session.commitTransaction()
-          session.endSession()
-
           response.CREATED('Liberação de acesso cadastrada com sucesso!', {
             accessRelease: accessRelease.show
           })
@@ -159,6 +156,9 @@ class AccessReleaseController extends Controller {
       '/:accessReleaseId/disable',
       permissionAuthMiddleware(Permission.delete),
       async (request: Request, response: Response, next: NextFunction) => {
+        const session = await database.startSession()
+        session.startTransaction()
+
         try {
           const { tenantId, userId } = request
 
@@ -172,11 +172,17 @@ class AccessReleaseController extends Controller {
             id: ObjectId(accessReleaseId),
             tenantId,
             responsibleId: userId,
-            status: AccessReleaseStatus.disabled
+            status: AccessReleaseStatus.disabled,
+            session
           })
+
+          await session.commitTransaction()
+          session.endSession()
 
           response.OK('Liberação de acesso desativada com sucesso!')
         } catch (error) {
+          session.endSession()
+
           next(error)
         }
       })

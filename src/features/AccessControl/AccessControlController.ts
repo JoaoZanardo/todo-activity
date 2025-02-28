@@ -69,7 +69,8 @@ class AccessControlController extends Controller {
             accessPointId: ObjectId(accessPointId),
             tenantId: ObjectId(tenantId),
             userId: ObjectId(userId),
-            observation
+            observation,
+            session
           })
 
           await session.commitTransaction()

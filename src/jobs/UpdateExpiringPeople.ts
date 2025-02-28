@@ -9,19 +9,15 @@ export const UpdateExpiringPeople = async () => {
     if (people.length) {
       await Promise.all(
         people.map(async (person) => {
-          try {
-            await PersonRepositoryImp.update({
-              id: person._id!,
-              tenantId: person.tenantId!,
-              data: {
-                updationInfo: {
-                  updatedData: false
-                }
+          await PersonRepositoryImp.update({
+            id: person._id!,
+            tenantId: person.tenantId!,
+            data: {
+              updationInfo: {
+                updatedData: false
               }
-            })
-          } catch (error) {
-            console.error(`UpdateExpiringPeopleError - MAP: ${error}`)
-          }
+            }
+          })
         })
       )
     }

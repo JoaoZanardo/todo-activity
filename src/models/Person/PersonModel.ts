@@ -1,6 +1,6 @@
-import { Types } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
-import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
+import { IListModelsFilters, IModel, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
 import { format } from '../../utils/format'
@@ -26,9 +26,21 @@ export interface IListPersonsFilters extends IListModelsFilters {
   updatedData?: boolean
 }
 
-export interface IUpdatePersonProps extends IUpdateModelProps<IPerson> { }
+export interface IUpdatePersonProps {
+  responsibleId?: Types.ObjectId
 
-export interface IDeletePersonProps extends IDeleteModelProps { }
+  session: ClientSession
+  id: Types.ObjectId
+  tenantId: Types.ObjectId
+  data: Partial<IPerson>
+}
+
+export interface IDeletePersonProps {
+  session: ClientSession
+  id: Types.ObjectId
+  tenantId: Types.ObjectId
+  responsibleId: Types.ObjectId
+}
 
 export interface IFindPersonByCpfProps {
   cpf: string

@@ -148,7 +148,8 @@ export class PersonService {
         await AccessReleaseServiceImp.disable({
           id: accessRelease._id!,
           tenantId,
-          status: AccessReleaseStatus.disabled
+          status: AccessReleaseStatus.disabled,
+          session
         })
       }
     }
@@ -196,7 +197,8 @@ export class PersonService {
   async delete ({
     id,
     tenantId,
-    responsibleId
+    responsibleId,
+    session
   }: IDeletePersonProps) {
     const person = await this.findById({
       id,
@@ -220,7 +222,8 @@ export class PersonService {
       await AccessReleaseServiceImp.disable({
         id: accessRelease._id!,
         tenantId,
-        status: AccessReleaseStatus.disabled
+        status: AccessReleaseStatus.disabled,
+        session
       })
     }
 
@@ -232,7 +235,8 @@ export class PersonService {
         deletionDate: DateUtils.getCurrent(),
         appAccess: false
       },
-      responsibleId
+      responsibleId,
+      session
     })
   }
 

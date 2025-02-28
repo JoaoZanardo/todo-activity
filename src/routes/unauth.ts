@@ -35,7 +35,8 @@ class UnauthRouter {
         const accessControl = await AccessControlServiceImp.createByEquipmentIp({
           equipmentIp,
           personId: ObjectId(personId),
-          tenantId
+          tenantId,
+          session
         })
 
         await session.commitTransaction()
@@ -106,7 +107,8 @@ class UnauthRouter {
                 tenantId,
                 data: {
                   picture
-                }
+                },
+                session
               })
             }
           } else {

@@ -17,7 +17,8 @@ class AccessControlCreationService {
     observation,
     accessPointId,
     picture,
-    equipment
+    equipment,
+    session
   }: IAccessControlCreationServiceExecuteProps): Promise<AccessControlModel> {
     const [accessPoint, lastAccessRelease, person] = await Promise.all([
       AccessPointServiceImp.findById({ id: accessPointId, tenantId }),
@@ -28,7 +29,8 @@ class AccessControlCreationService {
     await AccessControlServiceImp.validateAccessControlCreation({
       accessPoint,
       accessRelease: lastAccessRelease,
-      tenantId
+      tenantId,
+      session
     })
 
     const responsible = lastAccessRelease?.responsible

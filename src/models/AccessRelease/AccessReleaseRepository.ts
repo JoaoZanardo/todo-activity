@@ -288,13 +288,16 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   async update ({
     id,
     data,
-    tenantId
+    tenantId,
+    session
   }: IUpdateProps<IAccessRelease>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
     }, {
       $set: data
+    }, {
+      session
     })
 
     return !!updated.modifiedCount
@@ -303,7 +306,8 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   async updateSynchronizations ({
     id,
     synchronization,
-    tenantId
+    tenantId,
+    session
   }: IUpdateAccessReleaseSynchronizationsProps): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
@@ -312,6 +316,8 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       $push: {
         synchronizations: synchronization
       }
+    }, {
+      session
     })
 
     return !!updated.modifiedCount

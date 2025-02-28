@@ -39,7 +39,8 @@ export class AccessControlService {
   async createByEquipmentIp ({
     equipmentIp,
     personId,
-    tenantId
+    tenantId,
+    session
   }: ICreateAccessControlByEquipmentIpProps): Promise<AccessControlModel> {
     const equipment = await EquipmentServiceImp.findByIp({
       ip: equipmentIp,
@@ -59,14 +60,16 @@ export class AccessControlService {
         id: equipment._id,
         ip: equipment.ip,
         name: equipment.name
-      }
+      },
+      session
     })
   }
 
   async validateAccessControlCreation ({
     accessRelease,
     accessPoint,
-    tenantId
+    tenantId,
+    session
   }: IValidateAccessControlCreationProps) {
     if (
       !accessRelease ||
@@ -80,7 +83,8 @@ export class AccessControlService {
             id: accessRelease._id!,
             tenantId,
             status: AccessReleaseStatus.disabled,
-            type: RemoveAccessesFromPersonType.generalEntries
+            type: RemoveAccessesFromPersonType.generalEntries,
+            session
           })
         ])
       }
@@ -91,7 +95,8 @@ export class AccessControlService {
             id: accessRelease._id!,
             tenantId,
             status: AccessReleaseStatus.disabled,
-            type: RemoveAccessesFromPersonType.all
+            type: RemoveAccessesFromPersonType.all,
+            session
           })
         ])
       }

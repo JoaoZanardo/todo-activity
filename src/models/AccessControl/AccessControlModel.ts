@@ -1,4 +1,4 @@
-import { Types } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -29,6 +29,7 @@ export interface ICreateAccessControlByEquipmentIpProps {
   equipmentIp: string
   personId: Types.ObjectId
   tenantId: Types.ObjectId
+  session: ClientSession
 }
 
 export interface IValidateAccessControlCreationProps {
@@ -36,6 +37,7 @@ export interface IValidateAccessControlCreationProps {
 
   accessPoint: AccessPointModel
   tenantId: Types.ObjectId
+  session: ClientSession
 }
 
 export enum AccessControlType {
@@ -56,6 +58,7 @@ export interface IAccessControlCreationServiceExecuteProps {
   personId: Types.ObjectId
   tenantId: Types.ObjectId
   accessPointId: Types.ObjectId
+  session: ClientSession
 }
 
 export interface IAccessControl extends IModel {

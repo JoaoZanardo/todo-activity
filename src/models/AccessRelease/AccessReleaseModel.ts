@@ -30,6 +30,7 @@ export interface IUpdateAccessReleaseSynchronizationsProps {
   id: Types.ObjectId
   synchronization: IAccessReleaseSynchronization
   tenantId: Types.ObjectId
+  session: ClientSession
 }
 
 export interface IDisableAccessReleaseProps {
@@ -39,6 +40,7 @@ export interface IDisableAccessReleaseProps {
   id: Types.ObjectId
   tenantId: Types.ObjectId
   status: AccessReleaseStatus
+  session: ClientSession
 }
 
 export interface IFindAllAccessReleaseByPersonTypeId {
@@ -67,6 +69,7 @@ export interface IProcessAreaAccessPointsProps {
   tenantId: Types.ObjectId
   accessRelease: IAccessRelease
   endDate: Date
+  session: ClientSession
 }
 
 export interface IProcessEquipments {
@@ -76,6 +79,7 @@ export interface IProcessEquipments {
   tenantId: Types.ObjectId
   accessRelease: IAccessRelease
   endDate: Date
+  session: ClientSession
 }
 
 export interface IScheduleDisableProps {
@@ -83,12 +87,14 @@ export interface IScheduleDisableProps {
   accessReleaseId: Types.ObjectId
   tenantId: Types.ObjectId
   status: AccessReleaseStatus
+  session: ClientSession
 }
 
 export interface ISyncPersonAccessWithEquipmentsProps {
   accessRelease: IAccessRelease
   personId: Types.ObjectId
   tenantId: Types.ObjectId
+  session: ClientSession
 }
 
 export enum RemoveAccessesFromPersonType {
@@ -101,6 +107,7 @@ export interface IRemoveAccessesFromPersonProps {
   accessReleaseId: Types.ObjectId
   tenantId: Types.ObjectId
   type: RemoveAccessesFromPersonType
+  session: ClientSession
 }
 
 export interface ICreateAccessReleaseByAccessReleaseInvitationIdProps {
