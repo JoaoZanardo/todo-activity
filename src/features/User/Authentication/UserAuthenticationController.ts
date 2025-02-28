@@ -108,6 +108,62 @@ class UserAuthenticationController extends Controller {
       }
     })
 
+    this.router.post('/password', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request
+
+        const {
+          email
+        } = request.body
+
+        this.rules.validate(
+          { email }
+        )
+
+        await UserAuthenticationServiceImp.sendResetPasswordEmail(email, tenantId)
+
+        response.OK('Email para redefinição de senha enviado com sucesso!')
+      } catch (error) {
+        next(error)
+      }
+    })
+
+    this.router.post('/password/token/:token', async (request: Request, response: Response, next: NextFunction) => {
+      const session = await database.startSession()
+      session.startTransaction()
+
+      try {
+        const { tenantId } = request
+
+        const {
+          token
+        } = request.params
+
+        const {
+          password
+        } = request.body
+
+        const { user, token: accessToken } = await UserAuthenticationServiceImp.resetPassword({
+          token,
+          password,
+          session,
+          tenantId
+        })
+
+        await session.commitTransaction()
+        session.endSession()
+
+        response.OK('Senha redefinida com sucesso!', {
+          user,
+          token: accessToken
+        })
+      } catch (error) {
+        session.endSession()
+
+        next(error)
+      }
+    })
+
     return this.router
   }
 }

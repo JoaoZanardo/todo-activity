@@ -17,7 +17,7 @@ export const UpdateStartingAccessReleases = async () => {
     console.log(`UpdateStartingAccessReleases - ${accessReleases.length}`)
 
     if (accessReleases.length) {
-      await Promise.all([
+      await Promise.all(
         accessReleases.map(async accessRelease => {
           try {
             const tenantId = accessRelease.tenantId!
@@ -98,7 +98,7 @@ export const UpdateStartingAccessReleases = async () => {
             console.log(`UpdateStartingAccessReleasesError - MAP: ${error}`)
           }
         })
-      ])
+      )
     }
   } catch (error) {
     console.log(`UpdateStartingAccessReleasesError: ${error}`)
