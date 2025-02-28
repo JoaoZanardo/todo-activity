@@ -15,7 +15,7 @@ export const UpdateAllScheduledAccessReleasesThatStarted = async () => {
     console.log(`UpdateAllScheduledAccessReleasesThatStarted - ${accessReleases.length}`)
 
     if (accessReleases.length) {
-      await Promise.all([
+      await Promise.all(
         accessReleases.map(async accessRelease => {
           const tenantId = accessRelease.tenantId!
 
@@ -41,7 +41,8 @@ export const UpdateAllScheduledAccessReleasesThatStarted = async () => {
                 ],
                 active: false,
                 status: AccessReleaseStatus.conflict
-              }
+              },
+              session
             })
           } else {
             await AccessReleaseServiceImp.syncPersonAccessWithEquipments({
@@ -61,7 +62,7 @@ export const UpdateAllScheduledAccessReleasesThatStarted = async () => {
             }
           }
         })
-      ])
+      )
     }
 
     await session.commitTransaction()
@@ -69,6 +70,6 @@ export const UpdateAllScheduledAccessReleasesThatStarted = async () => {
   } catch (error) {
     session.endSession()
 
-    console.log(`UpdateAllScheduledAccessReleasesThatStartedError: ${error}`)
+    console.error(`UpdateAllScheduledAccessReleasesThatStartedError: ${error}`)
   }
 }

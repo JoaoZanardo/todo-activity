@@ -1,7 +1,7 @@
 import { ClientSession } from 'mongoose'
 
 import { IDeleteModelProps, IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
-import { IFindUserByLoginProps, IListUsersFilters, IUpdateUserProps, UserModel } from '../../models/User/UserModel'
+import { IFindUserByEmailProps, IFindUserByLoginProps, IListUsersFilters, IUpdateUserProps, UserModel } from '../../models/User/UserModel'
 import { UserRepositoryImp } from '../../models/User/UserMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
@@ -108,6 +108,23 @@ export class UserService {
     if (!user) {
       throw CustomResponse.NOT_FOUND('Usuário não cadastrado!', {
         userId: id
+      })
+    }
+
+    return user
+  }
+
+  async findByEmail ({
+    email,
+    tenantId
+  }: IFindUserByEmailProps): Promise<UserModel> {
+    const user = await this.userRepositoryImp.findByEmail({
+      email,
+      tenantId
+    })
+    if (!user) {
+      throw CustomResponse.NOT_FOUND('Usuário não cadastrado!', {
+        email
       })
     }
 

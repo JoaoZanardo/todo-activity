@@ -6,6 +6,7 @@ import { ModelAction } from '../core/interfaces/Model'
 import Rules from '../core/Rules'
 import { AccessControlServiceImp } from '../features/AccessControl/AccessControlController'
 import AccessReleaseCreationService from '../features/AccessRelease/AccessReleaseCreationService'
+import PasswordResetRequestController from '../features/PasswordResetRequest/PasswordResetRequestController'
 import { PersonServiceImp } from '../features/Person/PersonController'
 import UserAuthenticationController from '../features/User/Authentication/UserAuthenticationController'
 import { PersonCreationType, PersonModel } from '../models/Person/PersonModel'
@@ -19,6 +20,8 @@ class UnauthRouter {
 
   route (): Router {
     this.unauthRouter.use('/', UserAuthenticationController)
+
+    this.unauthRouter.use('/password-reset-requests', PasswordResetRequestController)
 
     this.unauthRouter.post('/access-controls/equipment', async (request: Request, response: Response, next: NextFunction) => {
       const session = await database.startSession()

@@ -6,6 +6,13 @@ import ObjectId from '../../utils/ObjectId'
 import { IAccessGroup } from '../AccessGroup/AccessGroupModel'
 import { IPerson } from '../Person/PersonModel'
 
+export interface IResetUserPasswordProps {
+  password: string
+  token: string
+  session: ClientSession
+  tenantId: Types.ObjectId
+}
+
 export interface IListUsersFilters extends IListModelsFilters {
   accessGroupId?: Types.ObjectId
 }
@@ -38,6 +45,11 @@ export interface IAuthenticatedProps {
 export interface IFindUserByLoginProps {
   tenantId: Types.ObjectId
   login: string
+}
+
+export interface IFindUserByEmailProps {
+  tenantId: Types.ObjectId
+  email: string
 }
 
 export enum UserCreationType {
