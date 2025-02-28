@@ -10,6 +10,8 @@ export const tenantAuthMiddleware = async (request: Request, response: Response,
 
     if (!tenantId) throw CustomResponse.UNAUTHORIZED('Acesso negado!')
 
+    console.log({ tenantId })
+
     const tenant = await TenantServiceImp.findById(ObjectId(tenantId))
     if (!tenant) {
       throw CustomResponse.NOT_FOUND('Tenente não cadastrada!', {

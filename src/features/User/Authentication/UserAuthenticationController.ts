@@ -120,6 +120,8 @@ class UserAuthenticationController extends Controller {
           { email }
         )
 
+        console.log({ email })
+
         await UserAuthenticationServiceImp.sendResetPasswordEmail(email, tenantId)
 
         response.OK('Email para redefinição de senha enviado com sucesso!')

@@ -16,6 +16,8 @@ export const DateUtils = {
     return date
   },
   parse: (dateInput: string | Date): Date | null => {
+    console.log({ dateInput })
+
     if (dateInput instanceof Date && !isNaN(dateInput.getTime())) {
       return dateInput
     }
