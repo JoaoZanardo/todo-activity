@@ -87,7 +87,6 @@ export interface IScheduleDisableProps {
   accessReleaseId: Types.ObjectId
   tenantId: Types.ObjectId
   status: AccessReleaseStatus
-  session: ClientSession
 }
 
 export interface ISyncPersonAccessWithEquipmentsProps {

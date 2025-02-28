@@ -81,25 +81,12 @@ export const UpdateStartingAccessReleases = async () => {
               }
 
               if (DateUtils.isToday(accessRelease.endDate!)) {
-                const newSession = await database.startSession()
-                newSession.startTransaction()
-
-                try {
-                  await AccessReleaseServiceImp.scheduleDisable({
-                    endDate: accessRelease.endDate!,
-                    accessReleaseId: accessRelease._id!,
-                    tenantId,
-                    status: AccessReleaseStatus.expired,
-                    session
-                  })
-
-                  await newSession.commitTransaction()
-                  newSession.endSession()
-                } catch (error) {
-                  newSession.endSession()
-
-                  console.error('Erro ao remover acessos ao equipamentos:', error)
-                }
+                await AccessReleaseServiceImp.scheduleDisable({
+                  endDate: accessRelease.endDate!,
+                  accessReleaseId: accessRelease._id!,
+                  tenantId,
+                  status: AccessReleaseStatus.expired
+                })
               }
             }
 

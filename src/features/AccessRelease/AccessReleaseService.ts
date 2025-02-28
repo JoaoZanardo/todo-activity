@@ -2,6 +2,7 @@ import to from 'await-to-js'
 import { Types } from 'mongoose'
 import schedule from 'node-schedule'
 
+import database from '../../config/database'
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindAllAccessReleaseByResponsibleId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAccessesFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps, RemoveAccessesFromPersonType } from '../../models/AccessRelease/AccessReleaseModel'
@@ -147,19 +148,30 @@ export class AccessReleaseService {
     endDate,
     accessReleaseId,
     tenantId,
-    status,
-    session
+    status
   }: IScheduleDisableProps): Promise<void> {
     const adjustedExecutionDate = new Date(endDate)
     adjustedExecutionDate.setHours(endDate.getHours() + 3)
 
     schedule.scheduleJob(adjustedExecutionDate, async () => {
-      await AccessReleaseServiceImp.disable({
-        id: accessReleaseId,
-        tenantId,
-        status,
-        session
-      })
+      const session = await database.startSession()
+      session.startTransaction()
+
+      try {
+        await AccessReleaseServiceImp.disable({
+          id: accessReleaseId,
+          tenantId,
+          status,
+          session
+        })
+
+        await session.commitTransaction()
+        session.endSession()
+      } catch (error) {
+        session.endSession()
+
+        console.error('Erro ao remover acessos do equipamentos:', error)
+      }
     })
   }
 

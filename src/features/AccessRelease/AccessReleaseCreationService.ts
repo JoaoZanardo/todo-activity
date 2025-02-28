@@ -31,25 +31,12 @@ class AccessReleaseCreationService {
     const createdAccessRelease = await AccessReleaseRepositoryImp.create(accessRelease, session)
 
     if (DateUtils.isToday(createdAccessRelease.endDate!)) {
-      const newSession = await database.startSession()
-      newSession.startTransaction()
-
-      try {
-        await AccessReleaseServiceImp.scheduleDisable({
-          endDate: createdAccessRelease.endDate!,
-          accessReleaseId: createdAccessRelease._id!,
-          tenantId,
-          status: AccessReleaseStatus.expired,
-          session: newSession
-        })
-
-        await newSession.commitTransaction()
-        newSession.endSession()
-      } catch (error) {
-        newSession.endSession()
-
-        console.error('Erro ao remover acessos do equipamentos:', error)
-      }
+      await AccessReleaseServiceImp.scheduleDisable({
+        endDate: createdAccessRelease.endDate!,
+        accessReleaseId: createdAccessRelease._id!,
+        tenantId,
+        status: AccessReleaseStatus.expired
+      })
     }
 
     if (DateUtils.isToday(createdAccessRelease.object.initDate!)) {

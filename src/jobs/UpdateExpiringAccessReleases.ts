@@ -17,25 +17,12 @@ export const UpdateExpiringAccessReleases = async () => {
       await Promise.all(
         accessReleases.map(async (accessRelease) => {
           if (accessRelease.endDate! > DateUtils.getCurrent()) {
-            const newSession = await database.startSession()
-            newSession.startTransaction()
-
-            try {
-              await AccessReleaseServiceImp.scheduleDisable({
-                accessReleaseId: accessRelease._id!,
-                endDate: accessRelease.endDate!,
-                tenantId: accessRelease.tenantId!,
-                status: AccessReleaseStatus.expired,
-                session: newSession
-              })
-
-              await newSession.commitTransaction()
-              newSession.endSession()
-            } catch (error) {
-              newSession.endSession()
-
-              console.error('Erro ao remover acessos do equipamentos:', error)
-            }
+            await AccessReleaseServiceImp.scheduleDisable({
+              accessReleaseId: accessRelease._id!,
+              endDate: accessRelease.endDate!,
+              tenantId: accessRelease.tenantId!,
+              status: AccessReleaseStatus.expired
+            })
           } else {
             await AccessReleaseServiceImp.disable({
               id: accessRelease._id!,
