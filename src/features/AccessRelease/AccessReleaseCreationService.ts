@@ -53,7 +53,7 @@ class AccessReleaseCreationService {
               personId,
               tenantId,
               accessRelease: createdAccessRelease.object,
-              session
+              session: newSession
             })
 
             await newSession.commitTransaction()
