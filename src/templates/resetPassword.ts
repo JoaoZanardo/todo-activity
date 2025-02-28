@@ -1,7 +1,7 @@
 import { UserModel } from '../models/User/UserModel'
 
 export const resetPasswordTemplate = (user: UserModel, token: string) => {
-  const logo = ''
+  const logo = 'https://modernizesoftwares.s3.us-east-2.amazonaws.com/logo2+1.png'
 
   const appName = 'Defense Control'
 
@@ -26,11 +26,11 @@ export const resetPasswordTemplate = (user: UserModel, token: string) => {
                 <tbody>
                   <tr>
                     <td>
-                      <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#006efe;padding:20px 0;text-align:center">
+                      <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#ff0000;padding:20px 0;text-align:center">
                         <tbody>
                           <tr>
                             <td align="center" style="text-align:center">
-                              <img alt="Logo" height="100" width="90" src=${logo} style="display:block;outline:none;border:none;text-decoration:none;margin:0 auto" />
+                              <img alt="Logo" height="75" width="75" src=${logo} style="display:block;outline:none;border:none;text-decoration:none;margin:0 auto" />
                             </td>
                           </tr>
                         </tbody>
@@ -44,7 +44,7 @@ export const resetPasswordTemplate = (user: UserModel, token: string) => {
                         <table align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="margin:24px 0;text-align:center">
                         <tr>
                         <td>
-                        <a href="${resetPasswordUrl}" style="text-decoration:none;display:inline-block;background-color:#007ee6;border-radius:4px;color:#fff;font-family:'Open Sans', 'Helvetica Neue', Arial;font-size:15px;text-align:center;width:210px;padding:14px 7px" target="_blank">Redefinir senha</a>
+                        <a href="${resetPasswordUrl}" style="text-decoration:none;display:inline-block;background-color:#ff0000;border-radius:4px;color:#fff;font-family:'Open Sans', 'Helvetica Neue', Arial;font-size:15px;text-align:center;width:210px;padding:14px 7px" target="_blank">Redefinir senha</a>
                         </td>
                         </tr>
                         </table>
