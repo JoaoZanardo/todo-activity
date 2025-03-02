@@ -122,7 +122,7 @@ export class UserAuthenticationService {
 
     await to(MailerServer.sendEmail({
       subject: 'Resete sua senha!',
-      html: resetPasswordTemplate(user, token),
+      html: resetPasswordTemplate(token, tenantId),
       receiver: email
     }))
   }

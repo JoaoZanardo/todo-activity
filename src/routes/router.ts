@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express'
 import { Aggregate } from 'mongoose'
 
+import env from '../config/env'
 import TenantController from '../features/Tenant/TenantController'
 import { customResponseMiddleware } from '../middlewares/customResponse'
 import { errorMiddleware } from '../middlewares/error'
@@ -113,6 +114,24 @@ router.get('/unauth/access-release-invitations/:accessReleaseInvitationId', asyn
     response.OK('Convite encontrado com sucesso!', {
       accessReleaseInvitation: accessReleaseInvitationModel.show
     })
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.get('/unauth/password-reset-requests/:token/:tenantId', async (request: Request, response: Response, next: NextFunction) => {
+  try {
+    const {
+      token,
+      tenantId
+    } = request.params
+
+    console.log({
+      token,
+      tenantId
+    })
+
+    response.redirect(`${env.resetPasswordUrl}/${token}/${tenantId}`)
   } catch (error) {
     next(error)
   }

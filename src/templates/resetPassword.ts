@@ -1,13 +1,13 @@
-import { UserModel } from '../models/User/UserModel'
+import { Types } from 'mongoose'
 
-export const resetPasswordTemplate = (user: UserModel, token: string) => {
+export const resetPasswordTemplate = (token: string, tenantId: Types.ObjectId) => {
   const logo = 'https://modernizesoftwares.s3.us-east-2.amazonaws.com/logo2+1.png'
 
   const appName = 'Defense Control'
 
   const text = `Olá, alguém solicitou recentemente uma alteração de senha para sua conta do ${appName}. Se foi você, você pode definir uma nova senha clicando aqui aqui:`
 
-  const resetPasswordUrl = `https://defense-server-v2-production.up.railway.app/unauth/password-reset-requests/${token}`
+  const resetPasswordUrl = `https://defense-server-v2-production.up.railway.app/unauth/password-reset-requests/${token}/${tenantId}`
 
   return `
       <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1-transitional.dtd">

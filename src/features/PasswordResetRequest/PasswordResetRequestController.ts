@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express'
 
-import env from '../../config/env'
 import { Controller } from '../../core/Controller'
 import Rules from '../../core/Rules'
 import { PasswordResetRequestRepositoryImp } from '../../models/PasswordResetRequest/PasswordResetRequestMongoDB'
@@ -30,18 +29,6 @@ class PasswordResetRequestController extends Controller {
         response.OK('Requisição para redefinição de senha encontrada com sucesso!', {
           passwordResetRequest: passwordResetRequest.show
         })
-      } catch (error) {
-        next(error)
-      }
-    })
-
-    this.router.get('/:token', async (request: Request, response: Response, next: NextFunction) => {
-      try {
-        const {
-          token
-        } = request.params
-
-        response.redirect(`${env.resetPasswordUrl}/${token}`)
       } catch (error) {
         next(error)
       }
