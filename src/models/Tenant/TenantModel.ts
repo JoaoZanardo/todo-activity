@@ -21,6 +21,7 @@ export interface ITenant {
   usersNumber?: number
   peopleNumber?: number
   invitationFacialValidation?: boolean
+  code?: string
 
   name: string
   email: string
@@ -39,6 +40,7 @@ export class TenantModel {
   private _peopleNumber?: ITenant['peopleNumber']
   private _freeTrial?: ITenant['freeTrial']
   private _invitationFacialValidation?: ITenant['invitationFacialValidation']
+  private _code?: ITenant['code']
 
   private _name: ITenant['name']
   private _email: ITenant['email']
@@ -56,6 +58,7 @@ export class TenantModel {
     this._usersNumber = tenant.usersNumber
     this._peopleNumber = tenant.peopleNumber
     this._invitationFacialValidation = tenant.invitationFacialValidation
+    this._code = tenant.code || this.randomCode
 
     this._name = tenant.name
     this._email = tenant.email
@@ -76,7 +79,8 @@ export class TenantModel {
       peopleNumber: this._peopleNumber,
       name: this._name,
       email: this._email,
-      invitationFacialValidation: this._invitationFacialValidation
+      invitationFacialValidation: this._invitationFacialValidation,
+      code: this._code
     }
   }
 
@@ -86,5 +90,20 @@ export class TenantModel {
 
   get email (): ITenant['email'] {
     return this._email
+  }
+
+  get code (): ITenant['code'] {
+    return this._code
+  }
+
+  private get randomCode (): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
+    let code = ''
+
+    for (let i = 0; i < 5; i++) {
+      code += chars[Math.floor(Math.random() * chars.length)]
+    }
+    return code
   }
 }

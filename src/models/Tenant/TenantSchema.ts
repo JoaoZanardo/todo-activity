@@ -30,6 +30,7 @@ class TenantSchema extends Schema<ITenantDocument> {
         type: Boolean,
         default: true
       },
+      code: String,
 
       name: {
         type: String,
