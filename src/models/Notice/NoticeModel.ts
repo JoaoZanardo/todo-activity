@@ -123,6 +123,8 @@ export class NoticeModel extends Model<INotice> {
 
     const parsedToday = format.boolean(today)
 
+    console.log({ parsedToday })
+
     if (parsedToday) {
       const startOfDay = new Date()
       startOfDay.setHours(0, 0, 0, 0)
