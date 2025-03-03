@@ -15,6 +15,7 @@ export interface IResetUserPasswordProps {
 
 export interface IListUsersFilters extends IListModelsFilters {
   accessGroupId?: Types.ObjectId
+  creationType?: UserCreationType
 }
 
 export interface IUpdateUserProps extends IUpdateModelProps<IUser> {}
@@ -144,13 +145,15 @@ export class UserModel extends Model<IUser> {
       limit,
       page,
       accessGroupId,
-      tenantId
+      tenantId,
+      creationType
     }: Partial<IListUsersFilters>
   ): IListUsersFilters {
     const filters = {
       deletionDate: undefined
     } as IListUsersFilters
 
+    if (creationType) Object.assign(filters, { creationType })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (accessGroupId) Object.assign(filters, { accessGroupId: ObjectId(accessGroupId) })
     if (search) {

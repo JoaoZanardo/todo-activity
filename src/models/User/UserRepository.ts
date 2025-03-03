@@ -48,6 +48,17 @@ export class UserRepository extends Repository<IUserMongoDB, UserModel> {
         }
       },
       {
+        $lookup: {
+          from: 'tenants',
+          localField: 'tenantId',
+          foreignField: '_id',
+          as: 'tenant'
+        }
+      },
+      {
+        $unwind: '$tenant'
+      },
+      {
         $project: {
           password: 0
         }

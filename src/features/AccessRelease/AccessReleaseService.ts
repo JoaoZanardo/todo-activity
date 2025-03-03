@@ -186,7 +186,9 @@ export class AccessReleaseService {
       tenantId
     })
 
-    const areasIds = accessRelease.areasIds?.length ? accessRelease.areasIds : await this.getAllAreasIdsByFinalAreaId(accessRelease.finalAreaId, tenantId)
+    const finalAreaId = accessRelease.finalAreasIds[0]
+
+    const areasIds = accessRelease.areasIds?.length ? accessRelease.areasIds : await this.getAllAreasIdsByFinalAreaId(finalAreaId, tenantId)
 
     await Promise.all(
       areasIds.map(async areaId => {

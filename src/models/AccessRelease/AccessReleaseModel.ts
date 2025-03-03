@@ -18,7 +18,6 @@ export interface IListAccessReleasesFilters extends IListModelsFilters {
   personTypeCategoryId?: Types.ObjectId
   accessPointId?: Types.ObjectId
   noticeId?: Types.ObjectId
-  finalAreaId?: Types.ObjectId
   status?: AccessReleaseStatus
 }
 
@@ -169,7 +168,7 @@ export interface IAccessRelease extends IModel {
 
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
-  finalAreaId: Types.ObjectId
+  finalAreasIds: Array<Types.ObjectId>
 }
 
 export class AccessReleaseModel extends Model<IAccessRelease> {
@@ -198,7 +197,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
 
   private _personId: IAccessRelease['personId']
   private _personTypeId: IAccessRelease['personTypeId']
-  private _finalAreaId: IAccessRelease['finalAreaId']
+  private _finalAreasIds: IAccessRelease['finalAreasIds']
 
   constructor (accessRelease: IAccessRelease) {
     super(accessRelease)
@@ -230,7 +229,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._type = accessRelease.type
     this._personId = ObjectId(accessRelease.personId)
     this._personTypeId = ObjectId(accessRelease.personTypeId)
-    this._finalAreaId = ObjectId(accessRelease.finalAreaId)
+    this._finalAreasIds = accessRelease.finalAreasIds.map(finalAreaId => ObjectId(finalAreaId))
     this.actions = accessRelease.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
@@ -320,7 +319,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       type: this._type,
       personId: this._personId,
       personTypeId: this._personTypeId,
-      finalAreaId: this._finalAreaId
+      finalAreasIds: this._finalAreasIds
     }
   }
 
@@ -344,7 +343,6 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       personTypeId,
       personId,
       accessPointId,
-      finalAreaId,
       noticeId,
       personTypeCategoryId,
       responsibleId,
@@ -357,7 +355,6 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
 
     if (status) Object.assign(filters, { status })
     if (accessPointId) Object.assign(filters, { accessPointId: ObjectId(accessPointId) })
-    if (finalAreaId) Object.assign(filters, { finalAreaId: ObjectId(finalAreaId) })
     if (noticeId) Object.assign(filters, { noticeId: ObjectId(noticeId) })
     if (personTypeCategoryId) Object.assign(filters, { personTypeCategoryId: ObjectId(personTypeCategoryId) })
     if (responsibleId) Object.assign(filters, { responsibleId: ObjectId(responsibleId) })
