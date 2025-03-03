@@ -94,6 +94,8 @@ class UserAuthenticationController extends Controller {
           cpf
         } = request.params
 
+        console.log({ cpf })
+
         const person = await PersonServiceImp.findByCpf({
           cpf,
           tenantId
