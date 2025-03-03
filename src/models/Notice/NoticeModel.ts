@@ -119,6 +119,8 @@ export class NoticeModel extends Model<INotice> {
       deletionDate: undefined
     } as IListNoticesFilters
 
+    console.log({ today })
+
     const parsedToday = format.boolean(today)
 
     if (parsedToday) {
