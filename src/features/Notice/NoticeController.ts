@@ -18,10 +18,11 @@ class NoticeController extends Controller {
   handle (): Router {
     this.router.get('/', async (request: Request, response: Response, next: NextFunction) => {
       try {
-        const { tenantId } = request
+        const { tenantId, personId } = request
 
         const filters = NoticeModel.listFilters({
           tenantId,
+          personId,
           ...request.query
         })
 

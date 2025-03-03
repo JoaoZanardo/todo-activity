@@ -59,8 +59,6 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
       deletionDate: null
     }
 
-    console.log({ match })
-
     const doc = await this.mongoDB.findOne(match).lean()
     if (!doc) return null
 
