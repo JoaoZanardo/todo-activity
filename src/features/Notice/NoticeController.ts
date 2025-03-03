@@ -20,8 +20,6 @@ class NoticeController extends Controller {
       try {
         const { tenantId } = request
 
-        console.log({ query: request.query })
-
         const filters = NoticeModel.listFilters({
           tenantId,
           ...request.query
