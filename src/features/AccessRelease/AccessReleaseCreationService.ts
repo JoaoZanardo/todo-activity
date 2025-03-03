@@ -145,7 +145,7 @@ class AccessReleaseCreationService {
       }],
       type: AccessReleaseType.invite,
       status: AccessReleaseStatus.scheduled,
-      finalAreaId: areaId,
+      finalAreasIds: [areaId],
       accessReleaseInvitationId: accessReleaseInvitation._id!,
       initDate: DateUtils.parse(initDate)!,
       endDate: DateUtils.parse(endDate)!

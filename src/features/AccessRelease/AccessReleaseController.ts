@@ -87,7 +87,7 @@ class AccessReleaseController extends Controller {
             singleAccess,
             personTypeCategoryId,
             initDate,
-            finalAreaId,
+            finalAreasIds,
             active,
             noticeId,
             workSchedulesCodes,
@@ -110,8 +110,7 @@ class AccessReleaseController extends Controller {
             { accessReleaseInvitationId, isRequiredField: false },
             { personId },
             { personTypeId },
-            { type },
-            { areaId: finalAreaId }
+            { type }
           )
 
           const accessReleaseModel = new AccessReleaseModel({
@@ -133,7 +132,7 @@ class AccessReleaseController extends Controller {
             personId,
             personTypeId,
             type,
-            finalAreaId,
+            finalAreasIds,
             noticeId,
             workSchedulesCodes,
             accessReleaseInvitationId,

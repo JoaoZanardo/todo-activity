@@ -86,7 +86,7 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       },
       active: true,
       status: AccessReleaseStatus.scheduled
-    }, ['_id', 'tenantId', 'initDate', 'endDate', 'areasIds', 'personId', 'actions', 'finalAreaId'])
+    }, ['_id', 'tenantId', 'initDate', 'endDate', 'areasIds', 'personId', 'actions', 'finalAreasIds'])
 
     return documents
   }

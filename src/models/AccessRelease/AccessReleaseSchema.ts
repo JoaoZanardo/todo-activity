@@ -74,8 +74,8 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         type: Types.ObjectId,
         required: true
       },
-      finalAreaId: {
-        type: Types.ObjectId,
+      finalAreasIds: {
+        type: Array<Types.ObjectId>,
         required: true
       }
     })
