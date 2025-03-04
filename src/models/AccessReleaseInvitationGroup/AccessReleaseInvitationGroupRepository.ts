@@ -80,6 +80,17 @@ export class AccessReleaseInvitationGroupRepository extends Repository<IAccessRe
   async list ({ limit, page, ...filters }: IListAccessReleaseInvitationGroupsFilters): Promise<IAggregatePaginate<IAccessReleaseInvitationGroup>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
+        }
+      },
+      {
+        $unwind: '$person'
+      },
       { $sort: { _id: -1 } }
     ])
 

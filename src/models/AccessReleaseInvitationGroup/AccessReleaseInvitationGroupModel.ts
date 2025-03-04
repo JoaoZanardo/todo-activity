@@ -2,11 +2,14 @@ import { Types } from 'mongoose'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
+import { IPerson } from '../../models/Person/PersonModel'
 import { DateUtils } from '../../utils/Date'
+import { format } from '../../utils/format'
 import ObjectId from '../../utils/ObjectId'
 
 export interface IListAccessReleaseInvitationGroupsFilters extends IListModelsFilters {
   personId?: Types.ObjectId
+  today?: boolean
 }
 
 export interface IUpdateAccessReleaseInvitationGroupProps extends IUpdateModelProps<IAccessReleaseInvitationGroup> { }
@@ -22,6 +25,8 @@ export interface IAccessReleaseInvitationGroup extends IModel {
   description?: string
   expired?: boolean
 
+  person?: IPerson
+
   title: string
   areaId: string
   initDate: Date
@@ -32,6 +37,8 @@ export interface IAccessReleaseInvitationGroup extends IModel {
 export class AccessReleaseInvitationGroupModel extends Model<IAccessReleaseInvitationGroup> {
   private _description?: IAccessReleaseInvitationGroup['description']
   private _expired?: IAccessReleaseInvitationGroup['expired']
+
+  private _person?: IAccessReleaseInvitationGroup['person']
 
   private _title: IAccessReleaseInvitationGroup['title']
   private _areaId: IAccessReleaseInvitationGroup['areaId']
@@ -44,6 +51,8 @@ export class AccessReleaseInvitationGroupModel extends Model<IAccessReleaseInvit
 
     this._description = accessReleaseInvitationGroup.description
     this._expired = accessReleaseInvitationGroup.expired
+
+    this._person = accessReleaseInvitationGroup.person
 
     this._title = accessReleaseInvitationGroup.title
     this._areaId = accessReleaseInvitationGroup.areaId
@@ -81,7 +90,8 @@ export class AccessReleaseInvitationGroupModel extends Model<IAccessReleaseInvit
 
   get show (): IAccessReleaseInvitationGroup {
     return {
-      ...this.object
+      ...this.object,
+      person: this._person
     }
   }
 
@@ -91,12 +101,28 @@ export class AccessReleaseInvitationGroupModel extends Model<IAccessReleaseInvit
       limit,
       page,
       tenantId,
-      personId
+      personId,
+      today
     }: Partial<IListAccessReleaseInvitationGroupsFilters>
   ): IListAccessReleaseInvitationGroupsFilters {
     const filters = {
       deletionDate: undefined
     } as IListAccessReleaseInvitationGroupsFilters
+
+    const parsedToday = format.boolean(today)
+
+    if (parsedToday) {
+      const startOfDay = new Date()
+      startOfDay.setHours(0, 0, 0, 0)
+
+      const endOfDay = new Date()
+      endOfDay.setHours(23, 59, 59, 999)
+
+      const createdAtFilter: any = {}
+
+      createdAtFilter.$gte = DateUtils.parse(startOfDay)
+      createdAtFilter.$lte = DateUtils.parse(endOfDay)
+    }
 
     if (personId) Object.assign(filters, { personId: ObjectId(personId) })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })

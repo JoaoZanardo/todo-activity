@@ -5,6 +5,7 @@ import Model from '../../core/Model'
 import ObjectId from '../../utils/ObjectId'
 import { IAccessGroup } from '../AccessGroup/AccessGroupModel'
 import { IPerson } from '../Person/PersonModel'
+import { ITenant } from '../Tenant/TenantModel'
 
 export interface IResetUserPasswordProps {
   password: string
@@ -67,6 +68,7 @@ export interface IUser extends IModel {
 
   accessGroup?: IAccessGroup
   person?: IPerson
+  tenant?: ITenant
 
   name: string
   login: string
@@ -82,6 +84,7 @@ export class UserModel extends Model<IUser> {
 
   private _accessGroup?: IUser['accessGroup']
   private _person?: IUser['person']
+  private _tenant?: IUser['tenant']
 
   private _name: IUser['name']
   private _login: IUser['login']
@@ -97,6 +100,7 @@ export class UserModel extends Model<IUser> {
 
     this._accessGroup = user.accessGroup
     this._person = user.person
+    this._tenant = user.tenant
 
     this._name = user.name
     this._login = user.login
@@ -135,7 +139,8 @@ export class UserModel extends Model<IUser> {
     return {
       ...this.object,
       accessGroup: this._accessGroup,
-      person: this._person
+      person: this._person,
+      tenant: this._tenant
     }
   }
 

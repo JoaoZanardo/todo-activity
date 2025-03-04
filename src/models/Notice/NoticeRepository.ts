@@ -30,6 +30,17 @@ export class NoticeRepository extends Repository<INoticeMongoDB, NoticeModel> {
           ...filters
         }
       },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
+        }
+      },
+      {
+        $unwind: '$person'
+      },
       { $sort: { _id: -1 } }
     ])
 
