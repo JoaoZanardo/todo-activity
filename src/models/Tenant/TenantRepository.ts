@@ -47,6 +47,15 @@ export class TenantRepository extends Repository<ITenantMongoDB, TenantModel> {
     return new TenantModel(document)
   }
 
+  async findByCode (code: string): Promise<TenantModel | null> {
+    const document = await this.mongoDB.findOne({
+      code
+    })
+    if (!document) return null
+
+    return new TenantModel(document)
+  }
+
   async findAll (): Promise<Array<Partial<ITenant>>> {
     return await this.mongoDB.find().sort({ _id: -1 }).select(['_id', 'name'])
   }

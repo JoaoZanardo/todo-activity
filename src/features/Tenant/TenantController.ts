@@ -35,6 +35,24 @@ class TenantController extends Controller {
       }
     })
 
+    this.router.get('/code/:code', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { code } = request.params
+
+        this.rules.validate(
+          { code }
+        )
+
+        const tenant = await TenantServiceImp.findByCode(code)
+
+        response.OK('Tenente encontrado com sucesso!', {
+          tenant: tenant.object
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
+
     this.router.get('/', async (request: Request, response: Response, next: NextFunction) => {
       try {
         const tenants = await TenantServiceImp.findAll()

@@ -30,6 +30,13 @@ export class TenantService {
     return tenant
   }
 
+  async findByCode (code: string): Promise<TenantModel> {
+    const tenant = await this.tenantRepositoryImp.findByCode(code)
+    if (!tenant) throw CustomResponse.NOT_FOUND('Tenente não cadastrado!')
+
+    return tenant
+  }
+
   async findAll (): Promise<Array<Partial<ITenant>>> {
     return await this.tenantRepositoryImp.findAll()
   }
