@@ -11,6 +11,7 @@ export interface IListNoticesFilters extends IListModelsFilters {
   areaId?: Types.ObjectId
   type?: NoticeType
   today?: boolean
+  discharged?: boolean
 }
 
 export interface IUpdateNoticeProps extends IUpdateModelProps<INotice> { }
@@ -111,7 +112,8 @@ export class NoticeModel extends Model<INotice> {
       areaId,
       personId,
       type,
-      today
+      today,
+      discharged
     }: Partial<IListNoticesFilters>
   ): IListNoticesFilters {
     const filters = {
@@ -132,6 +134,10 @@ export class NoticeModel extends Model<INotice> {
 
       createdAtFilter.$gte = DateUtils.parse(startOfDay)
       createdAtFilter.$lte = DateUtils.parse(endOfDay)
+    }
+
+    if ((discharged as any) === 'true' || (discharged as any) === 'false') {
+      Object.assign(filters, { discharged: format.boolean(discharged) })
     }
 
     if (areaId) Object.assign(filters, { areaId: ObjectId(areaId) })

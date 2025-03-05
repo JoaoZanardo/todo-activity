@@ -1,3 +1,4 @@
+import to from 'await-to-js'
 import { NextFunction, Request, Response, Router } from 'express'
 import { Types } from 'mongoose'
 
@@ -96,10 +97,10 @@ class UnauthRouter {
         let personId: Types.ObjectId | undefined = guestId ? ObjectId(guestId) : undefined
 
         if (!personId) {
-          const person = await PersonServiceImp.findByCpf({
+          const [_, person] = await to(PersonServiceImp.findByCpf({
             cpf,
             tenantId
-          })
+          }))
 
           if (person) {
             personId = person._id!

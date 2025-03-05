@@ -14,11 +14,14 @@ class NoticeSchema extends Schema<INoticeDocument> {
       observation: String,
       initDate: Date,
       endDate: Date,
-      discharged: Boolean,
       serviceType: String,
       serviceProviderName: String,
       deliveryType: String,
       deliveryProviderName: String,
+      discharged: {
+        type: Boolean,
+        default: false
+      },
 
       type: {
         type: String,
