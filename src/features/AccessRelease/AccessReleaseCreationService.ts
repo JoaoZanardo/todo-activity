@@ -134,7 +134,7 @@ class AccessReleaseCreationService {
 
     const currentDate = DateUtils.getCurrent()
 
-    const parsedEndDate = DateUtils.parse(endDate)!
+    const parsedInitDate = DateUtils.parse(initDate)!
 
     const accessReleaseModel = new AccessReleaseModel({
       picture,
@@ -151,8 +151,8 @@ class AccessReleaseCreationService {
       status: AccessReleaseStatus.scheduled,
       finalAreasIds: [areaId],
       accessReleaseInvitationId: accessReleaseInvitation._id!,
-      initDate: DateUtils.parse(initDate)!,
-      endDate: currentDate > parsedEndDate ? currentDate : endDate
+      initDate: currentDate > parsedInitDate ? currentDate : parsedInitDate,
+      endDate: DateUtils.parse(initDate)!
     })
 
     return await AccessReleaseRepositoryImp.create(accessReleaseModel, session)
