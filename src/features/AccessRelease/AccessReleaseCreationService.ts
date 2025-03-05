@@ -140,14 +140,9 @@ class AccessReleaseCreationService {
       observation
     } = accessReleaseInvitation.object
 
-    console.log({
-      initDate,
-      endDate,
-      personId,
-      areaId,
-      observation,
-      finalAreasIds: [areaId]
-    })
+    const currentDate = DateUtils.getCurrent()
+
+    const parsedEndDate = DateUtils.parse(endDate)!
 
     const accessReleaseModel = new AccessReleaseModel({
       picture,
@@ -165,7 +160,7 @@ class AccessReleaseCreationService {
       finalAreasIds: [areaId],
       accessReleaseInvitationId: accessReleaseInvitation._id!,
       initDate: DateUtils.parse(initDate)!,
-      endDate: DateUtils.parse(endDate)!
+      endDate: currentDate > parsedEndDate ? currentDate : endDate
     })
 
     return await AccessReleaseRepositoryImp.create(accessReleaseModel, session)

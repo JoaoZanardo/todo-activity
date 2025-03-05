@@ -10,6 +10,7 @@ import ObjectId from '../../utils/ObjectId'
 export interface IListAccessReleaseInvitationGroupsFilters extends IListModelsFilters {
   personId?: Types.ObjectId
   today?: boolean
+  expired?: boolean
 }
 
 export interface IUpdateAccessReleaseInvitationGroupProps extends IUpdateModelProps<IAccessReleaseInvitationGroup> { }
@@ -106,7 +107,8 @@ export class AccessReleaseInvitationGroupModel extends Model<IAccessReleaseInvit
     }: Partial<IListAccessReleaseInvitationGroupsFilters>
   ): IListAccessReleaseInvitationGroupsFilters {
     const filters = {
-      deletionDate: undefined
+      deletionDate: undefined,
+      expired: false
     } as IListAccessReleaseInvitationGroupsFilters
 
     const parsedToday = format.boolean(today)
