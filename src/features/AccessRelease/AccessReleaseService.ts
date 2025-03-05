@@ -51,8 +51,6 @@ export class AccessReleaseService {
       tenantId
     })
 
-    console.log({ accessRelease }, 'Third')
-
     return accessRelease
   }
 
