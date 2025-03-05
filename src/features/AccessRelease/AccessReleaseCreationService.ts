@@ -96,6 +96,14 @@ class AccessReleaseCreationService {
       tenantId
     })
 
+    console.log({
+      accessReleaseInvitationId,
+      tenantId,
+      guestId,
+      personTypeId,
+      picture
+    })
+
     if (exists) {
       throw CustomResponse.CONFLICT('Já existe uma liberação de acesso cadastrada com esse convite!', {
         accessReleaseInvitationId
