@@ -229,7 +229,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._type = accessRelease.type
     this._personId = ObjectId(accessRelease.personId)
     this._personTypeId = ObjectId(accessRelease.personTypeId)
-    this._finalAreasIds = accessRelease.finalAreasIds.map(finalAreaId => ObjectId(finalAreaId))
+    this._finalAreasIds = accessRelease.finalAreasIds.map(finalAreaId => ObjectId(finalAreaId)) ?? []
     this.actions = accessRelease.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
