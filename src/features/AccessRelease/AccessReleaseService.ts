@@ -51,7 +51,7 @@ export class AccessReleaseService {
       tenantId
     })
 
-    console.log({ accessRelease: accessRelease?.show })
+    console.log({ accessRelease })
 
     return accessRelease
   }
