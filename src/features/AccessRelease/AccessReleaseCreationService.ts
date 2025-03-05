@@ -115,18 +115,12 @@ class AccessReleaseCreationService {
       tenantId
     })
 
-    console.log({ lastAccessRelease })
-
     this.validateAccessReleaseStatus(lastAccessRelease)
-
-    console.log('After Validation')
 
     const accessReleaseInvitation = await AccessReleaseInvitationServiceImp.findById({
       id: accessReleaseInvitationId,
       tenantId
     })
-
-    console.log({ accessReleaseInvitation })
 
     await AccessReleaseInvitationServiceImp.update({
       id: accessReleaseInvitation._id!,
@@ -145,6 +139,15 @@ class AccessReleaseCreationService {
       areaId,
       observation
     } = accessReleaseInvitation.object
+
+    console.log({
+      initDate,
+      endDate,
+      personId,
+      areaId,
+      observation,
+      finalAreasIds: [areaId]
+    })
 
     const accessReleaseModel = new AccessReleaseModel({
       picture,
@@ -169,8 +172,6 @@ class AccessReleaseCreationService {
   }
 
   private validateAccessReleaseStatus (accessRelease: AccessReleaseModel | null): void {
-    console.log({ accessRelease }, 'validateAccessReleaseStatus')
-
     if (
       accessRelease &&
       accessRelease.status === AccessReleaseStatus.active

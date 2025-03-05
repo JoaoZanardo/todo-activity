@@ -226,6 +226,11 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._personTypeCategory = accessRelease.personTypeCategory
     this._accessPoint = accessRelease.accessPoint
 
+    console.log({
+      finalAreasIds: accessRelease.finalAreasIds,
+      accessRelease
+    })
+
     this._type = accessRelease.type
     this._personId = ObjectId(accessRelease.personId)
     this._personTypeId = ObjectId(accessRelease.personTypeId)
