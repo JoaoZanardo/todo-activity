@@ -152,7 +152,7 @@ class AccessReleaseCreationService {
       finalAreasIds: [areaId],
       accessReleaseInvitationId: accessReleaseInvitation._id!,
       initDate: currentDate > parsedInitDate ? currentDate : parsedInitDate,
-      endDate: DateUtils.parse(initDate)!
+      endDate: DateUtils.parse(endDate)!
     })
 
     return await AccessReleaseRepositoryImp.create(accessReleaseModel, session)
