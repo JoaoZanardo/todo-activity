@@ -272,7 +272,11 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
 
     const accessRelease = documents.docs[0]
 
+    console.log({ accessRelease }, 'First')
+
     if (!accessRelease) return null
+
+    console.log({ accessRelease }, 'Second')
 
     return new AccessReleaseModel(accessRelease)
   }
