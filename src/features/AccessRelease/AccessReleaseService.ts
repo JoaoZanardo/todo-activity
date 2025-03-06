@@ -158,6 +158,13 @@ export class AccessReleaseService {
       session.startTransaction()
 
       try {
+        const accessRelease = await this.findById({
+          id: accessReleaseId,
+          tenantId
+        })
+
+        if (accessRelease.status !== AccessReleaseStatus.active) throw CustomResponse.CONFLICT('Liberação de acesso não ativa!')
+
         await AccessReleaseServiceImp.disable({
           id: accessReleaseId,
           tenantId,
@@ -383,7 +390,7 @@ export class AccessReleaseService {
   }
 
   private async getAllAreasIdsByFinalAreaId (finalAreaId: Types.ObjectId, tenantId: Types.ObjectId): Promise<Array<Types.ObjectId>> {
-    const areasIds: Array<Types.ObjectId> = []
+    const areasIds: Array<Types.ObjectId> = [finalAreaId]
 
     let currentArea = await AreaServiceImp.findById({
       id: finalAreaId,

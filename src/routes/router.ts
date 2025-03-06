@@ -131,7 +131,7 @@ router.get('/unauth/password-reset-requests/:token/:tenantId', async (request: R
       tenantId
     })
 
-    response.redirect(`${env.resetPasswordUrl}/${token}/${tenantId}`)
+    response.redirect(`${env.resetPasswordUrl}${token}/${tenantId}`)
   } catch (error) {
     next(error)
   }
