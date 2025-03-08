@@ -111,13 +111,13 @@ class TenantController extends Controller {
       }
     })
 
-    this.router.patch('/:tenanId', async (request: Request, response: Response, next: NextFunction) => {
+    this.router.patch('/:tenantId', async (request: Request, response: Response, next: NextFunction) => {
       try {
         const { tenantId } = request.params
 
         const {
           serverIPAddress
-        } = request.params
+        } = request.body
 
         console.log({
           serverIPAddress,
