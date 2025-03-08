@@ -19,6 +19,8 @@ export interface IListAccessReleasesFilters extends IListModelsFilters {
   accessPointId?: Types.ObjectId
   noticeId?: Types.ObjectId
   status?: AccessReleaseStatus
+  initDate?: Date
+  endDate?: Date
 }
 
 export interface IUpdateAccessReleaseProps extends IUpdateModelProps<IAccessRelease> { }
@@ -236,6 +238,14 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     }]
   }
 
+  get workSchedulesCodes (): IAccessRelease['workSchedulesCodes'] {
+    return this._workSchedulesCodes
+  }
+
+  set workSchedulesCodes (workSchedulesCodes: IAccessRelease['workSchedulesCodes']) {
+    this._workSchedulesCodes = workSchedulesCodes
+  }
+
   get status (): IAccessRelease['status'] {
     return this._status
   }
@@ -346,12 +356,28 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       noticeId,
       personTypeCategoryId,
       responsibleId,
-      status
+      status,
+      initDate,
+      endDate
     }: Partial<IListAccessReleasesFilters>
   ): IListAccessReleasesFilters {
     const filters = {
       deletionDate: undefined
     } as IListAccessReleasesFilters
+
+    if (initDate || endDate) {
+      const createdAtFilter: any = {}
+
+      if (initDate) {
+        createdAtFilter.$gte = DateUtils.parse(initDate)
+      }
+
+      if (endDate) {
+        createdAtFilter.$lte = DateUtils.parse(endDate)
+      }
+
+      Object.assign(filters, { createdAt: createdAtFilter })
+    }
 
     if (status) Object.assign(filters, { status })
     if (accessPointId) Object.assign(filters, { accessPointId: ObjectId(accessPointId) })

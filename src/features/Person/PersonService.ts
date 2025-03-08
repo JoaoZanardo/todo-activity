@@ -1,4 +1,4 @@
-import { ClientSession } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
@@ -26,6 +26,14 @@ export class PersonService {
       id,
       tenantId
     })
+
+    if (!person) throw CustomResponse.NOT_FOUND('Pessoa não cadastrada!')
+
+    return person
+  }
+
+  async findOneByIdWithNoTenantId (id: Types.ObjectId): Promise<PersonModel> {
+    const person = await this.personRepositoryImp.findfindOneByIdWithNoTenantIdById(id)
 
     if (!person) throw CustomResponse.NOT_FOUND('Pessoa não cadastrada!')
 
@@ -116,6 +124,13 @@ export class PersonService {
 
     const cnh = person.object.cnh
 
+    if (person.cpf) {
+      this.validateDuplicatedCpf({
+        cpf: person.cpf,
+        tenantId
+      })
+    }
+
     if (cnh?.value) {
       await this.validateDuplicatedCnh({
         cnh: cnh.value,
@@ -137,6 +152,11 @@ export class PersonService {
       id,
       tenantId
     })
+
+    if (data.cpf) {
+      // eslint-disable-next-line no-irregular-whitespace
+      data.cpf = data.cpf.replace(/\D/g, '')
+    }
 
     if (data.active === false) {
       const accessRelease = await AccessReleaseServiceImp.findLastByPersonId({

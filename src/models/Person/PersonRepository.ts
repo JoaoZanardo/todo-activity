@@ -1,4 +1,4 @@
-import { Aggregate, ClientSession, FilterQuery } from 'mongoose'
+import { Aggregate, ClientSession, FilterQuery, Types } from 'mongoose'
 
 import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
@@ -27,6 +27,17 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
     const people = await this.mongoDB.aggregatePaginate(aggregationStages)
 
     const person = people.docs[0]
+
+    if (!person) return null
+
+    return new PersonModel(person)
+  }
+
+  async findfindOneByIdWithNoTenantIdById (id: Types.ObjectId): Promise<PersonModel | null> {
+    const person = await this.mongoDB.findOne({
+      _id: id,
+      deletionDate: null
+    })
 
     if (!person) return null
 

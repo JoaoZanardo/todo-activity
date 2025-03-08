@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response, Router } from 'express'
 import { Aggregate } from 'mongoose'
 
+import database from '../config/database'
 import env from '../config/env'
+import { AccessControlServiceImp } from '../features/AccessControl/AccessControlController'
 import TenantController from '../features/Tenant/TenantController'
 import { customResponseMiddleware } from '../middlewares/customResponse'
 import { errorMiddleware } from '../middlewares/error'
@@ -115,6 +117,39 @@ router.get('/unauth/access-release-invitations/:accessReleaseInvitationId', asyn
       accessReleaseInvitation: accessReleaseInvitationModel.show
     })
   } catch (error) {
+    next(error)
+  }
+})
+
+router.post('/unauth/access-controls/equipment', async (request: Request, response: Response, next: NextFunction) => {
+  const session = await database.startSession()
+  session.startTransaction()
+
+  try {
+    const {
+      equipmentIp,
+      personId,
+      accessType
+      // picture
+    } = request.body
+
+    const accessControl = await AccessControlServiceImp.createByEquipmentIp({
+      equipmentIp,
+      personId: ObjectId(personId),
+      session,
+      picture: 'https://livenessresult.s3.us-east-1.amazonaws.com/555bd4f9-5e99-4ba1-ad10-9498f3a9d7ec/reference.jpg',
+      releaseType: accessType
+    })
+
+    await session.commitTransaction()
+    session.endSession()
+
+    response.CREATED('Controle de acesso cadastrado com sucesso!', {
+      accessControl: accessControl.show
+    })
+  } catch (error) {
+    session.endSession()
+
     next(error)
   }
 })

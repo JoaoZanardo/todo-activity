@@ -1,3 +1,4 @@
+/* eslint-disable no-irregular-whitespace */
 import { ClientSession, Types } from 'mongoose'
 
 import { IListModelsFilters, IModel, ModelAction } from '../../core/interfaces/Model'
@@ -152,7 +153,7 @@ export class PersonModel extends Model<IPerson> {
     this._role = person.role
     this._rg = person.rg
     this._passport = person.passport
-    this._cpf = person.cpf
+    this._cpf = person.cpf ? person.cpf.replace(/\D/g, '') : undefined
     this._picture = person.picture
     this._personTypeCategoryId = person.personTypeCategoryId
     this._personType = person.personType

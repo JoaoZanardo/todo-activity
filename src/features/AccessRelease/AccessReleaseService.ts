@@ -16,7 +16,6 @@ import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseControlle
 import { AreaServiceImp } from '../Area/AreaController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
-import { PersonTypeServiceImp } from '../PersonType/PersonTypeController'
 
 export class AccessReleaseService {
   constructor (
@@ -334,14 +333,7 @@ export class AccessReleaseService {
       equipmentsIds.map(async (equipmentId) => {
         const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
 
-        const personTypeId = person.personTypeId
-
-        const personType = await PersonTypeServiceImp.findById({
-          id: personTypeId,
-          tenantId
-        })
-
-        const workSchedulesCodes = personType.object.workSchedulesCodes
+        const workSchedulesCodes = accessRelease.workSchedulesCodes
 
         const schedules = workSchedulesCodes?.length
           ? workSchedulesCodes.map(scheduleCode => {

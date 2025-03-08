@@ -5,7 +5,6 @@ import { Types } from 'mongoose'
 import database from '../config/database'
 import { ModelAction } from '../core/interfaces/Model'
 import Rules from '../core/Rules'
-import { AccessControlServiceImp } from '../features/AccessControl/AccessControlController'
 import AccessReleaseCreationService from '../features/AccessRelease/AccessReleaseCreationService'
 import PasswordResetRequestController from '../features/PasswordResetRequest/PasswordResetRequestController'
 import { PersonServiceImp } from '../features/Person/PersonController'
@@ -23,38 +22,6 @@ class UnauthRouter {
     this.unauthRouter.use('/', UserAuthenticationController)
 
     this.unauthRouter.use('/password-reset-requests', PasswordResetRequestController)
-
-    this.unauthRouter.post('/access-controls/equipment', async (request: Request, response: Response, next: NextFunction) => {
-      const session = await database.startSession()
-      session.startTransaction()
-
-      try {
-        const { tenantId } = request
-
-        const {
-          equipmentIp,
-          personId
-        } = request.body
-
-        const accessControl = await AccessControlServiceImp.createByEquipmentIp({
-          equipmentIp,
-          personId: ObjectId(personId),
-          tenantId,
-          session
-        })
-
-        await session.commitTransaction()
-        session.endSession()
-
-        response.CREATED('Controle de acesso cadastrado com sucesso!', {
-          accessControl: accessControl.show
-        })
-      } catch (error) {
-        session.endSession()
-
-        next(error)
-      }
-    })
 
     this.unauthRouter.post('/people/access-releases', async (request: Request, response: Response, next: NextFunction) => {
       const session = await database.startSession()

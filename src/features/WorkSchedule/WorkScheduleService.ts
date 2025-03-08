@@ -1,5 +1,5 @@
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
-import { IDeleteWorkScheduleProps, IListWorkSchedulesFilters, IUpdateWorkScheduleProps, IWorkSchedule, WorkScheduleModel } from '../../models/WorkSchedule/WorkScheduleModel'
+import { IDeleteWorkScheduleProps, IFindWorkScheduleByCodeProps, IListWorkSchedulesFilters, IUpdateWorkScheduleProps, IWorkSchedule, WorkScheduleModel } from '../../models/WorkSchedule/WorkScheduleModel'
 import { WorkScheduleRepositoryImp } from '../../models/WorkSchedule/WorkScheduleMongoDB'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
@@ -19,6 +19,20 @@ export class WorkScheduleService {
   }: IFindModelByIdProps): Promise<WorkScheduleModel> {
     const workSchedule = await this.workScheduleRepositoryImp.findById({
       id,
+      tenantId
+    })
+
+    if (!workSchedule) throw CustomResponse.NOT_FOUND('Jornada de trabalho não cadastrada!')
+
+    return workSchedule
+  }
+
+  async findByCode ({
+    code,
+    tenantId
+  }: IFindWorkScheduleByCodeProps): Promise<WorkScheduleModel> {
+    const workSchedule = await this.workScheduleRepositoryImp.findByCode({
+      code,
       tenantId
     })
 

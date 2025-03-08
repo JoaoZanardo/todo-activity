@@ -181,7 +181,8 @@ class PersonTypeController extends Controller {
               expiringTime,
               appAccess,
               active,
-              updationTime
+              updationTime,
+              workSchedulesCodes
             },
             responsibleId: userId
           })
