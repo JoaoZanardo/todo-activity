@@ -119,6 +119,11 @@ class TenantController extends Controller {
           serverIPAddress
         } = request.params
 
+        console.log({
+          serverIPAddress,
+          tenantId
+        })
+
         await TenantServiceImp.update(ObjectId(tenantId), {
           serverIPAddress
         })
