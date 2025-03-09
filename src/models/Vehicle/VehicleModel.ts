@@ -13,17 +13,22 @@ export interface IUpdateVehicleProps extends IUpdateModelProps<IVehicle> { }
 
 export interface IDeleteVehicleProps extends IDeleteModelProps { }
 
+export interface IFIndVehicleByPlateProps {
+  plate: string
+  tenantId: Types.ObjectId
+}
+
 export interface IVehicle extends IModel {
   description?: string
   brand?: string
-  model?: string
+  pattern?: string
   color?: string
   chassis?: string
   factoryVin?: string
   detranVin?: string
   manufactureYear?: string
   modelYear?: string
-  type?: string
+  vehicleType?: string
   gasGrade?: string
 
   plate: string
@@ -33,14 +38,14 @@ export interface IVehicle extends IModel {
 export class VehicleModel extends Model<IVehicle> {
   private _description?: IVehicle['description']
   private _brand?: IVehicle['brand']
-  private _model?: IVehicle['model']
+  private _pattern?: IVehicle['pattern']
   private _color?: IVehicle['color']
   private _chassis?: IVehicle['chassis']
   private _factoryVin?: IVehicle['factoryVin']
   private _detranVin?: IVehicle['detranVin']
   private _manufactureYear?: IVehicle['manufactureYear']
   private _modelYear?: IVehicle['modelYear']
-  private _type?: IVehicle['type']
+  private vVehicleType?: IVehicle['vehicleType']
   private _gasGrade?: IVehicle['gasGrade']
 
   private _plate: IVehicle['plate']
@@ -51,14 +56,14 @@ export class VehicleModel extends Model<IVehicle> {
 
     this._description = vehicle.description
     this._brand = vehicle.brand
-    this._model = vehicle.model
+    this._pattern = vehicle.pattern
     this._color = vehicle.color
     this._chassis = vehicle.chassis
     this._factoryVin = vehicle.factoryVin
     this._detranVin = vehicle.detranVin
     this._manufactureYear = vehicle.manufactureYear
     this._modelYear = vehicle.modelYear
-    this._type = vehicle.type
+    this.vVehicleType = vehicle.vehicleType
     this._gasGrade = vehicle.gasGrade
 
     this._plate = vehicle.plate
@@ -83,14 +88,14 @@ export class VehicleModel extends Model<IVehicle> {
       deletionDate: this.deletionDate,
       description: this._description,
       brand: this._brand,
-      model: this._model,
+      pattern: this._pattern,
       color: this._color,
       chassis: this._chassis,
       factoryVin: this._factoryVin,
       detranVin: this._detranVin,
       manufactureYear: this._manufactureYear,
       modelYear: this._modelYear,
-      type: this._type,
+      vehicleType: this.vVehicleType,
       gasGrade: this._gasGrade,
       plate: this._plate,
       personId: this._personId

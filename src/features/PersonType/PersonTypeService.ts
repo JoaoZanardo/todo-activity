@@ -2,7 +2,7 @@ import { ClientSession } from 'mongoose'
 
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { IDeletePersonTypeProps, IListPersonTypesFilters, IPersonType, IUpdatePersonTypeProps, PersonTypeModel } from '../../models/PersonType/PersonTypeModel'
+import { IDeletePersonTypeProps, IFindAllPersonTypesByWorkScheduleCodeProps, IListPersonTypesFilters, IPersonType, IUpdatePersonTypeProps, PersonTypeModel } from '../../models/PersonType/PersonTypeModel'
 import { PersonTypeRepositoryImp } from '../../models/PersonType/PersonTypeMongoDB'
 import { PersonTypeFormModel } from '../../models/PersonTypeForm/PersonTypeFormModel'
 import CustomResponse from '../../utils/CustomResponse'
@@ -45,6 +45,16 @@ export class PersonTypeService {
     if (!personType) throw CustomResponse.NOT_FOUND('Tipo de pessoa não cadastrado!')
 
     return personType
+  }
+
+  async findAllByWorkScheduleCode ({
+    workScheduleCode,
+    tenantId
+  }: IFindAllPersonTypesByWorkScheduleCodeProps): Promise<Array<Partial<IPersonType>>> {
+    return await this.personTypeRepositoryImp.findAllByWorkScheduleCode({
+      workScheduleCode,
+      tenantId
+    })
   }
 
   async create (personType: PersonTypeModel, session: ClientSession): Promise<PersonTypeModel> {

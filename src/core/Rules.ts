@@ -81,6 +81,11 @@ export default class Rules {
       validator: (value: string) => is.objectId(value),
       message: 'Identificador do convidado inválido. Informe um identificador válido!'
     })
+
+    this.validator.addRule('vehicleId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador do veículo inválido. Informe um identificador válido!'
+    })
   }
 
   public invalid (...args: Array<{ [key: string]: any, isRequiredField?: boolean } | null | undefined>): any {

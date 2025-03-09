@@ -17,6 +17,7 @@ import PersonTypeController from '../features/PersonType/PersonTypeController'
 import PersonTypeCategoryController from '../features/PersonTypeCategory/PersonTypeCategoryController'
 import PersonTypeFormController from '../features/PersonTypeForm/PersonTypeFormController'
 import UserController from '../features/User/UserController'
+import VehicleController from '../features/Vehicle/VehicleController'
 import WorkScheduleController from '../features/WorkSchedule/WorkScheduleController'
 import { S3Middleware } from '../middlewares/S3'
 import { userAuthMiddleware } from '../middlewares/userAuth'
@@ -80,6 +81,7 @@ class AuthRouter {
     this.authRouter.use('/notices', NoticeController)
     this.authRouter.use('/access-release-invitations', AccessReleaseInvitationController)
     this.authRouter.use('/access-release-invitation-groups', AccessReleaseInvitationGroupController)
+    this.authRouter.use('/vehicles', VehicleController)
 
     return this.authRouter
   }
