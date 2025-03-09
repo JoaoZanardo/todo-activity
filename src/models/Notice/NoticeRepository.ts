@@ -24,21 +24,22 @@ export class NoticeRepository extends Repository<INoticeMongoDB, NoticeModel> {
   }
 
   async list ({ limit, page, ...filters }: IListNoticesFilters): Promise<IAggregatePaginate<INotice>> {
-    const startOfDay = new Date()
-    startOfDay.setHours(0, 0, 0, 0)
-
-    const endOfDay = new Date()
-    endOfDay.setHours(23, 59, 59, 999)
-
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       {
         $match: {
-          ...filters,
-          createdAt: {
-            $lte: endOfDay,
-            $gte: startOfDay
-          }
+          ...filters
         }
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
+        }
+      },
+      {
+        $unwind: '$person'
       },
       { $sort: { _id: -1 } }
     ])

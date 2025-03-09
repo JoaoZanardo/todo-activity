@@ -1,7 +1,7 @@
 import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
-import { AccessControlType, IAccessControl } from './AccessControlModel'
+import { AccessControlReleaseType, AccessControlType, IAccessControl } from './AccessControlModel'
 
 export interface IAccessControlDocument extends Document, Omit<IAccessControl, '_id'> { }
 
@@ -11,25 +11,61 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
   constructor () {
     const accessControl = new mongoose.Schema({
       ...coreSchema,
-      picture: String,
-      personTypeCategoryId: Types.ObjectId,
-
+      responsible: {
+        id: Types.ObjectId,
+        name: String
+      },
+      observation: String,
+      equipment: {
+        id: Types.ObjectId,
+        name: String,
+        ip: String
+      },
       type: {
         type: String,
-        enum: AccessControlType,
+        enum: AccessControlType
+      },
+
+      releaseType: {
+        type: String,
+        enum: AccessControlReleaseType,
         required: true
       },
-      personId: {
-        type: Types.ObjectId,
-        required: true
+      person: {
+        id: Types.ObjectId,
+        name: {
+          type: String,
+          required: true
+        },
+        picture: {
+          type: String
+        },
+        personType: {
+          id: Types.ObjectId,
+          name: {
+            type: String,
+            required: true
+          }
+        },
+        personTypeCategory: {
+          id: Types.ObjectId,
+          name: String
+        }
       },
-      personTypeId: {
-        type: Types.ObjectId,
-        required: true
-      },
-      accessPointId: {
-        type: Types.ObjectId,
-        required: true
+      accessPoint: {
+        id: Types.ObjectId,
+        name: {
+          type: String,
+          required: true
+        },
+        area: {
+          id: Types.ObjectId,
+          name: String
+        },
+        accessArea: {
+          id: Types.ObjectId,
+          name: String
+        }
       },
       accessReleaseId: {
         type: Types.ObjectId,

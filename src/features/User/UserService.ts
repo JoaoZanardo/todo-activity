@@ -1,7 +1,8 @@
 import { ClientSession } from 'mongoose'
 
 import { IDeleteModelProps, IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
-import { IFindUserByLoginProps, IListUsersFilters, IUpdateUserProps, UserModel } from '../../models/User/UserModel'
+import Bcrypt from '../../libraries/Bcrypt'
+import { IFindUserByEmailProps, IFindUserByLoginProps, IListUsersFilters, IUpdateUserProps, UserModel } from '../../models/User/UserModel'
 import { UserRepositoryImp } from '../../models/User/UserMongoDB'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
@@ -21,20 +22,6 @@ export class UserService {
   async create (user: UserModel, session?: ClientSession): Promise<UserModel> {
     await this.validateDuplicatedLogin(user.object)
 
-    // const count = await CountServiceImp.findByTenantId(tenantId)
-
-    // if (count.usersCount! >= tenant.usersNumber!) {
-    //   throw CustomResponse.CONFLICT('Número máximo de usuários atingido, atualize seu plano para cadastrar mais usuários!')
-    // }
-
-    // await CountServiceImp.update({
-    //   id: count._id!,
-    //   tenantId,
-    //   data: {
-    //     usersCount: (count.usersCount! + 1)
-    //   }
-    // })
-
     const createdUser = await this.userRepositoryImp.create(user, session)
 
     return createdUser
@@ -50,6 +37,10 @@ export class UserService {
       id,
       tenantId
     })
+
+    if (data.password) {
+      data.password = await Bcrypt.hash(data.password)
+    }
 
     const updated = await this.userRepositoryImp.update({
       id,
@@ -122,6 +113,23 @@ export class UserService {
     if (!user) {
       throw CustomResponse.NOT_FOUND('Usuário não cadastrado!', {
         userId: id
+      })
+    }
+
+    return user
+  }
+
+  async findByEmail ({
+    email,
+    tenantId
+  }: IFindUserByEmailProps): Promise<UserModel> {
+    const user = await this.userRepositoryImp.findByEmail({
+      email,
+      tenantId
+    })
+    if (!user) {
+      throw CustomResponse.NOT_FOUND('Usuário não cadastrado!', {
+        email
       })
     }
 

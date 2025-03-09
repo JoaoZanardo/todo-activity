@@ -28,6 +28,10 @@ class WorkScheduleSchema extends Schema<IWorkScheduleDocument> {
       endTime: {
         type: String,
         required: true
+      },
+      code: {
+        type: Number,
+        required: true
       }
     })
 

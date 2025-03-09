@@ -5,7 +5,7 @@ import { AreaModel } from '../../models/Area/AreaModel'
 import { PersonTypeModel, TimeUnit } from '../../models/PersonType/PersonTypeModel'
 import { PersonTypeRepositoryImp } from '../../models/PersonType/PersonTypeMongoDB'
 import { PersonTypeFormModel } from '../../models/PersonTypeForm/PersonTypeFormModel'
-import { TenantModel } from '../../models/Tenant/TenantModel'
+import { ITenant, TenantModel } from '../../models/Tenant/TenantModel'
 import { TenantRepositoryImp } from '../../models/Tenant/TenantMongoDB'
 import { UserModel } from '../../models/User/UserModel'
 import MailerServer from '../../services/MailerServer'
@@ -30,6 +30,17 @@ export class TenantService {
     return tenant
   }
 
+  async findByCode (code: string): Promise<TenantModel> {
+    const tenant = await this.tenantRepositoryImp.findByCode(code)
+    if (!tenant) throw CustomResponse.NOT_FOUND('Tenente não cadastrado!')
+
+    return tenant
+  }
+
+  async findAll (): Promise<Array<Partial<ITenant>>> {
+    return await this.tenantRepositoryImp.findAll()
+  }
+
   async create (tenant: TenantModel, session: ClientSession): Promise<TenantModel> {
     await this.validateDuplicatedEmail(tenant.email)
 
@@ -40,6 +51,35 @@ export class TenantService {
     await this.sendEmailWithTenantInfo(createdTenant, session)
 
     return createdTenant
+  }
+
+  async update (id: Types.ObjectId, data: Partial<ITenant>): Promise<void> {
+    const tenant = await this.findById(id)
+
+    const updated = await this.tenantRepositoryImp.updateById({
+      id,
+      data: {
+        ...data,
+        actions: [
+          ...tenant.actions!,
+          (
+            data.deletionDate ? {
+              action: ModelAction.delete,
+              date: DateUtils.getCurrent()
+            } : {
+              action: ModelAction.update,
+              date: DateUtils.getCurrent()
+            }
+          )
+        ]
+      }
+    })
+
+    if (!updated) {
+      throw CustomResponse.INTERNAL_SERVER_ERROR('Ocorreu um erro ao tentar atualizar tenente!', {
+        tenantId: id
+      })
+    }
   }
 
   private async validateDuplicatedEmail (email: string): Promise<void> {

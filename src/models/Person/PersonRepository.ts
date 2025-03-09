@@ -1,9 +1,10 @@
-import { Aggregate, FilterQuery } from 'mongoose'
+import { Aggregate, ClientSession, FilterQuery, Types } from 'mongoose'
 
 import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { IFindPersonByCpfProps, IListPersonsFilters, IPerson, PersonModel } from './PersonModel'
+import { DateUtils } from '../../utils/Date'
+import { IFindAllByPersonTypeId, IFindPersonByCnhProps, IFindPersonByCpfProps, IListPersonsFilters, IPerson, PersonModel } from './PersonModel'
 import { IPersonMongoDB } from './PersonSchema'
 
 export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
@@ -19,13 +20,24 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
           deletionDate: null
         }
       },
-      ...this.$lookupAndUnwindStages(),
+      ...this.$lookupAndUnwindStages(true),
       { $sort: { _id: -1 } }
     ])
 
     const people = await this.mongoDB.aggregatePaginate(aggregationStages)
 
     const person = people.docs[0]
+
+    if (!person) return null
+
+    return new PersonModel(person)
+  }
+
+  async findfindOneByIdWithNoTenantIdById (id: Types.ObjectId): Promise<PersonModel | null> {
+    const person = await this.mongoDB.findOne({
+      _id: id,
+      deletionDate: null
+    })
 
     if (!person) return null
 
@@ -64,92 +76,96 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
     return new PersonModel(doc)
   }
 
-  async create (person: PersonModel): Promise<PersonModel> {
-    const document = await this.mongoDB.create(person.object)
+  async findByCnh ({
+    cnh,
+    tenantId
+  }: IFindPersonByCnhProps): Promise<PersonModel | null> {
+    const match: FilterQuery<IPerson> = {
+      'cnh.value': cnh,
+      tenantId,
+      deletionDate: null
+    }
 
-    return new PersonModel(document)
+    const doc = await this.mongoDB.findOne(match).lean()
+    if (!doc) return null
+
+    return new PersonModel(doc)
+  }
+
+  async findAllByPersonTypeId ({
+    personTypeId,
+    tenantId
+  }: IFindAllByPersonTypeId): Promise<Array<Partial<IPerson>>> {
+    const documents = await this.mongoDB.find({
+      personTypeId,
+      tenantId,
+      deletionDate: null
+    }, ['_id'])
+
+    return documents
+  }
+
+  async findAllExpired (): Promise<Array<Partial<IPerson>>> {
+    const currentDate = DateUtils.getCurrent()
+
+    // Add storaged TenantId
+
+    const documents = await this.mongoDB.find({
+      'updationInfo.updatedData': true,
+      'updationInfo.nextUpdationdate': {
+        $le: currentDate
+      },
+      deletionDate: null
+    }, ['_id', 'tenantId'])
+
+    return documents
+  }
+
+  async create (person: PersonModel, session: ClientSession): Promise<PersonModel> {
+    const document = await this.mongoDB.create([person.object], {
+      session
+    })
+
+    return new PersonModel(document[0])
   }
 
   async update ({
     id,
     data,
-    tenantId
+    tenantId,
+    session
   }: IUpdateProps<IPerson>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
     }, {
       $set: data
+    }, {
+      session
     })
 
     return !!updated.modifiedCount
   }
 
-  async list ({ limit, page, ...filters }: IListPersonsFilters): Promise<IAggregatePaginate<IPerson>> {
+  async list ({ limit, page, lastAccess, ...filters }: IListPersonsFilters): Promise<IAggregatePaginate<IPerson>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
       { $match: filters },
-      ...this.$lookupAndUnwindStages(),
+      ...(lastAccess ? [{ $limit: 2 }] : []),
+      ...this.$lookupAndUnwindStages(lastAccess),
       { $sort: { _id: -1 } }
     ])
 
-    return await this.mongoDB.aggregatePaginate(
-      aggregationStages,
-      {
-        limit,
-        page
-      })
+    return await this.mongoDB.aggregatePaginate(aggregationStages, { limit, page })
   }
 
-  private $lookupAndUnwindStages (): Array<any> {
-    return [
-      {
-        $lookup: {
-          from: 'persontypes',
-          localField: 'personTypeId',
-          foreignField: '_id',
-          as: 'personType'
-        }
-      },
-      {
-        $lookup: {
-          from: 'persontypecategories',
-          localField: 'personTypeCategoryId',
-          foreignField: '_id',
-          as: 'personTypeCategory'
-        }
-      },
-      {
-        $lookup: {
-          from: 'accessreleases',
-          localField: '_id',
-          foreignField: 'personId',
-          as: 'lastAccessRelease'
-        }
-      },
-      {
-        $set: {
-          accessReleasesNumber: {
-            $size: '$lastAccessRelease'
-          }
-        }
-      },
-      {
-        $set: {
-          lastAccessRelease: {
-            $arrayElemAt: [
-              {
-                $sortArray: { input: '$lastAccessRelease', sortBy: { _id: -1 } }
-              },
-              0
-            ]
-          }
-        }
-      },
+  private $lookupAndUnwindStages (lastAccess?: boolean): Array<any> {
+    const lastAccessStages = [
+
       {
         $lookup: {
           from: 'accesscontrols',
           localField: '_id',
-          foreignField: 'personId',
+          foreignField: 'person.id',
           as: 'lastAccessControl'
         }
       },
@@ -164,42 +180,21 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
             ]
           }
         }
-      },
-      {
-        $lookup: {
-          from: 'accesspoints',
-          localField: 'lastAccessControl.accessPointId',
-          foreignField: '_id',
-          as: 'lastAccessPoint'
-        }
-      },
-      { $unwind: '$personType' },
-      {
-        $unwind: {
-          path: '$personTypeCategory',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: {
-          path: '$lastAccessPoint',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $lookup: {
-          from: 'accessareas',
-          localField: 'lastAccessPoint.accessAreaId',
-          foreignField: '_id',
-          as: 'lastAccessArea'
-        }
-      },
-      {
-        $unwind: {
-          path: '$lastAccessArea',
-          preserveNullAndEmptyArrays: true
-        }
       }
     ]
+
+    const baseStages = [
+      {
+        $lookup: {
+          from: 'persontypes',
+          localField: 'personTypeId',
+          foreignField: '_id',
+          as: 'personType'
+        }
+      },
+      { $unwind: '$personType' }
+    ]
+
+    return lastAccess ? [...baseStages, ...lastAccessStages] : baseStages
   }
 }

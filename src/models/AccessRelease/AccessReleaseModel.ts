@@ -1,4 +1,4 @@
-import { Types } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
@@ -18,8 +18,9 @@ export interface IListAccessReleasesFilters extends IListModelsFilters {
   personTypeCategoryId?: Types.ObjectId
   accessPointId?: Types.ObjectId
   noticeId?: Types.ObjectId
-  finalAreaId?: Types.ObjectId
   status?: AccessReleaseStatus
+  initDate?: Date
+  endDate?: Date
 }
 
 export interface IUpdateAccessReleaseProps extends IUpdateModelProps<IAccessRelease> { }
@@ -30,14 +31,17 @@ export interface IUpdateAccessReleaseSynchronizationsProps {
   id: Types.ObjectId
   synchronization: IAccessReleaseSynchronization
   tenantId: Types.ObjectId
+  session: ClientSession
 }
 
 export interface IDisableAccessReleaseProps {
   responsibleId?: Types.ObjectId
+  type?: RemoveAccessesFromPersonType
 
   id: Types.ObjectId
   tenantId: Types.ObjectId
   status: AccessReleaseStatus
+  session: ClientSession
 }
 
 export interface IFindAllAccessReleaseByPersonTypeId {
@@ -45,8 +49,18 @@ export interface IFindAllAccessReleaseByPersonTypeId {
   tenantId: Types.ObjectId
 }
 
+export interface IFindAllAccessReleaseByResponsibleId {
+  responsibleId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
 export interface IFindLastAccessReleaseByPersonId {
   personId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
+export interface IFindAccessReleaseByAccessReleaseInvitationId {
+  accessReleaseInvitationId: Types.ObjectId
   tenantId: Types.ObjectId
 }
 
@@ -56,6 +70,7 @@ export interface IProcessAreaAccessPointsProps {
   tenantId: Types.ObjectId
   accessRelease: IAccessRelease
   endDate: Date
+  session: ClientSession
 }
 
 export interface IProcessEquipments {
@@ -65,6 +80,7 @@ export interface IProcessEquipments {
   tenantId: Types.ObjectId
   accessRelease: IAccessRelease
   endDate: Date
+  session: ClientSession
 }
 
 export interface IScheduleDisableProps {
@@ -78,16 +94,33 @@ export interface ISyncPersonAccessWithEquipmentsProps {
   accessRelease: IAccessRelease
   personId: Types.ObjectId
   tenantId: Types.ObjectId
+  session: ClientSession
 }
 
-export interface IRemoveAllAccessFromPersonProps {
+export enum RemoveAccessesFromPersonType {
+  all = 'all',
+  generalEntries = 'generalEntries'
+}
+
+export interface IRemoveAccessesFromPersonProps {
   person: PersonModel
   accessReleaseId: Types.ObjectId
   tenantId: Types.ObjectId
+  type: RemoveAccessesFromPersonType
+  session: ClientSession
+}
+
+export interface ICreateAccessReleaseByAccessReleaseInvitationIdProps {
+  accessReleaseInvitationId: Types.ObjectId
+  tenantId: Types.ObjectId
+  guestId: Types.ObjectId
+  personTypeId: Types.ObjectId
+  picture: string
+  session: ClientSession
 }
 
 export enum AccessReleaseType {
-  manually = 'manually',
+  default = 'default',
   invite = 'invite'
 }
 
@@ -125,6 +158,9 @@ export interface IAccessRelease extends IModel {
   synchronizations?: Array<IAccessReleaseSynchronization>
   accessPointId?: Types.ObjectId
   noticeId?: Types.ObjectId
+  workSchedulesCodes?: Array<number>
+  accessReleaseInvitationId?: Types.ObjectId
+  areasIds?: Array<Types.ObjectId>
 
   person?: IPerson
   personType?: IPersonType
@@ -134,8 +170,7 @@ export interface IAccessRelease extends IModel {
 
   personId: Types.ObjectId
   personTypeId: Types.ObjectId
-  areasIds: Array<Types.ObjectId>
-  finalAreaId: Types.ObjectId
+  finalAreasIds: Array<Types.ObjectId>
 }
 
 export class AccessReleaseModel extends Model<IAccessRelease> {
@@ -152,6 +187,9 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
   private _synchronizations?: IAccessRelease['synchronizations']
   private _accessPointId?: IAccessRelease['accessPointId']
   private _noticeId?: IAccessRelease['noticeId']
+  private _workSchedulesCodes?: IAccessRelease['workSchedulesCodes']
+  private _accessReleaseInvitationId?: IAccessRelease['accessReleaseInvitationId']
+  private _areasIds?: IAccessRelease['areasIds']
 
   private _person?: IAccessRelease['person']
   private _responsible?: IAccessRelease['responsible']
@@ -161,8 +199,7 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
 
   private _personId: IAccessRelease['personId']
   private _personTypeId: IAccessRelease['personTypeId']
-  private _areasIds: IAccessRelease['areasIds']
-  private _finalAreaId: IAccessRelease['finalAreaId']
+  private _finalAreasIds: IAccessRelease['finalAreasIds']
 
   constructor (accessRelease: IAccessRelease) {
     super(accessRelease)
@@ -181,6 +218,9 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._synchronizations = accessRelease.synchronizations ?? []
     this._accessPointId = accessRelease.accessPointId ? ObjectId(accessRelease.accessPointId) : undefined
     this._noticeId = accessRelease.noticeId ? ObjectId(accessRelease.noticeId) : undefined
+    this._workSchedulesCodes = accessRelease.workSchedulesCodes ?? []
+    this._accessReleaseInvitationId = accessRelease.accessReleaseInvitationId ? ObjectId(accessRelease.accessReleaseInvitationId) : undefined
+    this._areasIds = accessRelease.areasIds?.map(areaId => ObjectId(areaId)) ?? []
 
     this._person = accessRelease.person
     this._responsible = accessRelease.responsible
@@ -191,16 +231,27 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     this._type = accessRelease.type
     this._personId = ObjectId(accessRelease.personId)
     this._personTypeId = ObjectId(accessRelease.personTypeId)
-    this._finalAreaId = ObjectId(accessRelease.finalAreaId)
-    this._areasIds = accessRelease.areasIds.map(areaId => ObjectId(areaId))
+    this._finalAreasIds = accessRelease.finalAreasIds.map(finalAreaId => ObjectId(finalAreaId))
     this.actions = accessRelease.actions || [{
       action: ModelAction.create,
       date: DateUtils.getCurrent()
     }]
   }
 
+  get workSchedulesCodes (): IAccessRelease['workSchedulesCodes'] {
+    return this._workSchedulesCodes
+  }
+
+  set workSchedulesCodes (workSchedulesCodes: IAccessRelease['workSchedulesCodes']) {
+    this._workSchedulesCodes = workSchedulesCodes
+  }
+
   get status (): IAccessRelease['status'] {
     return this._status
+  }
+
+  get singleAccess (): IAccessRelease['singleAccess'] {
+    return this._singleAccess
   }
 
   get expiringTime (): IAccessRelease['expiringTime'] {
@@ -231,6 +282,26 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     return this._areasIds
   }
 
+  get person (): IAccessRelease['person'] {
+    return this._person
+  }
+
+  get personType (): IAccessRelease['personType'] {
+    return this._personType
+  }
+
+  get personTypeCategory (): IAccessRelease['personTypeCategory'] {
+    return this._personTypeCategory
+  }
+
+  get accessPoint (): IAccessRelease['accessPoint'] {
+    return this._accessPoint
+  }
+
+  get responsible (): IAccessRelease['responsible'] {
+    return this._responsible
+  }
+
   get object (): IAccessRelease {
     return {
       _id: this._id,
@@ -251,12 +322,14 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       initDate: this._initDate,
       endDate: this._endDate,
       noticeId: this._noticeId,
+      workSchedulesCodes: this._workSchedulesCodes,
       synchronizations: this._synchronizations,
+      accessReleaseInvitationId: this._accessReleaseInvitationId,
 
       type: this._type,
       personId: this._personId,
       personTypeId: this._personTypeId,
-      finalAreaId: this._finalAreaId
+      finalAreasIds: this._finalAreasIds
     }
   }
 
@@ -280,20 +353,34 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
       personTypeId,
       personId,
       accessPointId,
-      finalAreaId,
       noticeId,
       personTypeCategoryId,
       responsibleId,
-      status
+      status,
+      initDate,
+      endDate
     }: Partial<IListAccessReleasesFilters>
   ): IListAccessReleasesFilters {
     const filters = {
       deletionDate: undefined
     } as IListAccessReleasesFilters
 
+    if (initDate || endDate) {
+      const createdAtFilter: any = {}
+
+      if (initDate) {
+        createdAtFilter.$gte = DateUtils.parse(initDate)
+      }
+
+      if (endDate) {
+        createdAtFilter.$lte = DateUtils.parse(endDate)
+      }
+
+      Object.assign(filters, { createdAt: createdAtFilter })
+    }
+
     if (status) Object.assign(filters, { status })
     if (accessPointId) Object.assign(filters, { accessPointId: ObjectId(accessPointId) })
-    if (finalAreaId) Object.assign(filters, { finalAreaId: ObjectId(finalAreaId) })
     if (noticeId) Object.assign(filters, { noticeId: ObjectId(noticeId) })
     if (personTypeCategoryId) Object.assign(filters, { personTypeCategoryId: ObjectId(personTypeCategoryId) })
     if (responsibleId) Object.assign(filters, { responsibleId: ObjectId(responsibleId) })
@@ -303,7 +390,15 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     if (search) {
       Object.assign(filters, {
         $or: [
-          { observation: { $regex: search, $options: 'i' } }
+          { 'person.name': { $regex: search, $options: 'i' } },
+          { 'person.cpf': { $regex: search, $options: 'i' } },
+          { 'person.cnpj': { $regex: search, $options: 'i' } },
+          { 'person.register': { $regex: search, $options: 'i' } },
+          { 'person.passport': { $regex: search, $options: 'i' } },
+          { 'person.email': { $regex: search, $options: 'i' } },
+          { 'person.phone': { $regex: search, $options: 'i' } },
+          { 'person.rg': { $regex: search, $options: 'i' } },
+          { 'person.role': { $regex: search, $options: 'i' } }
         ]
       })
     }

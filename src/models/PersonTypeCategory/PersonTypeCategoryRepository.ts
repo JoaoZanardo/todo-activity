@@ -47,6 +47,7 @@ export class PersonTypeCategoryRepository extends Repository<IPersonTypeCategory
     return await this.mongoDB.find({
       tenantId,
       personTypeId,
+      active: true,
       deletionDate: null
     }, select)
   }
@@ -62,13 +63,16 @@ export class PersonTypeCategoryRepository extends Repository<IPersonTypeCategory
   async update ({
     id,
     data,
-    tenantId
+    tenantId,
+    session
   }: IUpdateProps<IPersonTypeCategory>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
     }, {
       $set: data
+    }, {
+      session
     })
 
     return !!updated.modifiedCount

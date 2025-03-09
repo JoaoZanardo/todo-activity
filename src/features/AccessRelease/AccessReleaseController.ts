@@ -87,9 +87,11 @@ class AccessReleaseController extends Controller {
             singleAccess,
             personTypeCategoryId,
             initDate,
-            finalAreaId,
+            finalAreasIds,
             active,
-            noticeId
+            noticeId,
+            workSchedulesCodes,
+            accessReleaseInvitationId
           } = request.body
 
           this.rules.validate(
@@ -104,10 +106,11 @@ class AccessReleaseController extends Controller {
             { initDate, isRequiredField: false },
             { active, isRequiredField: false },
             { noticeId, isRequiredField: false },
+            { workSchedulesCodes, isRequiredField: false },
+            { accessReleaseInvitationId, isRequiredField: false },
             { personId },
             { personTypeId },
-            { type },
-            { areaId: finalAreaId }
+            { type }
           )
 
           const accessReleaseModel = new AccessReleaseModel({
@@ -129,15 +132,14 @@ class AccessReleaseController extends Controller {
             personId,
             personTypeId,
             type,
-            finalAreaId,
+            finalAreasIds,
             noticeId,
+            workSchedulesCodes,
+            accessReleaseInvitationId,
             initDate: initDate ? DateUtils.parse(initDate) ?? undefined : undefined
           })
 
-          const accessRelease = await AccessReleaseCreationService.execute(accessReleaseModel)
-
-          await session.commitTransaction()
-          session.endSession()
+          const accessRelease = await AccessReleaseCreationService.execute(accessReleaseModel, session)
 
           response.CREATED('Liberação de acesso cadastrada com sucesso!', {
             accessRelease: accessRelease.show
@@ -153,6 +155,9 @@ class AccessReleaseController extends Controller {
       '/:accessReleaseId/disable',
       permissionAuthMiddleware(Permission.delete),
       async (request: Request, response: Response, next: NextFunction) => {
+        const session = await database.startSession()
+        session.startTransaction()
+
         try {
           const { tenantId, userId } = request
 
@@ -166,11 +171,17 @@ class AccessReleaseController extends Controller {
             id: ObjectId(accessReleaseId),
             tenantId,
             responsibleId: userId,
-            status: AccessReleaseStatus.disabled
+            status: AccessReleaseStatus.disabled,
+            session
           })
+
+          await session.commitTransaction()
+          session.endSession()
 
           response.OK('Liberação de acesso desativada com sucesso!')
         } catch (error) {
+          session.endSession()
+
           next(error)
         }
       })

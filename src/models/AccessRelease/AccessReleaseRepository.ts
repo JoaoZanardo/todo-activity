@@ -1,10 +1,10 @@
-import { Aggregate, FilterQuery } from 'mongoose'
+import { Aggregate, ClientSession, FilterQuery } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { DateUtils } from '../../utils/Date'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindAllAccessReleaseByResponsibleId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
 import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
 export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, AccessReleaseModel> {
@@ -14,6 +14,22 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   }: IFindModelByIdProps): Promise<AccessReleaseModel | null> {
     const match: FilterQuery<IAccessRelease> = {
       _id: id,
+      tenantId,
+      deletionDate: null
+    }
+
+    const document = await this.mongoDB.findOne(match).lean()
+    if (!document) return null
+
+    return new AccessReleaseModel(document)
+  }
+
+  async findByAccessReleaseInvitationId ({
+    accessReleaseInvitationId,
+    tenantId
+  }: IFindAccessReleaseByAccessReleaseInvitationId): Promise<AccessReleaseModel | null> {
+    const match: FilterQuery<IAccessRelease> = {
+      accessReleaseInvitationId,
       tenantId,
       deletionDate: null
     }
@@ -44,12 +60,13 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   }
 
   async findAllActiveExpiredAccessReleases (): Promise<Array<Partial<IAccessRelease>>> {
-    const currentDate = DateUtils.getCurrent()
+    const minEndDate = DateUtils.getCurrent()
+    minEndDate.setMinutes(minEndDate.getMinutes() - 1)
 
     const documents = await this.mongoDB.find({
       deletionDate: null,
       endDate: {
-        $lte: currentDate
+        $lte: minEndDate
       },
       active: true,
       status: AccessReleaseStatus.active
@@ -59,24 +76,22 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   }
 
   async findAllScheduledAccessReleasesThatStarted (): Promise<Array<Partial<IAccessRelease>>> {
-    const currentDate = DateUtils.getCurrent()
+    const minEndDate = DateUtils.getCurrent()
+    minEndDate.setMinutes(minEndDate.getMinutes() - 1)
 
     const documents = await this.mongoDB.find({
       deletionDate: null,
       initDate: {
-        $lte: currentDate
+        $lte: minEndDate
       },
       active: true,
       status: AccessReleaseStatus.scheduled
-    }, ['_id', 'tenantId', 'initDate', 'endDate', 'areasIds', 'personId', 'actions'])
+    }, ['_id', 'tenantId', 'initDate', 'endDate', 'areasIds', 'personId', 'actions', 'finalAreasIds'])
 
     return documents
   }
 
   async findAllStartingToday (): Promise<Array<Partial<IAccessRelease>>> {
-    // const startOfDay = new Date()
-    // startOfDay.setHours(0, 0, 0, 0)
-
     const endOfDay = new Date()
     endOfDay.setHours(23, 59, 59, 999)
 
@@ -131,6 +146,39 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       // {
       //   $project
       // }
+      { $sort: { _id: -1 } }
+    ])
+
+    const documents = await this.mongoDB.aggregatePaginate(aggregationStages, {
+      limit: 5000
+    })
+
+    return documents.docs
+  }
+
+  async findAllByResponsibleId ({
+    responsibleId,
+    tenantId
+  }: IFindAllAccessReleaseByResponsibleId): Promise<Array<Partial<IAccessRelease>>> {
+    const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
+      {
+        $match: {
+          responsibleId,
+          tenantId,
+          deletionDate: null
+        }
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
+        }
+      },
+      {
+        $unwind: '$person'
+      },
       { $sort: { _id: -1 } }
     ])
 
@@ -229,22 +277,27 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
     return new AccessReleaseModel(accessRelease)
   }
 
-  async create (accessRelease: AccessReleaseModel): Promise<AccessReleaseModel> {
-    const document = await this.mongoDB.create(accessRelease.object)
+  async create (accessRelease: AccessReleaseModel, session: ClientSession): Promise<AccessReleaseModel> {
+    const document = await this.mongoDB.create([accessRelease.object], {
+      session
+    })
 
-    return new AccessReleaseModel(document)
+    return new AccessReleaseModel(document[0])
   }
 
   async update ({
     id,
     data,
-    tenantId
+    tenantId,
+    session
   }: IUpdateProps<IAccessRelease>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
       tenantId
     }, {
       $set: data
+    }, {
+      session
     })
 
     return !!updated.modifiedCount
@@ -253,7 +306,8 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
   async updateSynchronizations ({
     id,
     synchronization,
-    tenantId
+    tenantId,
+    session
   }: IUpdateAccessReleaseSynchronizationsProps): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
       _id: id,
@@ -262,6 +316,8 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       $push: {
         synchronizations: synchronization
       }
+    }, {
+      session
     })
 
     return !!updated.modifiedCount
@@ -272,94 +328,13 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       { $match: filters },
       {
         $lookup: {
-          from: 'persontypes',
-          localField: 'personTypeId',
-          foreignField: '_id',
-          as: 'personType'
-        }
-      },
-      {
-        $lookup: {
           from: 'people',
           localField: 'personId',
           foreignField: '_id',
           as: 'person'
         }
       },
-      {
-        $lookup: {
-          from: 'people',
-          localField: 'responsibleId',
-          foreignField: '_id',
-          as: 'responsible'
-        }
-      },
-      {
-        $lookup: {
-          from: 'accesspoints',
-          localField: 'accessPointId',
-          foreignField: '_id',
-          as: 'accessPoint'
-        }
-      },
-      {
-        $lookup: {
-          from: 'persontypecategories',
-          localField: 'personTypeCategoryId',
-          foreignField: '_id',
-          as: 'personTypeCategory'
-        }
-      },
-      {
-        $unwind: {
-          path: '$personTypeCategory',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: {
-          path: '$responsible',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: '$personType'
-      },
-      {
-        $unwind: {
-          path: '$accessPoint',
-          preserveNullAndEmptyArrays: true
-        }
-      },
       { $unwind: '$person' },
-      {
-        $lookup: {
-          from: 'areas',
-          localField: 'accessPoint.areaId',
-          foreignField: '_id',
-          as: 'area'
-        }
-      },
-      {
-        $lookup: {
-          from: 'accessareas',
-          localField: 'accessPoint.accessAreaId',
-          foreignField: '_id',
-          as: 'accessArea'
-        }
-      },
-      {
-        $unwind: {
-          path: '$area',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: {
-          path: '$accessArea',
-          preserveNullAndEmptyArrays: true
-        }
-      },
       { $sort: { _id: -1 } }
     ])
 

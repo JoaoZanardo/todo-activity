@@ -35,6 +35,36 @@ class TenantController extends Controller {
       }
     })
 
+    this.router.get('/code/:code', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { code } = request.params
+
+        this.rules.validate(
+          { code }
+        )
+
+        const tenant = await TenantServiceImp.findByCode(code)
+
+        response.OK('Tenente encontrado com sucesso!', {
+          tenant: tenant.object
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
+
+    this.router.get('/', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const tenants = await TenantServiceImp.findAll()
+
+        response.OK('Tenentes encontrados com sucesso!', {
+          tenants
+        })
+      } catch (error) {
+        next(error)
+      }
+    })
+
     this.router.post('/', async (request: Request, response: Response, next: NextFunction) => {
       const session = await database.startSession()
       session.startTransaction()
@@ -71,12 +101,35 @@ class TenantController extends Controller {
         await session.commitTransaction()
         session.endSession()
 
-        response.CREATED('Tenente cadastrado com sucesso!', {
+        response.CREATED('Tenente atualizado com sucesso!', {
           tenant: tenant.object
         })
       } catch (error) {
         session.endSession()
 
+        next(error)
+      }
+    })
+
+    this.router.patch('/:tenantId', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request.params
+
+        const {
+          serverIPAddress
+        } = request.body
+
+        console.log({
+          serverIPAddress,
+          tenantId
+        })
+
+        await TenantServiceImp.update(ObjectId(tenantId), {
+          serverIPAddress
+        })
+
+        response.OK('Cliente atualizado com sucesso!')
+      } catch (error) {
         next(error)
       }
     })

@@ -45,6 +45,7 @@ export interface IRemoveEquipmentIdFromAccessPointProps {
 
 export interface IAccessPoint extends IModel {
   generalExit?: boolean
+  generalEntry?: boolean
   areaId?: Types.ObjectId
   accessAreaId?: Types.ObjectId
   manualAccess?: boolean
@@ -57,6 +58,7 @@ export interface IAccessPoint extends IModel {
 
 export class AccessPointModel extends Model<IAccessPoint> {
   private _generalExit?: IAccessPoint['generalExit']
+  private _generalEntry?: IAccessPoint['generalEntry']
   private _areaId?: IAccessPoint['areaId']
   private _accessAreaId?: IAccessPoint['accessAreaId']
   private _manualAccess?: IAccessPoint['manualAccess']
@@ -70,6 +72,7 @@ export class AccessPointModel extends Model<IAccessPoint> {
     super(accessPoint)
 
     this._generalExit = accessPoint.generalExit
+    this._generalEntry = accessPoint.generalEntry
     this._areaId = accessPoint.areaId
     this._accessAreaId = accessPoint.accessAreaId
     this._manualAccess = accessPoint.manualAccess
@@ -88,6 +91,10 @@ export class AccessPointModel extends Model<IAccessPoint> {
     return this._accessAreaId
   }
 
+  get equipmentsIds (): IAccessPoint['equipmentsIds'] {
+    return this._equipmentsIds
+  }
+
   get object (): IAccessPoint {
     return {
       _id: this._id,
@@ -100,6 +107,7 @@ export class AccessPointModel extends Model<IAccessPoint> {
       name: this._name,
       personTypesIds: this._personTypesIds,
       generalExit: this._generalExit,
+      generalEntry: this._generalEntry,
       accessType: this._accessType,
       accessAreaId: this._accessAreaId,
       areaId: this._areaId,
@@ -109,6 +117,14 @@ export class AccessPointModel extends Model<IAccessPoint> {
 
   get name (): IAccessPoint['name'] {
     return this._name
+  }
+
+  get generalExit (): IAccessPoint['generalExit'] {
+    return this._generalExit
+  }
+
+  get generalEntry (): IAccessPoint['generalEntry'] {
+    return this._generalEntry
   }
 
   get show (): IAccessPoint {

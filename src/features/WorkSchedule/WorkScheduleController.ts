@@ -119,7 +119,8 @@ class WorkScheduleController extends Controller {
             endTime,
             name,
             startTime,
-            description
+            description,
+            active
           } = request.body
 
           this.rules.validate(
@@ -127,7 +128,8 @@ class WorkScheduleController extends Controller {
             { days, isRequiredField: false },
             { startTime, isRequiredField: false },
             { endTime, isRequiredField: false },
-            { description, isRequiredField: false }
+            { description, isRequiredField: false },
+            { active, isRequiredField: false }
           )
 
           await WorkScheduleServiceImp.update({
@@ -138,7 +140,8 @@ class WorkScheduleController extends Controller {
               startTime,
               endTime,
               days,
-              description
+              description,
+              active
             },
             responsibleId: userId
           })

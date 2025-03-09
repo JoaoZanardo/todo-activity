@@ -53,7 +53,8 @@ export class PersonTypeCategoryService {
     id,
     tenantId,
     responsibleId,
-    data
+    data,
+    session
   }: IUpdatePersonTypeCategoryProps): Promise<void> {
     const personTypeCategory = await this.findById({
       id,
@@ -88,7 +89,8 @@ export class PersonTypeCategoryService {
             }
           )
         ]
-      }
+      },
+      session
     })
 
     if (!updated) {
@@ -101,7 +103,8 @@ export class PersonTypeCategoryService {
   async delete ({
     id,
     tenantId,
-    responsibleId
+    responsibleId,
+    session
   }: IDeletePersonTypeCategoryProps) {
     const personTypeCategory = await this.findById({
       id,
@@ -124,7 +127,8 @@ export class PersonTypeCategoryService {
         active: false,
         deletionDate: DateUtils.getCurrent()
       },
-      responsibleId
+      responsibleId,
+      session
     })
   }
 

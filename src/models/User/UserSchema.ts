@@ -2,7 +2,7 @@ import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
 import Bcrypt from '../../libraries/Bcrypt'
-import { IUser } from './UserModel'
+import { IUser, UserCreationType } from './UserModel'
 
 export interface IUserDocument extends Document, Omit<IUser, '_id'> { }
 
@@ -17,6 +17,12 @@ class UserSchema extends Schema<IUserDocument> {
         ref: 'AccessGroup'
       },
       email: String,
+      personId: Types.ObjectId,
+      creationType: {
+        type: String,
+        enum: UserCreationType,
+        default: UserCreationType.default
+      },
       admin: {
         type: Boolean,
         default: false

@@ -2,11 +2,11 @@ import { NextFunction, Request, Response, Router } from 'express'
 
 import database from '../../config/database'
 import { Controller } from '../../core/Controller'
-import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
-import { AccessControlModel } from '../../models/AccessControl/AccessControlModel'
+import { AccessControlModel, AccessControlReleaseType } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
-import { DateUtils } from '../../utils/Date'
+import ObjectId from '../../utils/ObjectId'
+import AccessControlCreationService from './AccessControlCreationService'
 import { AccessControlRules } from './AccessControlRules'
 import { AccessControlService } from './AccessControlService'
 
@@ -50,41 +50,29 @@ class AccessControlController extends Controller {
 
           const {
             personId,
-            personTypeId,
-            type,
             accessPointId,
             picture,
             accessReleaseId,
-            personTypeCategoryId
+            observation
           } = request.body
 
           this.rules.validate(
             { accessPointId, isRequiredField: false },
             { picture, isRequiredField: false },
-            { personTypeCategoryId, isRequiredField: false },
+            { observation, isRequiredField: false },
             { personId },
-            { personTypeId },
-            { type },
             { accessReleaseId }
           )
 
-          const accessControlModel = new AccessControlModel({
-            accessPointId,
-            tenantId,
-            picture,
-            actions: [{
-              action: ModelAction.create,
-              date: DateUtils.getCurrent(),
-              userId
-            }],
-            personId,
-            personTypeId,
-            type,
-            accessReleaseId,
-            personTypeCategoryId
+          const accessControl = await AccessControlCreationService.execute({
+            personId: ObjectId(personId),
+            accessPointId: ObjectId(accessPointId),
+            tenantId: ObjectId(tenantId),
+            userId: ObjectId(userId),
+            observation,
+            session,
+            releaseType: AccessControlReleaseType.manual
           })
-
-          const accessControl = await AccessControlServiceImp.create(accessControlModel)
 
           await session.commitTransaction()
           session.endSession()

@@ -9,6 +9,7 @@ export default class Rules {
 
   constructor () {
     this.validator = requestCheck()
+
     this.validator.requiredMessage = 'Campo obrigatório!'
 
     this.validator.addRule('active', {
@@ -64,6 +65,21 @@ export default class Rules {
     this.validator.addRule('noticeId', {
       validator: (value: string) => is.objectId(value),
       message: 'Identificador de aviso inválido. Informe um identificador válido!'
+    })
+
+    this.validator.addRule('accessReleaseInvitationId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de convite inválido. Informe um identificador válido!'
+    })
+
+    this.validator.addRule('accessReleaseInvitationGroupId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador de grupo de convite inválido. Informe um identificador válido!'
+    })
+
+    this.validator.addRule('guestId', {
+      validator: (value: string) => is.objectId(value),
+      message: 'Identificador do convidado inválido. Informe um identificador válido!'
     })
   }
 

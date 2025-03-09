@@ -27,8 +27,14 @@ export enum Day {
 
 export const DayValues = Object.values(Day)
 
+export interface IFindWorkScheduleByCodeProps {
+  code: number
+  tenantId: Types.ObjectId
+}
+
 export interface IWorkSchedule extends IModel {
   description?: string
+  code?: number
 
   name: string
   days: Array<Day>
@@ -38,6 +44,7 @@ export interface IWorkSchedule extends IModel {
 
 export class WorkScheduleModel extends Model<IWorkSchedule> {
   private _description?: IWorkSchedule['description']
+  private _code?: IWorkSchedule['code']
 
   private _name: IWorkSchedule['name']
   private _days: IWorkSchedule['days']
@@ -48,11 +55,24 @@ export class WorkScheduleModel extends Model<IWorkSchedule> {
     super(workSchedule)
 
     this._description = workSchedule.description
+    this._code = workSchedule.code ?? 1
 
     this._name = workSchedule.name
     this._days = workSchedule.days
-    this._startTime = workSchedule.startTime
-    this._endTime = workSchedule.endTime
+    this._startTime = `${workSchedule.startTime}:59`
+    this._endTime = `${workSchedule.endTime}:59`
+  }
+
+  get name (): IWorkSchedule['name'] {
+    return this._name
+  }
+
+  get code (): IWorkSchedule['code'] {
+    return this._code
+  }
+
+  set code (code: IWorkSchedule['code']) {
+    this._code = code
   }
 
   get object (): IWorkSchedule {
@@ -67,16 +87,13 @@ export class WorkScheduleModel extends Model<IWorkSchedule> {
       name: this._name,
       days: this._days,
       startTime: this._startTime,
-      endTime: this._endTime
+      endTime: this._endTime,
+      code: this._code
     }
   }
 
   get show () {
     return this.object
-  }
-
-  get name (): IWorkSchedule['name'] {
-    return this._name
   }
 
   static listFilters (

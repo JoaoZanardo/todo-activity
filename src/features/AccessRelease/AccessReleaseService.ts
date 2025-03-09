@@ -1,9 +1,11 @@
 import to from 'await-to-js'
+import { Types } from 'mongoose'
 import schedule from 'node-schedule'
 
+import database from '../../config/database'
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAllAccessReleaseByPersonTypeId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAllAccessFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindAllAccessReleaseByResponsibleId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAccessesFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps, RemoveAccessesFromPersonType } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
@@ -11,6 +13,7 @@ import { DateUtils } from '../../utils/Date'
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
+import { AreaServiceImp } from '../Area/AreaController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
 
@@ -33,7 +36,7 @@ export class AccessReleaseService {
       id,
       tenantId
     })
-    if (!accessRelease) throw CustomResponse.NOT_FOUND('Liberação de acesso não cadastrado!')
+    if (!accessRelease) throw CustomResponse.NOT_FOUND('Liberação de acesso não cadastrada!')
 
     return accessRelease
   }
@@ -50,12 +53,14 @@ export class AccessReleaseService {
     return accessRelease
   }
 
-  async findAllExpiringToday (): Promise<Array<Partial<IAccessRelease>>> {
-    return await this.accessReleaseRepositoryImp.findAllExpiringToday()
-  }
-
-  async findAllStartingToday (): Promise<Array<Partial<IAccessRelease>>> {
-    return await this.accessReleaseRepositoryImp.findAllStartingToday()
+  async findByAccessReleaseInvitationId ({
+    accessReleaseInvitationId,
+    tenantId
+  }: IFindAccessReleaseByAccessReleaseInvitationId): Promise<AccessReleaseModel | null > {
+    return await this.accessReleaseRepositoryImp.findByAccessReleaseInvitationId({
+      accessReleaseInvitationId,
+      tenantId
+    })
   }
 
   async findAllByPersonTypeId ({
@@ -68,11 +73,23 @@ export class AccessReleaseService {
     })
   }
 
+  async findAllByResponsibleId ({
+    responsibleId,
+    tenantId
+  }: IFindAllAccessReleaseByResponsibleId): Promise<Array<Partial<IAccessRelease>>> {
+    return await this.accessReleaseRepositoryImp.findAllByResponsibleId({
+      responsibleId,
+      tenantId
+    })
+  }
+
   async disable ({
     id,
     tenantId,
     responsibleId,
-    status
+    status,
+    session,
+    type = RemoveAccessesFromPersonType.all
   }: IDisableAccessReleaseProps): Promise<void> {
     const accessRelease = await this.findById({
       id,
@@ -84,28 +101,39 @@ export class AccessReleaseService {
       tenantId
     })
 
-    await this.removeAllAccessFromPerson({
+    await this.removeAccessesFromPerson({
       accessReleaseId: accessRelease._id!,
       person,
-      tenantId
+      tenantId,
+      type,
+      session
     })
+
+    let updateData: Partial<IAccessRelease> = {
+      actions: [
+        ...accessRelease.actions!,
+        {
+          action: ModelAction.update,
+          date: DateUtils.getCurrent(),
+          userId: responsibleId
+        }
+      ]
+    }
+
+    if (type === RemoveAccessesFromPersonType.all) {
+      updateData = {
+        ...updateData,
+        active: false,
+        status,
+        endDate: DateUtils.getCurrent()
+      }
+    }
 
     const updated = await this.accessReleaseRepositoryImp.update({
       id,
       tenantId,
-      data: {
-        active: false,
-        status,
-        endDate: DateUtils.getCurrent(),
-        actions: [
-          ...accessRelease.actions!,
-          {
-            action: ModelAction.update,
-            date: DateUtils.getCurrent(),
-            userId: responsibleId
-          }
-        ]
-      }
+      data: updateData,
+      session
     })
 
     if (!updated) {
@@ -125,40 +153,62 @@ export class AccessReleaseService {
     adjustedExecutionDate.setHours(endDate.getHours() + 3)
 
     schedule.scheduleJob(adjustedExecutionDate, async () => {
-      await AccessReleaseServiceImp.disable({
-        id: accessReleaseId,
-        tenantId,
-        status
-      })
+      const session = await database.startSession()
+      session.startTransaction()
+
+      try {
+        const accessRelease = await this.findById({
+          id: accessReleaseId,
+          tenantId
+        })
+
+        if (accessRelease.status !== AccessReleaseStatus.active) throw CustomResponse.CONFLICT('Liberação de acesso não ativa!')
+
+        await AccessReleaseServiceImp.disable({
+          id: accessReleaseId,
+          tenantId,
+          status,
+          session
+        })
+
+        await session.commitTransaction()
+        session.endSession()
+      } catch (error) {
+        session.endSession()
+
+        console.error('Erro ao remover acessos do equipamentos:', error)
+      }
     })
   }
 
   async syncPersonAccessWithEquipments ({
     accessRelease,
     personId,
-    tenantId
+    tenantId,
+    session
   }: ISyncPersonAccessWithEquipmentsProps) {
     const person = await PersonServiceImp.findById({
       id: personId,
       tenantId
     })
 
-    await Promise.all(
-      accessRelease.areasIds.map(async areaId => {
-        try {
-          const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
+    const finalAreaId = accessRelease.finalAreasIds[0]
 
-          if (accessPoints.length) {
-            await AccessReleaseServiceImp.processAreaAccessPoints({
-              accessPoints,
-              endDate: accessRelease.endDate!,
-              person,
-              tenantId,
-              accessRelease
-            })
-          }
-        } catch (error) {
-          console.log(`SyncPersonAccessWithEquipments - MAP: ${error}`)
+    const areasIds = accessRelease.areasIds?.length ? accessRelease.areasIds : await this.getAllAreasIdsByFinalAreaId(finalAreaId, tenantId)
+
+    await Promise.all(
+      areasIds.map(async areaId => {
+        const accessPoints = await AccessPointServiceImp.findAllByAreaId({ areaId, tenantId })
+
+        if (accessPoints.length) {
+          await this.processAreaAccessPoints({
+            accessPoints,
+            endDate: accessRelease.endDate!,
+            person,
+            tenantId,
+            accessRelease,
+            session
+          })
         }
       })
     )
@@ -175,67 +225,64 @@ export class AccessReleaseService {
             date: DateUtils.getCurrent()
           }
         ]
-      }
+      },
+      session
     })
   }
 
-  private async removeAllAccessFromPerson ({
+  private async removeAccessesFromPerson ({
     accessReleaseId,
     person,
-    tenantId
-  }: IRemoveAllAccessFromPersonProps) {
-    const accessPoints = await AccessPointServiceImp.findAllByPersonTypeId({
-      personTypeId: person.personTypeId,
-      tenantId
-    })
+    tenantId,
+    type,
+    session
+  }: IRemoveAccessesFromPersonProps) {
+    const accessPoints = type === RemoveAccessesFromPersonType.all
+      ? await AccessPointServiceImp.findAllByPersonTypeId({
+        personTypeId: person.personTypeId,
+        tenantId
+      }) : await AccessPointServiceImp.findAllGeneralEntry(tenantId)
 
     if (accessPoints.length) {
       await Promise.all(
         accessPoints.map(async accessPoint => {
-          try {
-            if (accessPoint.equipmentsIds?.length) {
-              await Promise.all(
-                accessPoint.equipmentsIds.map(async equipmentId => {
-                  try {
-                    const equipment = await EquipmentServiceImp.findById({
-                      id: equipmentId,
-                      tenantId
-                    })
-
-                    // try to delete  all access, if one throw errors, do not cancel all the session
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-                    const [error, _] = await to(
-                      EquipmentServer.removeAccess({
-                        equipmentIp: equipment.ip,
-                        personId: person._id!
-                      })
-                    )
-
-                    const synchronization: IAccessReleaseSynchronization = {
-                      accessPoint,
-                      equipment: equipment.show,
-                      syncType: 'remove',
-                      date: DateUtils.getCurrent()
-                    }
-
-                    if (error) {
-                      synchronization.error = true
-                      synchronization.errorMessage = getErrorMessage(error)
-                    }
-
-                    await this.accessReleaseRepositoryImp.updateSynchronizations({
-                      id: accessReleaseId,
-                      tenantId,
-                      synchronization
-                    })
-                  } catch (error) {
-                    console.log(`EquipmentRemoveAccess - MAP: ${error}`)
-                  }
+          if (accessPoint.equipmentsIds?.length) {
+            await Promise.all(
+              accessPoint.equipmentsIds.map(async equipmentId => {
+                const equipment = await EquipmentServiceImp.findById({
+                  id: equipmentId,
+                  tenantId
                 })
-              )
-            }
-          } catch (error) {
-            console.log(`RemoveAllAccessFromPerson - MAP: ${error}`)
+
+                // try to delete  all access, if one throw errors, do not cancel all the session
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+                const [error, _] = await to(
+                  EquipmentServer.removeAccess({
+                    equipmentIp: equipment.ip,
+                    personId: person._id!
+                  })
+                )
+
+                const synchronization: IAccessReleaseSynchronization = {
+                  accessPoint,
+                  equipment: equipment.show,
+                  syncType: 'remove',
+                  date: DateUtils.getCurrent()
+                }
+
+                if (error) {
+                  synchronization.error = true
+                  synchronization.errorMessage = getErrorMessage(error)
+                }
+
+                await this.accessReleaseRepositoryImp.updateSynchronizations({
+                  id: accessReleaseId,
+                  tenantId,
+                  synchronization,
+                  session
+                })
+              })
+            )
           }
         })
       )
@@ -247,29 +294,27 @@ export class AccessReleaseService {
     endDate,
     person,
     tenantId,
-    accessRelease
+    accessRelease,
+    session
   }: IProcessAreaAccessPointsProps) {
     const personTypeId = person.personTypeId
 
     await Promise.all(
       accessPoints.map(async (accessPoint) => {
-        try {
-          const { personTypesIds, equipmentsIds } = accessPoint
+        const { personTypesIds, equipmentsIds } = accessPoint
 
-          const isPersonTypeIncluded = personTypesIds?.some(id => id.equals(personTypeId))
+        const isPersonTypeIncluded = personTypesIds?.some(id => id.equals(personTypeId))
 
-          if (isPersonTypeIncluded && equipmentsIds?.length) {
-            await this.processEquipments({
-              endDate,
-              equipmentsIds,
-              person,
-              tenantId,
-              accessRelease,
-              accessPoint
-            })
-          }
-        } catch (error) {
-          console.log(`ProcessAreaAccessPoints - MAP: ${error}`)
+        if (isPersonTypeIncluded && equipmentsIds?.length) {
+          await this.processEquipments({
+            endDate,
+            equipmentsIds,
+            person,
+            tenantId,
+            accessRelease,
+            accessPoint,
+            session
+          })
         }
       })
     )
@@ -281,50 +326,78 @@ export class AccessReleaseService {
     person,
     tenantId,
     accessRelease,
-    accessPoint
+    accessPoint,
+    session
   }: IProcessEquipments) {
     await Promise.all(
       equipmentsIds.map(async (equipmentId) => {
-        try {
-          const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
-          console.log({ equipment: equipment.show })
+        const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
 
-          // try to create all access, if one throw errors, do not cancel all the session
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
-          const [error, _] = await to(
-            EquipmentServer.addAccess({
-              equipmentIp: equipment.ip,
-              personCode: person.code!,
-              personId: person._id!,
-              personName: person.name,
-              personPictureUrl: person.object.picture!,
-              initDate: DateUtils.getCurrent(),
-              endDate,
-              schedules: []
-            })
-          )
+        const workSchedulesCodes = accessRelease.workSchedulesCodes
 
-          const synchronization: IAccessReleaseSynchronization = {
-            accessPoint,
-            equipment: equipment.show,
-            syncType: 'add',
-            date: DateUtils.getCurrent()
-          }
-
-          if (error) {
-            synchronization.error = true
-            synchronization.errorMessage = getErrorMessage(error)
-          }
-
-          await this.accessReleaseRepositoryImp.updateSynchronizations({
-            id: accessRelease._id!,
-            tenantId,
-            synchronization
+        const schedules = workSchedulesCodes?.length
+          ? workSchedulesCodes.map(scheduleCode => {
+            return {
+              scheduleCode,
+              description: `ScheduleCode-${scheduleCode}`
+            }
           })
-        } catch (error) {
-          console.log(`ProcessEquipments - MAP: ${error}`)
+          : []
+
+        // try to create all access, if one throw errors, do not cancel all the session
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
+        const [error, _] = await to(
+          EquipmentServer.addAccess({
+            equipmentIp: equipment.ip,
+            personCode: person.code!,
+            personId: person._id!,
+            personName: person.name,
+            personPictureUrl: person.object.picture!,
+            initDate: DateUtils.getCurrent(),
+            endDate,
+            schedules
+          })
+        )
+
+        const synchronization: IAccessReleaseSynchronization = {
+          accessPoint,
+          equipment: equipment.show,
+          syncType: 'add',
+          date: DateUtils.getCurrent()
         }
+
+        if (error) {
+          synchronization.error = true
+          synchronization.errorMessage = getErrorMessage(error)
+        }
+
+        await this.accessReleaseRepositoryImp.updateSynchronizations({
+          id: accessRelease._id!,
+          tenantId,
+          synchronization,
+          session
+        })
       })
     )
+  }
+
+  private async getAllAreasIdsByFinalAreaId (finalAreaId: Types.ObjectId, tenantId: Types.ObjectId): Promise<Array<Types.ObjectId>> {
+    const areasIds: Array<Types.ObjectId> = [finalAreaId]
+
+    let currentArea = await AreaServiceImp.findById({
+      id: finalAreaId,
+      tenantId
+    })
+
+    while (currentArea?.areaId) {
+      areasIds.push(currentArea.areaId)
+
+      currentArea = await AreaServiceImp.findById({
+        id: currentArea.areaId,
+        tenantId
+      })
+    }
+
+    return areasIds.reverse()
   }
 }

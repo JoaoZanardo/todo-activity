@@ -70,7 +70,8 @@ class AccessPointController extends Controller {
             areaId,
             accessAreaId,
             manualAccess,
-            active
+            active,
+            generalEntry
           } = request.body
 
           this.rules.validate(
@@ -79,6 +80,7 @@ class AccessPointController extends Controller {
             { accessAreaId, isRequiredField: false },
             { manualAccess, isRequiredField: false },
             { active, isRequiredField: false },
+            { generalEntry, isRequiredField: false },
             { name },
             { accessType },
             { equipmentsIds },
@@ -100,7 +102,8 @@ class AccessPointController extends Controller {
             }],
             areaId,
             accessAreaId,
-            manualAccess
+            manualAccess,
+            generalEntry
           })
 
           const accessPoint = await AccessPointServiceImp.create(accessPointModel)
@@ -131,7 +134,8 @@ class AccessPointController extends Controller {
             active,
             areaId,
             accessAreaId,
-            manualAccess
+            manualAccess,
+            generalEntry
           } = request.body
 
           this.rules.validate(
@@ -144,7 +148,8 @@ class AccessPointController extends Controller {
             { equipmentsIds, isRequiredField: false },
             { personTypesIds, isRequiredField: false },
             { active, isRequiredField: false },
-            { manualAccess, isRequiredField: false }
+            { manualAccess, isRequiredField: false },
+            { generalEntry, isRequiredField: false }
           )
 
           await AccessPointServiceImp.update({
@@ -156,6 +161,7 @@ class AccessPointController extends Controller {
               equipmentsIds: equipmentsIds ? equipmentsIds.map((equipmentId: string) => ObjectId(equipmentId)) : undefined,
               personTypesIds: personTypesIds ? personTypesIds.map((personTypeId: string) => ObjectId(personTypeId)) : undefined,
               generalExit,
+              generalEntry,
               active,
               areaId,
               accessAreaId,

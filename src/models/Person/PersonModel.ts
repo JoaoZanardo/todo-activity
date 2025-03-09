@@ -1,14 +1,14 @@
-import { Types } from 'mongoose'
+/* eslint-disable no-irregular-whitespace */
+import { ClientSession, Types } from 'mongoose'
 
-import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
+import { IListModelsFilters, IModel, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
-import { getPersonCode } from '../../utils/getPersonCode'
+import { format } from '../../utils/format'
+import { getRandomCode } from '../../utils/getRandomCode'
 import ObjectId from '../../utils/ObjectId'
-import { IAccessArea } from '../AccessArea/AccessAreaModel'
 import { IAccessControl } from '../AccessControl/AccessControlModel'
-import { IAccessPoint } from '../AccessPoint/AccessPointModel'
-import { IPersonType } from '../PersonType/PersonTypeModel'
+import { IPersonType, UpdationTime } from '../PersonType/PersonTypeModel'
 
 export interface IListPersonsFilters extends IListModelsFilters {
   personTypeId?: Types.ObjectId
@@ -20,15 +20,47 @@ export interface IListPersonsFilters extends IListModelsFilters {
   passport?: string
   cnpj?: string
   register?: string
+  bondAreaId?: Types.ObjectId
+  bondAreasIds?: Array<Types.ObjectId>
+  lastAccess?: boolean
+  appAccess?: boolean
+  updatedData?: boolean
 }
 
-export interface IUpdatePersonProps extends IUpdateModelProps<IPerson> { }
+export interface IUpdatePersonProps {
+  responsibleId?: Types.ObjectId
 
-export interface IDeletePersonProps extends IDeleteModelProps { }
+  session: ClientSession
+  id: Types.ObjectId
+  tenantId: Types.ObjectId
+  data: Partial<IPerson>
+}
+
+export interface IDeletePersonProps {
+  session: ClientSession
+  id: Types.ObjectId
+  tenantId: Types.ObjectId
+  responsibleId: Types.ObjectId
+}
 
 export interface IFindPersonByCpfProps {
   cpf: string
   tenantId: Types.ObjectId
+}
+
+export interface IFindPersonByCnhProps {
+  cnh: string
+  tenantId: Types.ObjectId
+}
+
+export interface IFindAllByPersonTypeId {
+  personTypeId: Types.ObjectId
+  tenantId: Types.ObjectId
+}
+
+export enum PersonCreationType {
+  default = 'default',
+  invite = 'invite'
 }
 
 export interface IPerson extends IModel {
@@ -45,8 +77,6 @@ export interface IPerson extends IModel {
     value: string
     expirationDate: Date
   }
-  workScheduleId?: Types.ObjectId
-  responsibleId?: string
   cnpj?: string
   register?: string
   role?: string
@@ -54,13 +84,24 @@ export interface IPerson extends IModel {
   passport?: string
   cpf?: string
   picture?: string
-  personTypeCategoryId?: string
+  code?: string
+  landline?: string
+  creationType?: PersonCreationType
+  responsibleId?: Types.ObjectId
+  personTypeCategoryId?: Types.ObjectId
+  bondAreasIds?: Array<Types.ObjectId>
+  userId?: Types.ObjectId
+  appAccess?: boolean
+
+  updationInfo?: {
+    updatedData?: boolean
+    lastUpdationdate?: Date
+    nextUpdationdate?: Date
+    updationTime?: UpdationTime
+  }
+
   personType?: IPersonType
   lastAccessControl?: IAccessControl
-  lastAccessPoint?: IAccessPoint
-  lastAccessArea?: IAccessArea
-  bondAreaId?: string
-  code?: string
 
   personTypeId: Types.ObjectId
   name: string
@@ -74,8 +115,6 @@ export class PersonModel extends Model<IPerson> {
   private _phone?: IPerson['phone']
   private _address?: IPerson['address']
   private _cnh?: IPerson['cnh']
-  private _workScheduleId?: IPerson['workScheduleId']
-  private _responsibleId?: IPerson['responsibleId']
   private _cnpj?: IPerson['cnpj']
   private _register?: IPerson['register']
   private _role?: IPerson['role']
@@ -83,13 +122,18 @@ export class PersonModel extends Model<IPerson> {
   private _passport?: IPerson['passport']
   private _cpf?: IPerson['cpf']
   private _picture?: IPerson['picture']
+  private _code?: IPerson['code']
+  private _landline?: IPerson['landline']
+  private _creationType?: IPerson['creationType']
+  private _responsibleId?: IPerson['responsibleId']
   private _personTypeCategoryId?: IPerson['personTypeCategoryId']
+  private _bondAreasIds?: IPerson['bondAreasIds']
+  private _userId?: IPerson['userId']
+  private _appAccess?: IPerson['appAccess']
+  private _updationInfo?: IPerson['updationInfo']
+
   private _personType?: IPerson['personType']
   private _lastAccessControl?: IPerson['lastAccessControl']
-  private _lastAccessPoint?: IPerson['lastAccessPoint']
-  private _lastAccessArea?: IPerson['lastAccessArea']
-  private _bondAreaId?: IPerson['bondAreaId']
-  private _code?: IPerson['code']
 
   private _personTypeId: IPerson['personTypeId']
   private _name: IPerson['name']
@@ -103,22 +147,24 @@ export class PersonModel extends Model<IPerson> {
     this._contractInitDate = person.contractInitDate
     this._contractEndDate = person.contractEndDate
     this._cnh = person.cnh
-    this._workScheduleId = person.workScheduleId
     this._responsibleId = person.responsibleId
     this._cnpj = person.cnpj
     this._register = person.register
     this._role = person.role
     this._rg = person.rg
     this._passport = person.passport
-    this._cpf = person.cpf
+    this._cpf = person.cpf ? person.cpf.replace(/\D/g, '') : undefined
     this._picture = person.picture
     this._personTypeCategoryId = person.personTypeCategoryId
     this._personType = person.personType
     this._lastAccessControl = person.lastAccessControl
-    this._lastAccessPoint = person.lastAccessPoint
-    this._lastAccessArea = person.lastAccessArea
-    this._bondAreaId = person.bondAreaId
-    this._code = person.code || getPersonCode()
+    this._bondAreasIds = person.bondAreasIds ?? []
+    this._code = person.code || getRandomCode()
+    this._landline = person.landline
+    this._creationType = person.creationType ?? PersonCreationType.default
+    this._userId = person.userId
+    this._appAccess = person.appAccess
+    this._updationInfo = person.updationInfo
 
     this._personTypeId = person.personTypeId
     this._name = person.name
@@ -130,8 +176,16 @@ export class PersonModel extends Model<IPerson> {
     }]
   }
 
+  get updationInfo (): IPerson['updationInfo'] {
+    return this._updationInfo
+  }
+
   get personTypeId (): IPerson['personTypeId'] {
     return this._personTypeId
+  }
+
+  get personType (): IPerson['personType'] {
+    return this._personType
   }
 
   get cpf (): IPerson['cpf'] {
@@ -140,6 +194,10 @@ export class PersonModel extends Model<IPerson> {
 
   get code (): IPerson['code'] {
     return this._code
+  }
+
+  get appAccess (): IPerson['appAccess'] {
+    return this._appAccess
   }
 
   get object (): IPerson {
@@ -159,7 +217,6 @@ export class PersonModel extends Model<IPerson> {
       address: this._address,
       personTypeId: this._personTypeId,
       cnh: this._cnh,
-      workScheduleId: this._workScheduleId,
       responsibleId: this._responsibleId,
       cnpj: this._cnpj,
       register: this._register,
@@ -169,8 +226,13 @@ export class PersonModel extends Model<IPerson> {
       cpf: this._cpf,
       picture: this._picture,
       personTypeCategoryId: this._personTypeCategoryId,
-      bondAreaId: this._bondAreaId,
-      code: this._code
+      bondAreasIds: this._bondAreasIds,
+      code: this._code,
+      landline: this._landline,
+      userId: this._userId,
+      creationType: this._creationType,
+      appAccess: this._appAccess,
+      updationInfo: this._updationInfo
     }
   }
 
@@ -178,9 +240,7 @@ export class PersonModel extends Model<IPerson> {
     return {
       ...this.object,
       personType: this._personType,
-      lastAccessControl: this._lastAccessControl,
-      lastAccessPoint: this._lastAccessPoint,
-      lastAccessArea: this._lastAccessArea
+      lastAccessControl: this._lastAccessControl
     }
   }
 
@@ -202,13 +262,20 @@ export class PersonModel extends Model<IPerson> {
       passport,
       register,
       rg,
-      cpf
+      cpf,
+      bondAreaId,
+      lastAccess,
+      appAccess,
+      updatedData
     }: Partial<IListPersonsFilters>
   ): IListPersonsFilters {
     const filters = {
       deletionDate: undefined
     } as IListPersonsFilters
 
+    if (updatedData) Object.assign(filters, { 'updationInfo.updatedData': format.boolean(updatedData) })
+    if (appAccess) Object.assign(filters, { appAccess: format.boolean(appAccess) })
+    if (lastAccess) Object.assign(filters, { lastAccess: format.boolean(lastAccess) })
     if (cnh) Object.assign(filters, { 'cnh.value': { $regex: cnh, $options: 'i' } })
     if (cpf) Object.assign(filters, { cpf: { $regex: cpf, $options: 'i' } })
     if (cnpj) Object.assign(filters, { cnpj: { $regex: cnpj, $options: 'i' } })
@@ -219,6 +286,7 @@ export class PersonModel extends Model<IPerson> {
     if (email) Object.assign(filters, { email: { $regex: email, $options: 'i' } })
 
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
+    if (bondAreaId) Object.assign(filters, { bondAreasIds: { $in: [ObjectId(bondAreaId)] } })
     if (personTypeId) Object.assign(filters, { personTypeId: ObjectId(personTypeId) })
     if (search) {
       Object.assign(filters, {
@@ -231,9 +299,7 @@ export class PersonModel extends Model<IPerson> {
           { passport: { $regex: search, $options: 'i' } },
           { cnpj: { $regex: search, $options: 'i' } },
           { register: { $regex: search, $options: 'i' } },
-          { 'cnh.value': { $regex: search, $options: 'i' } },
-          { 'address.streetName': { $regex: search, $options: 'i' } },
-          { 'address.streetNumber': { $regex: search, $options: 'i' } }
+          { 'cnh.value': { $regex: search, $options: 'i' } }
         ]
       })
     }

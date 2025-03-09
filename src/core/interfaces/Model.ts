@@ -1,4 +1,4 @@
-import { Types } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
 interface IListModelsFilters {
   deletionDate?: Date
@@ -21,6 +21,7 @@ interface IFindAllModelsProps {
 
 interface IUpdateModelProps<T> {
   responsibleId?: Types.ObjectId
+  session?: ClientSession
 
   id: Types.ObjectId
   tenantId: Types.ObjectId
@@ -28,6 +29,8 @@ interface IUpdateModelProps<T> {
 }
 
 interface IDeleteModelProps {
+  session?: ClientSession
+
   id: Types.ObjectId
   tenantId: Types.ObjectId
   responsibleId: Types.ObjectId

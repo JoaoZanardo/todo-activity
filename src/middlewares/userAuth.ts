@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
 
+import { PersonServiceImp } from '../features/Person/PersonController'
 import { UserServiceImp } from '../features/User/UserController'
 import Jwt from '../libraries/Jwt'
+import { UserCreationType } from '../models/User/UserModel'
 import CustomResponse from '../utils/CustomResponse'
 import ObjectId from '../utils/ObjectId'
 
@@ -24,6 +26,21 @@ export const userAuthMiddleware = async (request: Request, response: Response, n
     })
 
     if (!user.active) throw CustomResponse.FORBIDDEN('Acesso negado!')
+
+    const accessGroup = user.accessGroup
+
+    if (accessGroup && !accessGroup.active) throw CustomResponse.FORBIDDEN('Acesso negado!')
+
+    if (user.object.creationType === UserCreationType.app) {
+      const person = await PersonServiceImp.findById({
+        id: user.object.personId!,
+        tenantId
+      })
+
+      if (!person.appAccess) throw CustomResponse.FORBIDDEN('Acesso negado!')
+
+      request.personId = person._id!
+    }
 
     request.user = user.show
     request.userId = user._id!

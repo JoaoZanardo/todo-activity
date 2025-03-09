@@ -12,6 +12,7 @@ import { DateUtils } from '../../utils/Date'
 import { getErrorMessage } from '../../utils/getErrorMessage'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
+import { PersonTypeServiceImp } from '../PersonType/PersonTypeController'
 
 export class AccessSynchronizationService {
   constructor (
@@ -94,7 +95,7 @@ export class AccessSynchronizationService {
   }: ISynchronizeProps): Promise<void> {
     try {
       while (accessReleases.length) {
-        const batch = accessReleases.splice(0, 25)
+        const batch = accessReleases.splice(0, 10)
 
         await this.synchronize({
           accessReleases: batch,
@@ -135,6 +136,24 @@ export class AccessSynchronizationService {
           try {
             const person = accessRelease.person!
 
+            const personTypeId = person.personTypeId
+
+            const personType = await PersonTypeServiceImp.findById({
+              id: personTypeId,
+              tenantId
+            })
+
+            const workSchedulesCodes = personType.object.workSchedulesCodes
+
+            const schedules = workSchedulesCodes?.length
+              ? workSchedulesCodes.map(scheduleCode => {
+                return {
+                  scheduleCode,
+                  description: `ScheduleCode-${scheduleCode}`
+                }
+              })
+              : []
+
             // eslint-disable-next-line @typescript-eslint/no-unused-vars, unused-imports/no-unused-vars
             const [error, _] = await to(
               EquipmentServer.addAccess({
@@ -145,7 +164,7 @@ export class AccessSynchronizationService {
                 personPictureUrl: person.picture!,
                 initDate: accessRelease.initDate,
                 endDate: accessRelease.endDate,
-                schedules: []
+                schedules
               })
             )
 

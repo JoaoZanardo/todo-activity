@@ -98,14 +98,18 @@ class PersonTypeController extends Controller {
             name,
             description,
             expiringTime,
-            appAccess
+            updationTime,
+            appAccess,
+            workSchedulesCodes
           } = request.body
 
           this.rules.validate(
             { name },
             { description, isRequiredField: false },
             { expiringTime, isRequiredField: false },
-            { appAccess, isRequiredField: false }
+            { updationTime, isRequiredField: false },
+            { appAccess, isRequiredField: false },
+            { workSchedulesCodes, isRequiredField: false }
           )
 
           const personTypeModel = new PersonTypeModel({
@@ -118,7 +122,9 @@ class PersonTypeController extends Controller {
             name,
             description,
             expiringTime,
-            appAccess
+            updationTime,
+            appAccess,
+            workSchedulesCodes
           })
 
           const personType = await PersonTypeServiceImp.create(personTypeModel, session)
@@ -150,15 +156,19 @@ class PersonTypeController extends Controller {
             description,
             expiringTime,
             appAccess,
-            active
+            active,
+            updationTime,
+            workSchedulesCodes
           } = request.body
 
           this.rules.validate(
             { name, isRequiredField: false },
             { description, isRequiredField: false },
             { expiringTime, isRequiredField: false },
+            { updationTime, isRequiredField: false },
             { appAccess, isRequiredField: false },
             { active, isRequiredField: false },
+            { workSchedulesCodes, isRequiredField: false },
             { personTypeId }
           )
 
@@ -170,7 +180,9 @@ class PersonTypeController extends Controller {
               description,
               expiringTime,
               appAccess,
-              active
+              active,
+              updationTime,
+              workSchedulesCodes
             },
             responsibleId: userId
           })
@@ -185,6 +197,9 @@ class PersonTypeController extends Controller {
       '/:personTypeId',
       permissionAuthMiddleware(Permission.delete),
       async (request: Request, response: Response, next: NextFunction) => {
+        const session = await database.startSession()
+        session.startTransaction()
+
         try {
           const { tenantId, userId } = request
 
@@ -200,8 +215,13 @@ class PersonTypeController extends Controller {
             responsibleId: userId
           })
 
+          await session.commitTransaction()
+          session.endSession()
+
           response.OK('Tipo de pessoa removido com sucesso!')
         } catch (error) {
+          session.endSession()
+
           next(error)
         }
       })

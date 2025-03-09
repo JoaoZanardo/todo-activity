@@ -3,8 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { DateUtils } from '../../utils/Date'
-import { IListWorkSchedulesFilters, IWorkSchedule, WorkScheduleModel } from './WorkScheduleModel'
+import { IFindWorkScheduleByCodeProps, IListWorkSchedulesFilters, IWorkSchedule, WorkScheduleModel } from './WorkScheduleModel'
 import { IWorkScheduleMongoDB } from './WorkScheduleSchema'
 
 export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, WorkScheduleModel> {
@@ -15,6 +14,22 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
   }: IFindModelByIdProps): Promise<WorkScheduleModel | null> {
     const match: FilterQuery<IWorkSchedule> = {
       _id: id,
+      tenantId,
+      deletionDate: null
+    }
+
+    const document = await this.mongoDB.findOne(match).lean()
+    if (!document) return null
+
+    return new WorkScheduleModel(document)
+  }
+
+  async findByCode ({
+    code,
+    tenantId
+  }: IFindWorkScheduleByCodeProps): Promise<WorkScheduleModel | null> {
+    const match: FilterQuery<IWorkSchedule> = {
+      code,
       tenantId,
       deletionDate: null
     }
@@ -41,37 +56,6 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
     return new WorkScheduleModel(document)
   }
 
-  async findAllInOfSchedule (): Promise<Array<WorkScheduleModel>> {
-    const now = DateUtils.getCurrent()
-    const currentTime = now.toTimeString().slice(0, 5)
-    const currentDay = now.toLocaleString('en-US', { weekday: 'long' })
-
-    const documents = await this.mongoDB.find({
-      days: { $in: [currentDay] },
-      startTime: { $lt: currentTime },
-      endTime: { $gte: currentTime },
-      active: false,
-      deletionDate: null
-    })
-
-    return documents.map(document => new WorkScheduleModel(document))
-  }
-
-  async findAllOutOfSchedule (): Promise<Array<WorkScheduleModel>> {
-    const now = DateUtils.getCurrent()
-    const currentTime = now.toTimeString().slice(0, 5)
-    const currentDay = now.toLocaleString('en-US', { weekday: 'long' })
-
-    const documents = await this.mongoDB.find({
-      days: { $in: [currentDay] },
-      endTime: { $lte: currentTime },
-      active: true,
-      deletionDate: null
-    })
-
-    return documents.map(document => new WorkScheduleModel(document))
-  }
-
   async create (WorkSchedule: WorkScheduleModel): Promise<WorkScheduleModel> {
     const document = await this.mongoDB.create(WorkSchedule.object)
 
@@ -83,8 +67,22 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
   }: IFindAllModelsProps): Promise<Array<Partial<IWorkSchedule>>> {
     return await this.mongoDB.find({
       tenantId,
+      active: true,
       deletionDate: null
     })
+  }
+
+  async findLast ({
+    tenantId
+  }: IFindAllModelsProps): Promise<WorkScheduleModel | null> {
+    const document = await this.mongoDB.findOne({
+      tenantId,
+      deletionDate: null
+    }).sort({ _id: -1 })
+
+    if (!document) return null
+
+    return new WorkScheduleModel(document)
   }
 
   async update ({

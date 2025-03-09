@@ -35,7 +35,7 @@ export const DateUtils = {
     if (parsedDate.isValid()) {
       const date = parsedDate.toDate()
 
-      date.setHours(date.getHours() - 3)
+      // date.setHours(date.getHours() - 3)
 
       return date
     }

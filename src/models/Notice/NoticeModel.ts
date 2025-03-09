@@ -2,24 +2,40 @@ import { Types } from 'mongoose'
 
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
+import { DateUtils } from '../../utils/Date'
 import { format } from '../../utils/format'
 import ObjectId from '../../utils/ObjectId'
 
-export interface IListNoticesFilters extends IListModelsFilters { }
+export interface IListNoticesFilters extends IListModelsFilters {
+  personId?: Types.ObjectId
+  areaId?: Types.ObjectId
+  type?: NoticeType
+  today?: boolean
+  discharged?: boolean
+}
 
 export interface IUpdateNoticeProps extends IUpdateModelProps<INotice> { }
 
 export interface IDeleteNoticeProps extends IDeleteModelProps { }
+
+export enum NoticeType {
+  service = 'service',
+  delivery = 'delivery'
+}
 
 export interface INotice extends IModel {
   observation?: string
   initDate?: Date
   endDate?: Date
   discharged?: boolean
+  serviceType?: string
+  serviceProviderName?: string
+  deliveryType?: string
+  deliveryProviderName?: string
 
-  title: string
-  type: string
+  type: NoticeType
   personId: Types.ObjectId
+  areaId: Types.ObjectId
 }
 
 export class NoticeModel extends Model<INotice> {
@@ -27,10 +43,14 @@ export class NoticeModel extends Model<INotice> {
   private _initDate?: INotice['initDate']
   private _endDate?: INotice['endDate']
   private _discharged?: INotice['discharged']
+  private _serviceType?: INotice['serviceType']
+  private _serviceProviderName?: INotice['serviceProviderName']
+  private _deliveryType?: INotice['deliveryType']
+  private _deliveryProviderName?: INotice['deliveryProviderName']
 
-  private _title: INotice['title']
   private _type: INotice['type']
   private _personId: INotice['personId']
+  private _areaId: INotice['areaId']
 
   constructor (notice: INotice) {
     super(notice)
@@ -39,14 +59,18 @@ export class NoticeModel extends Model<INotice> {
     this._initDate = notice.initDate
     this._endDate = notice.endDate
     this._discharged = notice.discharged
+    this._serviceType = notice.serviceType
+    this._serviceProviderName = notice.serviceProviderName
+    this._deliveryType = notice.deliveryType
+    this._deliveryProviderName = notice.deliveryProviderName
 
-    this._title = notice.title
     this._type = notice.type
-    this._personId = notice.personId
+    this._personId = ObjectId(notice.personId)
+    this._areaId = ObjectId(notice.areaId)
   }
 
-  get title (): INotice['title'] {
-    return this._title
+  get areaId (): INotice['areaId'] {
+    return this._areaId
   }
 
   get object (): INotice {
@@ -61,8 +85,12 @@ export class NoticeModel extends Model<INotice> {
       initDate: this._initDate,
       endDate: this._endDate,
       discharged: this._discharged,
+      deliveryType: this._deliveryType,
+      serviceProviderName: this._serviceProviderName,
+      serviceType: this._serviceType,
+      deliveryProviderName: this._deliveryProviderName,
 
-      title: this._title,
+      areaId: this._areaId,
       type: this._type,
       personId: this._personId
     }
@@ -80,7 +108,12 @@ export class NoticeModel extends Model<INotice> {
       search,
       limit,
       page,
-      active
+      active,
+      areaId,
+      personId,
+      type,
+      today,
+      discharged
     }: Partial<IListNoticesFilters>
   ): IListNoticesFilters {
     const filters = {
@@ -88,13 +121,37 @@ export class NoticeModel extends Model<INotice> {
       deletionDate: undefined
     } as IListNoticesFilters
 
+    const parsedToday = format.boolean(today)
+
+    if (parsedToday) {
+      const startOfDay = new Date()
+      startOfDay.setHours(0, 0, 0, 0)
+
+      const endOfDay = new Date()
+      endOfDay.setHours(23, 59, 59, 999)
+
+      const createdAtFilter: any = {}
+
+      createdAtFilter.$gte = DateUtils.parse(startOfDay)
+      createdAtFilter.$lte = DateUtils.parse(endOfDay)
+    }
+
+    if ((discharged as any) === 'true' || (discharged as any) === 'false') {
+      Object.assign(filters, { discharged: format.boolean(discharged) })
+    }
+
+    if (areaId) Object.assign(filters, { areaId: ObjectId(areaId) })
+    if (personId) Object.assign(filters, { personId: ObjectId(personId) })
+    if (type) Object.assign(filters, { type })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (active) Object.assign(filters, { active: format.boolean(active) })
     if (search) {
       Object.assign(filters, {
         $or: [
-          { title: { $regex: search, $options: 'i' } },
-          { type: { $regex: search, $options: 'i' } }
+          { observation: { $regex: search, $options: 'i' } },
+          { serviceType: { $regex: search, $options: 'i' } },
+          { serviceProviderName: { $regex: search, $options: 'i' } },
+          { deliveryType: { $regex: search, $options: 'i' } }
         ]
       })
     }

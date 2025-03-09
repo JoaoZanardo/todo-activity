@@ -19,5 +19,14 @@ export class UserRules extends Rules {
       validator: (value: string) => is.string(value),
       message: 'Senha inválida. Informe uma senha válida!'
     })
+
+    this.validator.addRule('passwordConfirmation', {
+      validator: (value: string) => is.string(value),
+      message: 'Confirmação de senha inválida. Informe uma senha válida!'
+    })
+    this.validator.addRule('match', {
+      validator: (value: Array<string>) => value[0] === value[1],
+      message: 'As senhas não coincidem!'
+    })
   }
 }

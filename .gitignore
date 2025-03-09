@@ -130,3 +130,5 @@ dist
 .pnp.*
 
 readme
+
+trash.ts

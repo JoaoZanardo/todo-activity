@@ -53,11 +53,18 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         default: []
       },
       accessPointId: Types.ObjectId,
+      noticeId: Types.ObjectId,
+      workSchedulesCodes: {
+        type: Array<Number>,
+        default: []
+      },
+      accessReleaseInvitationId: Types.ObjectId,
+      areasIds: Array<Types.ObjectId>,
 
       type: {
         type: String,
         enum: AccessReleaseType,
-        required: true
+        default: AccessReleaseType.default
       },
       personId: {
         type: Types.ObjectId,
@@ -67,12 +74,8 @@ class AccessReleaseSchema extends Schema<IAccessReleaseDocument> {
         type: Types.ObjectId,
         required: true
       },
-      areasIds: {
+      finalAreasIds: {
         type: Array<Types.ObjectId>,
-        required: true
-      },
-      finalAreaId: {
-        type: Types.ObjectId,
         required: true
       }
     })
