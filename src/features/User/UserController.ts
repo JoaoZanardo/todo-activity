@@ -60,14 +60,16 @@ class UserController extends Controller {
         const {
           email,
           active,
-          name
+          name,
+          password
         } = request.body
 
         this.rules.validate(
           { userId },
           { email, isRequiredField: false },
           { active, isRequiredField: false },
-          { name, isRequiredField: false }
+          { name, isRequiredField: false },
+          { password, isRequiredField: false }
         )
 
         await UserServiceImp.update({
@@ -77,7 +79,8 @@ class UserController extends Controller {
           data: {
             email,
             active,
-            name
+            name,
+            password
           }
         })
 
