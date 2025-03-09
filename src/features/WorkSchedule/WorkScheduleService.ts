@@ -4,7 +4,9 @@ import { WorkScheduleRepositoryImp } from '../../models/WorkSchedule/WorkSchedul
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
+import { PersonTypeServiceImp } from '../PersonType/PersonTypeController'
 
 export class WorkScheduleService {
   constructor (
@@ -207,7 +209,23 @@ export class WorkScheduleService {
   }
 
   async validateDeletion (workSchedule: WorkScheduleModel): Promise<void> {
-    console.log({ workSchedule })
+    const code = workSchedule.code
+
+    if (code === 1) throw CustomResponse.BAD_REQUEST('Não é possível remover a jornada padrão!')
+
+    const personTypes = await PersonTypeServiceImp.findAllByWorkScheduleCode({
+      tenantId: workSchedule.tenantId,
+      workScheduleCode: code!
+    })
+
+    if (personTypes.length) throw CustomResponse.BAD_REQUEST('Existem tipos de pessoas veínculados a essa jornada!')
+
+    const accessReleases = await AccessReleaseServiceImp.findAllByWorkScheduleCode({
+      tenantId: workSchedule.tenantId,
+      workScheduleCode: code!
+    })
+
+    if (accessReleases.length) throw CustomResponse.BAD_REQUEST('Existem liberações de acesso veínculadas a essa jornada!')
   }
 
   private async validateDuplicatedName ({

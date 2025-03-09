@@ -3,7 +3,7 @@ import { Aggregate, ClientSession, FilterQuery } from 'mongoose'
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { IListPersonTypesFilters, IPersonType, PersonTypeModel } from './PersonTypeModel'
+import { IFindAllPersonTypesByWorkScheduleCodeProps, IListPersonTypesFilters, IPersonType, PersonTypeModel } from './PersonTypeModel'
 import { IPersonTypeMongoDB } from './PersonTypeSchema'
 
 export class PersonTypeRepository extends Repository<IPersonTypeMongoDB, PersonTypeModel> {
@@ -48,6 +48,20 @@ export class PersonTypeRepository extends Repository<IPersonTypeMongoDB, PersonT
       active: true,
       deletionDate: null
     }, select)
+
+    return documents
+  }
+
+  async findAllByWorkScheduleCode ({
+    workScheduleCode,
+    tenantId
+  }: IFindAllPersonTypesByWorkScheduleCodeProps): Promise<Array<Partial<IPersonType>>> {
+    const documents = await this.mongoDB.find({
+      workSchedulesCodes: { $in: [workScheduleCode] },
+      tenantId,
+      active: true,
+      deletionDate: null
+    }, ['_id'])
 
     return documents
   }

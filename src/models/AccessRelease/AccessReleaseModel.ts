@@ -144,6 +144,11 @@ export interface IAccessReleaseSynchronization {
   date: Date
 }
 
+export interface IFindAllAccessReleasesByWorkScheduleCodeProps {
+  workScheduleCode: number
+  tenantId: Types.ObjectId
+}
+
 export interface IAccessRelease extends IModel {
   responsibleId?: Types.ObjectId
   observation?: string

@@ -5,7 +5,7 @@ import schedule from 'node-schedule'
 import database from '../../config/database'
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindAllAccessReleaseByResponsibleId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAccessesFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps, RemoveAccessesFromPersonType } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindAllAccessReleaseByResponsibleId, IFindAllAccessReleasesByWorkScheduleCodeProps, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAccessesFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps, RemoveAccessesFromPersonType } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
@@ -26,6 +26,16 @@ export class AccessReleaseService {
 
   async list (filters: IListAccessReleasesFilters): Promise<IAggregatePaginate<IAccessRelease>> {
     return await this.accessReleaseRepositoryImp.list(filters)
+  }
+
+  async findAllByWorkScheduleCode ({
+    workScheduleCode,
+    tenantId
+  }: IFindAllAccessReleasesByWorkScheduleCodeProps): Promise<Array<Partial<IAccessRelease>>> {
+    return await this.accessReleaseRepositoryImp.findAllByWorkScheduleCode({
+      workScheduleCode,
+      tenantId
+    })
   }
 
   async findById ({
