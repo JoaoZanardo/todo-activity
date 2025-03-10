@@ -80,6 +80,10 @@ export class NoticeModel extends Model<INotice> {
     return this._areaId
   }
 
+  get person (): INotice['person'] {
+    return this._person
+  }
+
   get object (): INotice {
     return {
       _id: this._id,

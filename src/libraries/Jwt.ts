@@ -6,7 +6,7 @@ class Jwt {
   private secret: string = env.secretJwt
   private timeToExpires: number = 3 ^ 25
 
-  generate (payload: any, expiresIn = '10 days'): string {
+  generate (payload: any, expiresIn = this.timeToExpires): string {
     return jwt.sign(payload, this.secret, {
       expiresIn
     })

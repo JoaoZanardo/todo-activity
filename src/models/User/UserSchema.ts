@@ -18,6 +18,7 @@ class UserSchema extends Schema<IUserDocument> {
       },
       email: String,
       personId: Types.ObjectId,
+      pushToken: String,
       creationType: {
         type: String,
         enum: UserCreationType,

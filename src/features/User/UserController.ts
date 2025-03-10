@@ -156,6 +156,36 @@ class UserController extends Controller {
       }
     })
 
+    this.router.patch('/:userId', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request
+
+        const { userId } = request.params
+
+        const {
+          exponentPushTokens
+        } = request.body
+
+        this.rules.validate(
+          { userId },
+          { exponentPushTokens }
+        )
+
+        await UserServiceImp.update({
+          id: ObjectId(userId),
+          tenantId,
+          data: {
+            pushToken: exponentPushTokens[0]
+          },
+          responsibleId: ObjectId(userId)
+        })
+
+        response.OK('Usuário atualizado com sucesso!')
+      } catch (error) {
+        next(error)
+      }
+    })
+
     this.router.delete('/:userId', async (request: Request, response: Response, next: NextFunction) => {
       try {
         const { tenantId, user } = request

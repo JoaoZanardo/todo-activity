@@ -1,13 +1,16 @@
 import { ModelAction } from '../../core/interfaces/Model'
 import { AccessControlModel, AccessControlType, IAccessControlCreationServiceExecuteProps } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
+import { PushNotificationModel, PushNotificationType } from '../../models/PushNotification/PushNotificationModel'
 import { DateUtils } from '../../utils/Date'
 import { AccessAreaServiceImp } from '../AccessArea/AccessAreaController'
 import { AccessControlServiceImp } from '../AccessControl/AccessControlController'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
+import { AccessReleaseInvitationServiceImp } from '../AccessReleaseInvitation/AccessReleaseInvitationController'
 import { AreaServiceImp } from '../Area/AreaController'
 import { PersonServiceImp } from '../Person/PersonController'
+import { PushNotificationServiceImp } from '../PushNotification/PushNotificationController'
 
 class AccessControlCreationService {
   async execute ({
@@ -47,6 +50,8 @@ class AccessControlCreationService {
       }) : undefined
     ])
 
+    const type = accessPoint.generalEntry ? AccessControlType.entry : AccessControlType.exit
+
     const accessControl = new AccessControlModel({
       accessPoint: {
         id: accessPoint._id!,
@@ -76,7 +81,7 @@ class AccessControlCreationService {
         }
       },
       tenantId,
-      type: accessPoint.generalEntry ? AccessControlType.entry : AccessControlType.exit,
+      type,
       responsible: responsible ? {
         id: responsible._id!,
         name: responsible.name
@@ -90,7 +95,41 @@ class AccessControlCreationService {
       releaseType
     })
 
-    return await AccessControlRepositoryImp.create(accessControl)
+    const createdAccessControl = await AccessControlRepositoryImp.create(accessControl)
+
+    if (lastAccessRelease?.accessReleaseInvitationId) {
+      if (type === AccessControlType.entry) {
+        const invitation = await AccessReleaseInvitationServiceImp.findById({
+          id: lastAccessRelease?.accessReleaseInvitationId,
+          tenantId
+        })
+
+        const userId = invitation.person?.userId
+
+        if (userId) {
+          const pushNotificationModel = new PushNotificationModel({
+            title: '🚪 Entrada confirmada!',
+            body: `${person.name} acabou de entrar no condomínio usando o convite que você gerou. ✅`,
+            data: {
+              redirect: {
+                screen: 'AccessReleaseInvitation',
+                params: {
+                  id: invitation._id
+                }
+              },
+              userId
+            },
+            tenantId,
+            type: PushNotificationType.specific,
+            userId
+          })
+
+          await PushNotificationServiceImp.create(pushNotificationModel)
+        }
+      }
+    }
+
+    return createdAccessControl
   }
 }
 

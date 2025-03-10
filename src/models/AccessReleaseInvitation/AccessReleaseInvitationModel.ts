@@ -94,6 +94,10 @@ export class AccessReleaseInvitationModel extends Model<IAccessReleaseInvitation
     return this._status
   }
 
+  get person (): IAccessReleaseInvitation['person'] {
+    return this._person
+  }
+
   get object (): IAccessReleaseInvitation {
     return {
       _id: this._id,

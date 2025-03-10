@@ -243,6 +243,10 @@ export class AccessReleaseModel extends Model<IAccessRelease> {
     }]
   }
 
+  get accessReleaseInvitationId (): IAccessRelease['accessReleaseInvitationId'] {
+    return this._accessReleaseInvitationId
+  }
+
   get workSchedulesCodes (): IAccessRelease['workSchedulesCodes'] {
     return this._workSchedulesCodes
   }

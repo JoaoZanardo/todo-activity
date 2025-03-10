@@ -5,8 +5,10 @@ import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
 import { IDeleteNoticeProps, IListNoticesFilters, INotice, IUpdateNoticeProps, NoticeModel } from '../../models/Notice/NoticeModel'
 import { NoticeRepositoryImp } from '../../models/Notice/NoticeMongoDB'
+import { PushNotificationModel, PushNotificationType } from '../../models/PushNotification/PushNotificationModel'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { PushNotificationServiceImp } from '../PushNotification/PushNotificationController'
 
 export class NoticeService {
   constructor (
@@ -42,7 +44,8 @@ export class NoticeService {
     id,
     tenantId,
     responsibleId,
-    data
+    data,
+    session
   }: IUpdateNoticeProps): Promise<void> {
     const notice = await this.findById({
       id,
@@ -67,7 +70,8 @@ export class NoticeService {
               userId: responsibleId
             }
           )
-        ]
+        ],
+        session
       }
     })
 
@@ -75,6 +79,31 @@ export class NoticeService {
       throw CustomResponse.INTERNAL_SERVER_ERROR('Ocorreu um erro ao tentar atualizar aviso!', {
         noticeId: id
       })
+    }
+
+    if (data.discharged) {
+      const person = notice.person
+
+      if (person?.userId) {
+        const pushNotificationModel = new PushNotificationModel({
+          title: 'Aviso confirmado!',
+          body: 'O porteiro visualizou e confirmou seu aviso. Fique tranquilo, sua solicitação foi atendida! ✅',
+          data: {
+            redirect: {
+              screen: 'Notice',
+              params: {
+                id: notice._id
+              }
+            },
+            userId: person.userId
+          },
+          tenantId,
+          type: PushNotificationType.specific,
+          userId: person.userId
+        })
+
+        await PushNotificationServiceImp.create(pushNotificationModel)
+      }
     }
   }
 
