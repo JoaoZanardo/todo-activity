@@ -40,7 +40,7 @@ export interface IValidateAccessControlCreationProps {
 }
 
 export enum AccessControlReleaseType {
-  'manual' = 'manual',
+  'manually' = 'manually',
   'facial' = 'facial',
   'qrCode' = 'qrCode'
 }

@@ -4,7 +4,7 @@ import { IFindModelByIdProps, IFindModelByNameProps } from '../../core/interface
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { DateUtils } from '../../utils/Date'
-import { IFindAllByPersonTypeId, IFindPersonByCnhProps, IFindPersonByCpfProps, IListPersonsFilters, IPerson, PersonModel } from './PersonModel'
+import { IFindAllByPersonTypeId, IFindPersonByCnhProps, IFindPersonByCpfProps, IFindPersonByEmailProps, IFindPersonByPhoneProps, IListPersonsFilters, IPerson, PersonModel } from './PersonModel'
 import { IPersonMongoDB } from './PersonSchema'
 
 export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
@@ -66,6 +66,38 @@ export class PersonRepository extends Repository<IPersonMongoDB, PersonModel> {
   }: IFindPersonByCpfProps): Promise<PersonModel | null> {
     const match: FilterQuery<IPerson> = {
       cpf,
+      tenantId,
+      deletionDate: null
+    }
+
+    const doc = await this.mongoDB.findOne(match).lean()
+    if (!doc) return null
+
+    return new PersonModel(doc)
+  }
+
+  async findByPhone ({
+    phone,
+    tenantId
+  }: IFindPersonByPhoneProps): Promise<PersonModel | null> {
+    const match: FilterQuery<IPerson> = {
+      phone,
+      tenantId,
+      deletionDate: null
+    }
+
+    const doc = await this.mongoDB.findOne(match).lean()
+    if (!doc) return null
+
+    return new PersonModel(doc)
+  }
+
+  async findByEmail ({
+    email,
+    tenantId
+  }: IFindPersonByEmailProps): Promise<PersonModel | null> {
+    const match: FilterQuery<IPerson> = {
+      email,
       tenantId,
       deletionDate: null
     }

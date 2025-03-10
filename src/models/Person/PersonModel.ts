@@ -53,6 +53,16 @@ export interface IFindPersonByCnhProps {
   tenantId: Types.ObjectId
 }
 
+export interface IFindPersonByEmailProps {
+  email: string
+  tenantId: Types.ObjectId
+}
+
+export interface IFindPersonByPhoneProps {
+  phone: string
+  tenantId: Types.ObjectId
+}
+
 export interface IFindAllByPersonTypeId {
   personTypeId: Types.ObjectId
   tenantId: Types.ObjectId
@@ -180,6 +190,10 @@ export class PersonModel extends Model<IPerson> {
     return this._updationInfo
   }
 
+  set updationInfo (updationInfo: IPerson['updationInfo']) {
+    this._updationInfo = updationInfo
+  }
+
   get personTypeId (): IPerson['personTypeId'] {
     return this._personTypeId
   }
@@ -277,7 +291,7 @@ export class PersonModel extends Model<IPerson> {
     if (appAccess) Object.assign(filters, { appAccess: format.boolean(appAccess) })
     if (lastAccess) Object.assign(filters, { lastAccess: format.boolean(lastAccess) })
     if (cnh) Object.assign(filters, { 'cnh.value': { $regex: cnh, $options: 'i' } })
-    if (cpf) Object.assign(filters, { cpf: { $regex: cpf, $options: 'i' } })
+    if (cpf) Object.assign(filters, { cpf: { $regex: cpf.replace(/\D/g, ''), $options: 'i' } })
     if (cnpj) Object.assign(filters, { cnpj: { $regex: cnpj, $options: 'i' } })
     if (rg) Object.assign(filters, { rg: { $regex: rg, $options: 'i' } })
     if (passport) Object.assign(filters, { passport: { $regex: passport, $options: 'i' } })

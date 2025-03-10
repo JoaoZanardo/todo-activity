@@ -71,7 +71,7 @@ class AccessControlController extends Controller {
             userId: ObjectId(userId),
             observation,
             session,
-            releaseType: AccessControlReleaseType.manual
+            releaseType: AccessControlReleaseType.manually
           })
 
           await session.commitTransaction()

@@ -239,7 +239,7 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       },
       {
         $lookup: {
-          from: 'persontypescategories',
+          from: 'persontypecategories',
           localField: 'personTypeCategoryId',
           foreignField: '_id',
           as: 'personTypeCategory'
@@ -337,7 +337,6 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
 
   async list ({ limit, page, ...filters }: IListAccessReleasesFilters): Promise<IAggregatePaginate<IAccessRelease>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
-      { $match: filters },
       {
         $lookup: {
           from: 'people',
@@ -347,6 +346,32 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         }
       },
       { $unwind: '$person' },
+      { $match: filters },
+      {
+        $lookup: {
+          from: 'persontypes',
+          localField: 'personTypeId',
+          foreignField: '_id',
+          as: 'personType'
+        }
+      },
+      {
+        $unwind: '$personType'
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'responsibleId',
+          foreignField: '_id',
+          as: 'responsible'
+        }
+      },
+      {
+        $unwind: {
+          path: '$responsible',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       { $sort: { _id: -1 } }
     ])
 
