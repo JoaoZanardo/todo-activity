@@ -158,15 +158,21 @@ class UserController extends Controller {
 
     this.router.patch('/:userId', async (request: Request, response: Response, next: NextFunction) => {
       try {
+        console.log('PATCH USERS')
+
         const { tenantId } = request
 
+        console.log({ tenantId })
+
         const { userId } = request.params
+
+        console.log({ userId })
 
         const {
           exponentPushTokens
         } = request.body
 
-        console.log({ body: request.body })
+        console.log({ body: request.body || 'NÃO TEM BODY' })
 
         console.log({ exponentPushTokens, exponentPushToken: exponentPushTokens[0] })
 
