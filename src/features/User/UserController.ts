@@ -61,11 +61,15 @@ class UserController extends Controller {
           email,
           active,
           name,
-          password
+          password,
+          exponentPushTokens
         } = request.body
+
+        console.log({ exponentPushTokens })
 
         this.rules.validate(
           { userId },
+          { exponentPushTokens, isRequiredField: false },
           { email, isRequiredField: false },
           { active, isRequiredField: false },
           { name, isRequiredField: false },
@@ -80,7 +84,8 @@ class UserController extends Controller {
             email,
             active,
             name,
-            password
+            password,
+            pushToken: exponentPushTokens ? exponentPushTokens[0] : undefined
           }
         })
 
@@ -151,46 +156,6 @@ class UserController extends Controller {
         response.CREATED('Usuário cadastrado com sucesso!', {
           user: createdUser.show
         })
-      } catch (error) {
-        next(error)
-      }
-    })
-
-    this.router.patch('/:userId', async (request: Request, response: Response, next: NextFunction) => {
-      try {
-        console.log('PATCH USERS')
-
-        const { tenantId } = request
-
-        console.log({ tenantId })
-
-        const { userId } = request.params
-
-        console.log({ userId })
-
-        const {
-          exponentPushTokens
-        } = request.body
-
-        console.log({ body: request.body || 'NÃO TEM BODY' })
-
-        console.log({ exponentPushTokens, exponentPushToken: exponentPushTokens[0] })
-
-        this.rules.validate(
-          { userId },
-          { exponentPushTokens }
-        )
-
-        await UserServiceImp.update({
-          id: ObjectId(userId),
-          tenantId,
-          data: {
-            pushToken: exponentPushTokens[0]
-          },
-          responsibleId: ObjectId(userId)
-        })
-
-        response.OK('Usuário atualizado com sucesso!')
       } catch (error) {
         next(error)
       }
