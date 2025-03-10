@@ -40,16 +40,6 @@ class UnauthRouter {
           guestId
         } = request.body
 
-        console.log({
-          accessReleaseInvitationId,
-          phone,
-          name,
-          responsibleId,
-          cpf,
-          picture,
-          guestId
-        })
-
         new Rules().validate(
           { phone, isRequiredField: false },
           { picture, isRequiredField: false },
@@ -73,15 +63,11 @@ class UnauthRouter {
 
         let personId: Types.ObjectId | undefined = guestId ? ObjectId(guestId) : undefined
 
-        console.log({ personId })
-
         if (!personId) {
           const [_, person] = await to(PersonServiceImp.findByCpf({
             cpf,
             tenantId
           }))
-
-          console.log({ person })
 
           if (person) {
             personId = person._id!
@@ -114,13 +100,9 @@ class UnauthRouter {
 
             const createdPerson = await PersonServiceImp.create(personModel, session)
 
-            console.log({ createdPerson })
-
             personId = createdPerson._id!
           }
         }
-
-        console.log({ personId })
 
         const accessRelease = await AccessReleaseCreationService.createByAccessReleaseInvitationId({
           accessReleaseInvitationId: ObjectId(accessReleaseInvitationId),

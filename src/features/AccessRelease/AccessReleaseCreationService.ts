@@ -10,7 +10,6 @@ import { PushNotificationModel, PushNotificationType } from '../../models/PushNo
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { AccessReleaseInvitationServiceImp } from '../AccessReleaseInvitation/AccessReleaseInvitationController'
-import { PersonServiceImp } from '../Person/PersonController'
 import { PushNotificationServiceImp } from '../PushNotification/PushNotificationController'
 import { WorkScheduleServiceImp } from '../WorkSchedule/WorkScheduleController'
 import { AccessReleaseServiceImp } from './AccessReleaseController'
@@ -173,14 +172,15 @@ class AccessReleaseCreationService {
     const userId = accessReleaseInvitation.person?.userId
 
     if (userId) {
-      const guest = await PersonServiceImp.findById({
-        id: guestId,
-        tenantId
-      })
+      // const guest = await PersonServiceImp.findById({
+      //   id: guestId,
+      //   tenantId
+      // })
 
       const pushNotificationModel = new PushNotificationModel({
         title: '🎉 Convite aceito!',
-        body: `${guest.name} acabou de preencher seu convite e agora pode accessar o condomínio.`,
+        // body: `${guest.name} acabou de preencher seu convite e agora pode accessar o condomínio.`,
+        body: 'Alguém acabou de preencher seu convite e agora pode accessar o condomínio.',
         data: {
           redirect: {
             screen: 'AccessReleaseInvitation',
