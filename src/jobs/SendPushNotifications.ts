@@ -7,6 +7,8 @@ export const SendPushNotifications = async () => {
   try {
     const unsentPushNotifications = await PushNotificationServiceImp.findAllUnsent()
 
+    console.log('SendPushNotifications -', unsentPushNotifications.length)
+
     if (unsentPushNotifications.length) {
       await Promise.all(
         unsentPushNotifications.map(async pushNotification => {

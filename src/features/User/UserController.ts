@@ -166,6 +166,8 @@ class UserController extends Controller {
           exponentPushTokens
         } = request.body
 
+        console.log({ exponentPushTokens, exponentPushToken: exponentPushTokens[0] })
+
         this.rules.validate(
           { userId },
           { exponentPushTokens }
