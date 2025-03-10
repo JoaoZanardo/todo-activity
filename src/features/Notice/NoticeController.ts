@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express'
 
+import database from '../../config/database'
 import { Controller } from '../../core/Controller'
 import { ModelAction } from '../../core/interfaces/Model'
 import Rules from '../../core/Rules'
@@ -120,6 +121,9 @@ class NoticeController extends Controller {
     })
 
     this.router.patch('/:noticeId', async (request: Request, response: Response, next: NextFunction) => {
+      const session = await database.startSession()
+      session.startTransaction()
+
       try {
         const { tenantId, userId } = request
 
@@ -140,11 +144,17 @@ class NoticeController extends Controller {
           data: {
             discharged
           },
+          session,
           responsibleId: userId
         })
 
+        await session.commitTransaction()
+        session.endSession()
+
         response.OK('Aviso atualizado com sucesso!')
       } catch (error) {
+        session.endSession()
+
         next(error)
       }
     })

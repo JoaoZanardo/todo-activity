@@ -24,8 +24,8 @@ export enum PushNotificationType {
 export interface IPushNotification extends IModel {
   sent?: boolean
   sentAt?: Date
-  userId?: Types.ObjectId
 
+  userId: Types.ObjectId
   title: string
   body: string
   data: IPushNotificationData
@@ -35,8 +35,8 @@ export interface IPushNotification extends IModel {
 export class PushNotificationModel extends Model<IPushNotification> {
   private _sent?: IPushNotification['sent']
   private _sentAt?: IPushNotification['sentAt']
-  private _userId?: IPushNotification['userId']
 
+  private _userId: IPushNotification['userId']
   private _title: IPushNotification['title']
   private _body: IPushNotification['body']
   private _data: IPushNotification['data']

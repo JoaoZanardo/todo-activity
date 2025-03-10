@@ -1,4 +1,4 @@
-import { Aggregate, FilterQuery } from 'mongoose'
+import { Aggregate, PipelineStage } from 'mongoose'
 
 import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
@@ -11,16 +11,33 @@ export class NoticeRepository extends Repository<INoticeMongoDB, NoticeModel> {
     id,
     tenantId
   }: IFindModelByIdProps): Promise<NoticeModel | null> {
-    const match: FilterQuery<INotice> = {
-      _id: id,
-      tenantId,
-      deletionDate: null
-    }
+    const aggregationStages: Array<PipelineStage> = [
+      {
+        $match: {
+          _id: id,
+          tenantId,
+          deletionDate: null
+        }
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'personId',
+          foreignField: '_id',
+          as: 'person'
+        }
+      },
+      {
+        $unwind: '$person'
+      },
+      { $sort: { _id: -1 } }
+    ]
 
-    const document = await this.mongoDB.findOne(match).lean()
-    if (!document) return null
+    const result = await this.mongoDB.aggregate(aggregationStages)
 
-    return new NoticeModel(document)
+    if (!result.length) return null
+
+    return new NoticeModel(result[0])
   }
 
   async list ({ limit, page, ...filters }: IListNoticesFilters): Promise<IAggregatePaginate<INotice>> {

@@ -65,6 +65,7 @@ export interface IUser extends IModel {
   email?: string
   personId?: Types.ObjectId
   creationType?: UserCreationType
+  pushToken?: string
 
   accessGroup?: IAccessGroup
   person?: IPerson
@@ -81,6 +82,7 @@ export class UserModel extends Model<IUser> {
   private _email?: IUser['email']
   private _personId?: IUser['personId']
   private _creationType?: IUser['creationType']
+  private _pushToken?: IUser['pushToken']
 
   private _accessGroup?: IUser['accessGroup']
   private _person?: IUser['person']
@@ -97,6 +99,7 @@ export class UserModel extends Model<IUser> {
     this._email = user.email
     this._personId = user.personId
     this._creationType = user.creationType
+    this._pushToken = user.pushToken
 
     this._accessGroup = user.accessGroup
     this._person = user.person
@@ -106,6 +109,10 @@ export class UserModel extends Model<IUser> {
     this._login = user.login
     this._password = user.password
     this._accessGroupId = user.accessGroupId
+  }
+
+  get pushToken (): IUser['pushToken'] {
+    return this._pushToken
   }
 
   get accessGroup (): IUser['accessGroup'] {
@@ -131,6 +138,7 @@ export class UserModel extends Model<IUser> {
       password: this._password,
       accessGroupId: this._accessGroupId,
       creationType: this._creationType,
+      pushToken: this._pushToken,
       personId: this._personId
     }
   }

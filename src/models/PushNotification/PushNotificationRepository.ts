@@ -1,6 +1,6 @@
 import { Aggregate, ClientSession, Types } from 'mongoose'
-import { IFindModelByIdProps } from 'src/core/interfaces/Model'
 
+import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { IListPushNotificationsFilters, IPushNotification, PushNotificationModel, PushNotificationType } from './PushNotificationModel'
@@ -61,7 +61,8 @@ export class PushNotificationRepository extends Repository<IPushNotificationMong
     session
   }: IUpdateProps<IPushNotification>): Promise<boolean> {
     const updated = await this.mongoDB.updateOne({
-      _id: id
+      _id: id,
+      tenantId
     }, {
       $set: data
     }, {

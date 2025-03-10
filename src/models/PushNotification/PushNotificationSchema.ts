@@ -16,10 +16,11 @@ class PushNotificationSchema extends Schema<IPushNotificationDocument> {
         default: false
       },
       sentAt: Date,
-      userId: {
-        type: Types.ObjectId
-      },
 
+      userId: {
+        type: Types.ObjectId,
+        required: true
+      },
       title: {
         type: String,
         required: true
