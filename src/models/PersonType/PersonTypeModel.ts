@@ -1,3 +1,5 @@
+import { Types } from 'mongoose'
+
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
@@ -8,6 +10,11 @@ export interface IListPersonTypesFilters extends IListModelsFilters { }
 export interface IUpdatePersonTypeProps extends IUpdateModelProps<IPersonType> {}
 
 export interface IDeletePersonTypeProps extends IDeleteModelProps {}
+
+export interface IFindAllPersonTypesByWorkScheduleCodeProps {
+  workScheduleCode: number
+  tenantId: Types.ObjectId
+}
 
 export enum TimeUnit {
   minute = 'minute',

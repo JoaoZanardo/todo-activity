@@ -1,10 +1,12 @@
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps, ModelAction } from '../../core/interfaces/Model'
-import { IDeleteWorkScheduleProps, IListWorkSchedulesFilters, IUpdateWorkScheduleProps, IWorkSchedule, WorkScheduleModel } from '../../models/WorkSchedule/WorkScheduleModel'
+import { IDeleteWorkScheduleProps, IFindWorkScheduleByCodeProps, IListWorkSchedulesFilters, IUpdateWorkScheduleProps, IWorkSchedule, WorkScheduleModel } from '../../models/WorkSchedule/WorkScheduleModel'
 import { WorkScheduleRepositoryImp } from '../../models/WorkSchedule/WorkScheduleMongoDB'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
+import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
+import { PersonTypeServiceImp } from '../PersonType/PersonTypeController'
 
 export class WorkScheduleService {
   constructor (
@@ -19,6 +21,20 @@ export class WorkScheduleService {
   }: IFindModelByIdProps): Promise<WorkScheduleModel> {
     const workSchedule = await this.workScheduleRepositoryImp.findById({
       id,
+      tenantId
+    })
+
+    if (!workSchedule) throw CustomResponse.NOT_FOUND('Jornada de trabalho não cadastrada!')
+
+    return workSchedule
+  }
+
+  async findByCode ({
+    code,
+    tenantId
+  }: IFindWorkScheduleByCodeProps): Promise<WorkScheduleModel> {
+    const workSchedule = await this.workScheduleRepositoryImp.findByCode({
+      code,
       tenantId
     })
 
@@ -193,7 +209,23 @@ export class WorkScheduleService {
   }
 
   async validateDeletion (workSchedule: WorkScheduleModel): Promise<void> {
-    console.log({ workSchedule })
+    const code = workSchedule.code
+
+    if (code === 1) throw CustomResponse.BAD_REQUEST('Não é possível remover a jornada padrão!')
+
+    const personTypes = await PersonTypeServiceImp.findAllByWorkScheduleCode({
+      tenantId: workSchedule.tenantId,
+      workScheduleCode: code!
+    })
+
+    if (personTypes.length) throw CustomResponse.BAD_REQUEST('Existem tipos de pessoas veínculados a essa jornada!')
+
+    const accessReleases = await AccessReleaseServiceImp.findAllByWorkScheduleCode({
+      tenantId: workSchedule.tenantId,
+      workScheduleCode: code!
+    })
+
+    if (accessReleases.length) throw CustomResponse.BAD_REQUEST('Existem liberações de acesso veínculadas a essa jornada!')
   }
 
   private async validateDuplicatedName ({

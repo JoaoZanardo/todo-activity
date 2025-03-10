@@ -53,6 +53,35 @@ export class TenantService {
     return createdTenant
   }
 
+  async update (id: Types.ObjectId, data: Partial<ITenant>): Promise<void> {
+    const tenant = await this.findById(id)
+
+    const updated = await this.tenantRepositoryImp.updateById({
+      id,
+      data: {
+        ...data,
+        actions: [
+          ...tenant.actions!,
+          (
+            data.deletionDate ? {
+              action: ModelAction.delete,
+              date: DateUtils.getCurrent()
+            } : {
+              action: ModelAction.update,
+              date: DateUtils.getCurrent()
+            }
+          )
+        ]
+      }
+    })
+
+    if (!updated) {
+      throw CustomResponse.INTERNAL_SERVER_ERROR('Ocorreu um erro ao tentar atualizar tenente!', {
+        tenantId: id
+      })
+    }
+  }
+
   private async validateDuplicatedEmail (email: string): Promise<void> {
     const exists = await this.tenantRepositoryImp.findByEmail(email)
 

@@ -10,6 +10,7 @@ import CustomResponse from '../../utils/CustomResponse'
 import { AccessPointServiceImp } from '../AccessPoint/AccessPointController'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
+import { PersonServiceImp } from '../Person/PersonController'
 import AccessControlCreationService from './AccessControlCreationService'
 
 export class AccessControlService {
@@ -39,9 +40,14 @@ export class AccessControlService {
   async createByEquipmentIp ({
     equipmentIp,
     personId,
-    tenantId,
-    session
+    session,
+    releaseType,
+    picture
   }: ICreateAccessControlByEquipmentIpProps): Promise<AccessControlModel> {
+    const person = await PersonServiceImp.findOneByIdWithNoTenantId(personId)
+
+    const tenantId = person.tenantId
+
     const equipment = await EquipmentServiceImp.findByIp({
       ip: equipmentIp,
       tenantId
@@ -61,7 +67,9 @@ export class AccessControlService {
         ip: equipment.ip,
         name: equipment.name
       },
-      session
+      picture,
+      session,
+      releaseType
     })
   }
 

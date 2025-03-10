@@ -1,15 +1,16 @@
-import { ClientSession } from 'mongoose'
+import { ClientSession, Types } from 'mongoose'
 
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { AccessReleaseStatus } from '../../models/AccessRelease/AccessReleaseModel'
 import { IArea } from '../../models/Area/AreaModel'
-import { IDeletePersonProps, IFindAllByPersonTypeId, IFindPersonByCnhProps, IFindPersonByCpfProps, IListPersonsFilters, IPerson, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
+import { IDeletePersonProps, IFindAllByPersonTypeId, IFindPersonByCnhProps, IFindPersonByCpfProps, IFindPersonByEmailProps, IFindPersonByPhoneProps, IListPersonsFilters, IPerson, IUpdatePersonProps, PersonModel } from '../../models/Person/PersonModel'
 import { PersonRepositoryImp } from '../../models/Person/PersonMongoDB'
 import { addExpiringTime } from '../../utils/addExpiringTime'
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseController'
 import { AreaServiceImp } from '../Area/AreaController'
+import { PersonTypeServiceImp } from '../PersonType/PersonTypeController'
 
 export class PersonService {
   constructor (
@@ -26,6 +27,14 @@ export class PersonService {
       id,
       tenantId
     })
+
+    if (!person) throw CustomResponse.NOT_FOUND('Pessoa não cadastrada!')
+
+    return person
+  }
+
+  async findOneByIdWithNoTenantId (id: Types.ObjectId): Promise<PersonModel> {
+    const person = await this.personRepositoryImp.findfindOneByIdWithNoTenantIdById(id)
 
     if (!person) throw CustomResponse.NOT_FOUND('Pessoa não cadastrada!')
 
@@ -114,11 +123,54 @@ export class PersonService {
   async create (person: PersonModel, session: ClientSession): Promise<PersonModel> {
     const tenantId = person.tenantId
 
-    const cnh = person.object.cnh
+    const personType = await PersonTypeServiceImp.findById({
+      id: person.personTypeId,
+      tenantId
+    })
+
+    const updationTime = personType.object.updationTime
+
+    const currentdate = DateUtils.getCurrent()
+
+    if (updationTime) {
+      person.updationInfo = {
+        updatedData: true,
+        lastUpdationdate: currentdate,
+        nextUpdationdate: addExpiringTime(updationTime, currentdate),
+        updationTime
+      }
+    }
+
+    const {
+      cnh,
+      email,
+      phone
+    } = person.object
+
+    if (person.cpf) {
+      this.validateDuplicatedCpf({
+        cpf: person.cpf,
+        tenantId
+      })
+    }
 
     if (cnh?.value) {
       await this.validateDuplicatedCnh({
         cnh: cnh.value,
+        tenantId
+      })
+    }
+
+    if (email) {
+      await this.validateDuplicatedEmail({
+        email,
+        tenantId
+      })
+    }
+
+    if (phone) {
+      await this.validateDuplicatedPhone({
+        phone,
         tenantId
       })
     }
@@ -137,6 +189,46 @@ export class PersonService {
       id,
       tenantId
     })
+
+    if (data.cpf) {
+      // eslint-disable-next-line no-irregular-whitespace
+      data.cpf = data.cpf.replace(/\D/g, '')
+    }
+
+    const {
+      email,
+      phone,
+      cpf,
+      cnh
+    } = data
+
+    if (email && email !== person.object.email) {
+      await this.validateDuplicatedEmail({
+        email,
+        tenantId
+      })
+    }
+
+    if (phone && phone !== person.object.phone) {
+      await this.validateDuplicatedPhone({
+        phone,
+        tenantId
+      })
+    }
+
+    if (cnh && cnh.value !== person.object.cnh?.value) {
+      await this.validateDuplicatedCnh({
+        cnh: cnh.value,
+        tenantId
+      })
+    }
+
+    if (cpf && cpf !== person.object.cpf) {
+      await this.validateDuplicatedCpf({
+        cpf,
+        tenantId
+      })
+    }
 
     if (data.active === false) {
       const accessRelease = await AccessReleaseServiceImp.findLastByPersonId({
@@ -258,6 +350,30 @@ export class PersonService {
   }: IFindPersonByCnhProps): Promise<void> {
     const person = await this.personRepositoryImp.findByCnh({
       cnh,
+      tenantId
+    })
+
+    if (person) throw CustomResponse.CONFLICT('Pessoa já cadastrada!')
+  }
+
+  private async validateDuplicatedEmail ({
+    email,
+    tenantId
+  }: IFindPersonByEmailProps): Promise<void> {
+    const person = await this.personRepositoryImp.findByEmail({
+      email,
+      tenantId
+    })
+
+    if (person) throw CustomResponse.CONFLICT('Pessoa já cadastrada!')
+  }
+
+  private async validateDuplicatedPhone ({
+    phone,
+    tenantId
+  }: IFindPersonByPhoneProps): Promise<void> {
+    const person = await this.personRepositoryImp.findByPhone({
+      phone,
       tenantId
     })
 

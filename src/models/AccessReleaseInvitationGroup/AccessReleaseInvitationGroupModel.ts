@@ -11,6 +11,7 @@ export interface IListAccessReleaseInvitationGroupsFilters extends IListModelsFi
   personId?: Types.ObjectId
   today?: boolean
   expired?: boolean
+  areaId?: Types.ObjectId
 }
 
 export interface IUpdateAccessReleaseInvitationGroupProps extends IUpdateModelProps<IAccessReleaseInvitationGroup> { }
@@ -103,7 +104,8 @@ export class AccessReleaseInvitationGroupModel extends Model<IAccessReleaseInvit
       page,
       tenantId,
       personId,
-      today
+      today,
+      areaId
     }: Partial<IListAccessReleaseInvitationGroupsFilters>
   ): IListAccessReleaseInvitationGroupsFilters {
     const filters = {
@@ -126,12 +128,14 @@ export class AccessReleaseInvitationGroupModel extends Model<IAccessReleaseInvit
       createdAtFilter.$lte = DateUtils.parse(endOfDay)
     }
 
+    if (areaId) Object.assign(filters, { areaId: ObjectId(areaId) })
     if (personId) Object.assign(filters, { personId: ObjectId(personId) })
     if (tenantId) Object.assign(filters, { tenantId: ObjectId(tenantId) })
     if (search) {
       Object.assign(filters, {
         $or: [
-          { observation: { $regex: search, $options: 'i' } }
+          { observation: { $regex: search, $options: 'i' } },
+          { 'person.name': { $regex: search, $options: 'i' } }
         ]
       })
     }

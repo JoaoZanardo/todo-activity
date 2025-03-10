@@ -3,7 +3,7 @@ import { NextFunction, Request, Response, Router } from 'express'
 import database from '../../config/database'
 import { Controller } from '../../core/Controller'
 import Rules from '../../core/Rules'
-import { AccessControlModel } from '../../models/AccessControl/AccessControlModel'
+import { AccessControlModel, AccessControlReleaseType } from '../../models/AccessControl/AccessControlModel'
 import { AccessControlRepositoryImp } from '../../models/AccessControl/AccessControlMongoDB'
 import ObjectId from '../../utils/ObjectId'
 import AccessControlCreationService from './AccessControlCreationService'
@@ -70,7 +70,8 @@ class AccessControlController extends Controller {
             tenantId: ObjectId(tenantId),
             userId: ObjectId(userId),
             observation,
-            session
+            session,
+            releaseType: AccessControlReleaseType.manually
           })
 
           await session.commitTransaction()

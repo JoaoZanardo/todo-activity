@@ -5,6 +5,7 @@ import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
 import { format } from '../../utils/format'
 import ObjectId from '../../utils/ObjectId'
+import { IPerson } from '../Person/PersonModel'
 
 export interface IListNoticesFilters extends IListModelsFilters {
   personId?: Types.ObjectId
@@ -33,6 +34,8 @@ export interface INotice extends IModel {
   deliveryType?: string
   deliveryProviderName?: string
 
+  person?: IPerson
+
   type: NoticeType
   personId: Types.ObjectId
   areaId: Types.ObjectId
@@ -47,6 +50,8 @@ export class NoticeModel extends Model<INotice> {
   private _serviceProviderName?: INotice['serviceProviderName']
   private _deliveryType?: INotice['deliveryType']
   private _deliveryProviderName?: INotice['deliveryProviderName']
+
+  private _person?: INotice['person']
 
   private _type: INotice['type']
   private _personId: INotice['personId']
@@ -63,6 +68,8 @@ export class NoticeModel extends Model<INotice> {
     this._serviceProviderName = notice.serviceProviderName
     this._deliveryType = notice.deliveryType
     this._deliveryProviderName = notice.deliveryProviderName
+
+    this._person = notice.person
 
     this._type = notice.type
     this._personId = ObjectId(notice.personId)
@@ -98,7 +105,8 @@ export class NoticeModel extends Model<INotice> {
 
   get show (): INotice {
     return {
-      ...this.object
+      ...this.object,
+      person: this._person
     }
   }
 
@@ -151,7 +159,9 @@ export class NoticeModel extends Model<INotice> {
           { observation: { $regex: search, $options: 'i' } },
           { serviceType: { $regex: search, $options: 'i' } },
           { serviceProviderName: { $regex: search, $options: 'i' } },
-          { deliveryType: { $regex: search, $options: 'i' } }
+          { deliveryType: { $regex: search, $options: 'i' } },
+          { deliveryProviderName: { $regex: search, $options: 'i' } },
+          { 'person.name': { $regex: search, $options: 'i' } }
         ]
       })
     }

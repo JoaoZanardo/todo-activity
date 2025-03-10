@@ -5,7 +5,7 @@ import schedule from 'node-schedule'
 import database from '../../config/database'
 import { IFindModelByIdProps, ModelAction } from '../../core/interfaces/Model'
 import { IAggregatePaginate } from '../../core/interfaces/Repository'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindAllAccessReleaseByResponsibleId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAccessesFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps, RemoveAccessesFromPersonType } from '../../models/AccessRelease/AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IAccessReleaseSynchronization, IDisableAccessReleaseProps, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindAllAccessReleaseByResponsibleId, IFindAllAccessReleasesByWorkScheduleCodeProps, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IProcessAreaAccessPointsProps, IProcessEquipments, IRemoveAccessesFromPersonProps, IScheduleDisableProps, ISyncPersonAccessWithEquipmentsProps, RemoveAccessesFromPersonType } from '../../models/AccessRelease/AccessReleaseModel'
 import { AccessReleaseRepositoryImp } from '../../models/AccessRelease/AccessReleaseMongoDB'
 import EquipmentServer from '../../services/EquipmentServer'
 import CustomResponse from '../../utils/CustomResponse'
@@ -16,7 +16,6 @@ import { AccessReleaseServiceImp } from '../AccessRelease/AccessReleaseControlle
 import { AreaServiceImp } from '../Area/AreaController'
 import { EquipmentServiceImp } from '../Equipment/EquipmentController'
 import { PersonServiceImp } from '../Person/PersonController'
-import { PersonTypeServiceImp } from '../PersonType/PersonTypeController'
 
 export class AccessReleaseService {
   constructor (
@@ -27,6 +26,16 @@ export class AccessReleaseService {
 
   async list (filters: IListAccessReleasesFilters): Promise<IAggregatePaginate<IAccessRelease>> {
     return await this.accessReleaseRepositoryImp.list(filters)
+  }
+
+  async findAllByWorkScheduleCode ({
+    workScheduleCode,
+    tenantId
+  }: IFindAllAccessReleasesByWorkScheduleCodeProps): Promise<Array<Partial<IAccessRelease>>> {
+    return await this.accessReleaseRepositoryImp.findAllByWorkScheduleCode({
+      workScheduleCode,
+      tenantId
+    })
   }
 
   async findById ({
@@ -334,14 +343,7 @@ export class AccessReleaseService {
       equipmentsIds.map(async (equipmentId) => {
         const equipment = await EquipmentServiceImp.findById({ id: equipmentId, tenantId })
 
-        const personTypeId = person.personTypeId
-
-        const personType = await PersonTypeServiceImp.findById({
-          id: personTypeId,
-          tenantId
-        })
-
-        const workSchedulesCodes = personType.object.workSchedulesCodes
+        const workSchedulesCodes = accessRelease.workSchedulesCodes
 
         const schedules = workSchedulesCodes?.length
           ? workSchedulesCodes.map(scheduleCode => {

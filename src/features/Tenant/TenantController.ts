@@ -101,12 +101,35 @@ class TenantController extends Controller {
         await session.commitTransaction()
         session.endSession()
 
-        response.CREATED('Tenente cadastrado com sucesso!', {
+        response.CREATED('Tenente atualizado com sucesso!', {
           tenant: tenant.object
         })
       } catch (error) {
         session.endSession()
 
+        next(error)
+      }
+    })
+
+    this.router.patch('/:tenantId', async (request: Request, response: Response, next: NextFunction) => {
+      try {
+        const { tenantId } = request.params
+
+        const {
+          serverIPAddress
+        } = request.body
+
+        console.log({
+          serverIPAddress,
+          tenantId
+        })
+
+        await TenantServiceImp.update(ObjectId(tenantId), {
+          serverIPAddress
+        })
+
+        response.OK('Cliente atualizado com sucesso!')
+      } catch (error) {
         next(error)
       }
     })

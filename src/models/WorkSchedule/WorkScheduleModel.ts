@@ -27,6 +27,11 @@ export enum Day {
 
 export const DayValues = Object.values(Day)
 
+export interface IFindWorkScheduleByCodeProps {
+  code: number
+  tenantId: Types.ObjectId
+}
+
 export interface IWorkSchedule extends IModel {
   description?: string
   code?: number

@@ -1,3 +1,4 @@
+/* eslint-disable no-irregular-whitespace */
 import { ClientSession, Types } from 'mongoose'
 
 import { IListModelsFilters, IModel, ModelAction } from '../../core/interfaces/Model'
@@ -49,6 +50,16 @@ export interface IFindPersonByCpfProps {
 
 export interface IFindPersonByCnhProps {
   cnh: string
+  tenantId: Types.ObjectId
+}
+
+export interface IFindPersonByEmailProps {
+  email: string
+  tenantId: Types.ObjectId
+}
+
+export interface IFindPersonByPhoneProps {
+  phone: string
   tenantId: Types.ObjectId
 }
 
@@ -152,7 +163,7 @@ export class PersonModel extends Model<IPerson> {
     this._role = person.role
     this._rg = person.rg
     this._passport = person.passport
-    this._cpf = person.cpf
+    this._cpf = person.cpf ? person.cpf.replace(/\D/g, '') : undefined
     this._picture = person.picture
     this._personTypeCategoryId = person.personTypeCategoryId
     this._personType = person.personType
@@ -177,6 +188,10 @@ export class PersonModel extends Model<IPerson> {
 
   get updationInfo (): IPerson['updationInfo'] {
     return this._updationInfo
+  }
+
+  set updationInfo (updationInfo: IPerson['updationInfo']) {
+    this._updationInfo = updationInfo
   }
 
   get personTypeId (): IPerson['personTypeId'] {
@@ -276,7 +291,7 @@ export class PersonModel extends Model<IPerson> {
     if (appAccess) Object.assign(filters, { appAccess: format.boolean(appAccess) })
     if (lastAccess) Object.assign(filters, { lastAccess: format.boolean(lastAccess) })
     if (cnh) Object.assign(filters, { 'cnh.value': { $regex: cnh, $options: 'i' } })
-    if (cpf) Object.assign(filters, { cpf: { $regex: cpf, $options: 'i' } })
+    if (cpf) Object.assign(filters, { cpf: { $regex: cpf.replace(/\D/g, ''), $options: 'i' } })
     if (cnpj) Object.assign(filters, { cnpj: { $regex: cnpj, $options: 'i' } })
     if (rg) Object.assign(filters, { rg: { $regex: rg, $options: 'i' } })
     if (passport) Object.assign(filters, { passport: { $regex: passport, $options: 'i' } })

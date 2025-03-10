@@ -21,6 +21,7 @@ export interface ITenant {
   usersNumber?: number
   peopleNumber?: number
   invitationFacialValidation?: boolean
+  serverIPAddress?: string
   code?: string
 
   name: string
@@ -40,6 +41,7 @@ export class TenantModel {
   private _peopleNumber?: ITenant['peopleNumber']
   private _freeTrial?: ITenant['freeTrial']
   private _invitationFacialValidation?: ITenant['invitationFacialValidation']
+  private _serverIPAddress?: ITenant['serverIPAddress']
   private _code?: ITenant['code']
 
   private _name: ITenant['name']
@@ -58,6 +60,7 @@ export class TenantModel {
     this._usersNumber = tenant.usersNumber
     this._peopleNumber = tenant.peopleNumber
     this._invitationFacialValidation = tenant.invitationFacialValidation
+    this._serverIPAddress = tenant.serverIPAddress
     this._code = tenant.code || this.randomCode
 
     this._name = tenant.name
@@ -80,6 +83,7 @@ export class TenantModel {
       name: this._name,
       email: this._email,
       invitationFacialValidation: this._invitationFacialValidation,
+      serverIPAddress: this._serverIPAddress,
       code: this._code
     }
   }

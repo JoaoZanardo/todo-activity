@@ -1,7 +1,7 @@
 import mongoose, { AggregatePaginateModel, Document, Types } from 'mongoose'
 
 import Schema, { coreSchema } from '../../core/Schema'
-import { AccessControlType, IAccessControl } from './AccessControlModel'
+import { AccessControlReleaseType, AccessControlType, IAccessControl } from './AccessControlModel'
 
 export interface IAccessControlDocument extends Document, Omit<IAccessControl, '_id'> { }
 
@@ -21,10 +21,15 @@ class AccessControlSchema extends Schema<IAccessControlDocument> {
         name: String,
         ip: String
       },
-
       type: {
         type: String,
         enum: AccessControlType
+      },
+
+      releaseType: {
+        type: String,
+        enum: AccessControlReleaseType,
+        required: true
       },
       person: {
         id: Types.ObjectId,

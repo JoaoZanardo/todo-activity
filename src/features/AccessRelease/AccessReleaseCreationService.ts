@@ -9,6 +9,7 @@ import { AccessReleaseInvitationStatus } from '../../models/AccessReleaseInvitat
 import CustomResponse from '../../utils/CustomResponse'
 import { DateUtils } from '../../utils/Date'
 import { AccessReleaseInvitationServiceImp } from '../AccessReleaseInvitation/AccessReleaseInvitationController'
+import { WorkScheduleServiceImp } from '../WorkSchedule/WorkScheduleController'
 import { AccessReleaseServiceImp } from './AccessReleaseController'
 
 class AccessReleaseCreationService {
@@ -21,6 +22,15 @@ class AccessReleaseCreationService {
     })
 
     this.validateAccessReleaseStatus(lastAccessRelease)
+
+    if (!accessRelease.workSchedulesCodes?.length) {
+      await WorkScheduleServiceImp.findByCode({
+        code: 1,
+        tenantId
+      })
+
+      accessRelease.workSchedulesCodes = [1]
+    }
 
     if (!accessRelease.endDate && !accessRelease.expiringTime) accessRelease.endDate = DateUtils.getDefaultEndDate()
 

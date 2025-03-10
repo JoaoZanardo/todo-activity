@@ -3,7 +3,7 @@ import { Aggregate, FilterQuery } from 'mongoose'
 import { IFindAllModelsProps, IFindModelByIdProps, IFindModelByNameProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
-import { IListWorkSchedulesFilters, IWorkSchedule, WorkScheduleModel } from './WorkScheduleModel'
+import { IFindWorkScheduleByCodeProps, IListWorkSchedulesFilters, IWorkSchedule, WorkScheduleModel } from './WorkScheduleModel'
 import { IWorkScheduleMongoDB } from './WorkScheduleSchema'
 
 export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, WorkScheduleModel> {
@@ -14,6 +14,22 @@ export class WorkScheduleRepository extends Repository<IWorkScheduleMongoDB, Wor
   }: IFindModelByIdProps): Promise<WorkScheduleModel | null> {
     const match: FilterQuery<IWorkSchedule> = {
       _id: id,
+      tenantId,
+      deletionDate: null
+    }
+
+    const document = await this.mongoDB.findOne(match).lean()
+    if (!document) return null
+
+    return new WorkScheduleModel(document)
+  }
+
+  async findByCode ({
+    code,
+    tenantId
+  }: IFindWorkScheduleByCodeProps): Promise<WorkScheduleModel | null> {
+    const match: FilterQuery<IWorkSchedule> = {
+      code,
       tenantId,
       deletionDate: null
     }

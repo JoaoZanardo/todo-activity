@@ -4,7 +4,7 @@ import { IFindModelByIdProps } from '../../core/interfaces/Model'
 import { IAggregatePaginate, IUpdateProps } from '../../core/interfaces/Repository'
 import { Repository } from '../../core/Repository'
 import { DateUtils } from '../../utils/Date'
-import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindAllAccessReleaseByResponsibleId, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
+import { AccessReleaseModel, AccessReleaseStatus, IAccessRelease, IFindAccessReleaseByAccessReleaseInvitationId, IFindAllAccessReleaseByPersonTypeId, IFindAllAccessReleaseByResponsibleId, IFindAllAccessReleasesByWorkScheduleCodeProps, IFindLastAccessReleaseByPersonId, IListAccessReleasesFilters, IUpdateAccessReleaseSynchronizationsProps } from './AccessReleaseModel'
 import { IAccessReleaseMongoDB } from './AccessReleaseSchema'
 
 export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, AccessReleaseModel> {
@@ -22,6 +22,18 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
     if (!document) return null
 
     return new AccessReleaseModel(document)
+  }
+
+  async findAllByWorkScheduleCode ({
+    workScheduleCode,
+    tenantId
+  }: IFindAllAccessReleasesByWorkScheduleCodeProps): Promise<Array<Partial<IAccessRelease>>> {
+    return await this.mongoDB.find({
+      workSchedulesCodes: { $in: [workScheduleCode] },
+      tenantId,
+      status: AccessReleaseStatus.active,
+      deletionDate: null
+    })
   }
 
   async findByAccessReleaseInvitationId ({
@@ -227,7 +239,7 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
       },
       {
         $lookup: {
-          from: 'persontypescategories',
+          from: 'persontypecategories',
           localField: 'personTypeCategoryId',
           foreignField: '_id',
           as: 'personTypeCategory'
@@ -325,7 +337,6 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
 
   async list ({ limit, page, ...filters }: IListAccessReleasesFilters): Promise<IAggregatePaginate<IAccessRelease>> {
     const aggregationStages: Aggregate<Array<any>> = this.mongoDB.aggregate([
-      { $match: filters },
       {
         $lookup: {
           from: 'people',
@@ -335,6 +346,32 @@ export class AccessReleaseRepository extends Repository<IAccessReleaseMongoDB, A
         }
       },
       { $unwind: '$person' },
+      { $match: filters },
+      {
+        $lookup: {
+          from: 'persontypes',
+          localField: 'personTypeId',
+          foreignField: '_id',
+          as: 'personType'
+        }
+      },
+      {
+        $unwind: '$personType'
+      },
+      {
+        $lookup: {
+          from: 'people',
+          localField: 'responsibleId',
+          foreignField: '_id',
+          as: 'responsible'
+        }
+      },
+      {
+        $unwind: {
+          path: '$responsible',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       { $sort: { _id: -1 } }
     ])
 

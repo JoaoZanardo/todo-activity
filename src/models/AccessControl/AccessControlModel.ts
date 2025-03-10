@@ -3,7 +3,6 @@ import { ClientSession, Types } from 'mongoose'
 import { IDeleteModelProps, IListModelsFilters, IModel, IUpdateModelProps, ModelAction } from '../../core/interfaces/Model'
 import Model from '../../core/Model'
 import { DateUtils } from '../../utils/Date'
-import { format } from '../../utils/format'
 import ObjectId from '../../utils/ObjectId'
 import { AccessPointModel } from '../AccessPoint/AccessPointModel'
 import { AccessReleaseModel } from '../AccessRelease/AccessReleaseModel'
@@ -15,7 +14,6 @@ export interface IListAccessControlsFilters extends IListModelsFilters {
   accessPointId?: Types.ObjectId
   equipmentId?: Types.ObjectId
   type?: AccessControlType
-  photo?: boolean
   initDate?: Date
   endDate?: Date
   personId?: Types.ObjectId
@@ -26,10 +24,11 @@ export interface IUpdateAccessControlProps extends IUpdateModelProps<IAccessCont
 export interface IDeleteAccessControlProps extends IDeleteModelProps { }
 
 export interface ICreateAccessControlByEquipmentIpProps {
+  picture: string
   equipmentIp: string
   personId: Types.ObjectId
-  tenantId: Types.ObjectId
   session: ClientSession
+  releaseType: AccessControlReleaseType
 }
 
 export interface IValidateAccessControlCreationProps {
@@ -38,6 +37,12 @@ export interface IValidateAccessControlCreationProps {
   accessPoint: AccessPointModel
   tenantId: Types.ObjectId
   session: ClientSession
+}
+
+export enum AccessControlReleaseType {
+  'manually' = 'manually',
+  'facial' = 'facial',
+  'qrCode' = 'qrCode'
 }
 
 export enum AccessControlType {
@@ -59,6 +64,7 @@ export interface IAccessControlCreationServiceExecuteProps {
   tenantId: Types.ObjectId
   accessPointId: Types.ObjectId
   session: ClientSession
+  releaseType: AccessControlReleaseType
 }
 
 export interface IAccessControl extends IModel {
@@ -74,6 +80,7 @@ export interface IAccessControl extends IModel {
     ip?: string
   }
 
+  releaseType: AccessControlReleaseType
   accessReleaseId: Types.ObjectId
   person: {
     picture?: string
@@ -110,6 +117,7 @@ export class AccessControlModel extends Model<IAccessControl> {
   private _type?: IAccessControl['type']
   private _equipment?: IAccessControl['equipment']
 
+  private _releaseType: IAccessControl['releaseType']
   private _person: IAccessControl['person']
   private _accessPoint: IAccessControl['accessPoint']
   private _accessReleaseId: IAccessControl['accessReleaseId']
@@ -118,10 +126,12 @@ export class AccessControlModel extends Model<IAccessControl> {
     super(accessControl)
 
     this._responsible = accessControl.responsible
-
-    this._type = accessControl.type
     this._equipment = accessControl.equipment
     this._person = accessControl.person
+    this._observation = accessControl.observation
+    this._type = accessControl.type
+
+    this._releaseType = accessControl.releaseType
     this._accessPoint = accessControl.accessPoint
     this._accessReleaseId = ObjectId(accessControl.accessReleaseId)
     this.actions = accessControl.actions || [{
@@ -142,6 +152,7 @@ export class AccessControlModel extends Model<IAccessControl> {
       observation: this._observation,
       equipment: this._equipment,
 
+      releaseType: this._releaseType,
       type: this._type,
       person: this._person,
       accessPoint: this._accessPoint,
@@ -164,7 +175,6 @@ export class AccessControlModel extends Model<IAccessControl> {
       areaId,
       accessAreaId,
       accessPointId,
-      photo,
       equipmentId,
       initDate,
       endDate,
@@ -189,13 +199,6 @@ export class AccessControlModel extends Model<IAccessControl> {
       Object.assign(filters, { createdAt: createdAtFilter })
     }
 
-    if (photo) {
-      const hasPhoto = format.boolean(photo)
-
-      const condition = { $exists: hasPhoto }
-
-      Object.assign(filters, { 'person.picture': condition })
-    }
     if (personId) Object.assign(filters, { 'person.id': ObjectId(personId) })
     if (equipmentId) Object.assign(filters, { 'equipment.id': ObjectId(equipmentId) })
     if (personTypeId) Object.assign(filters, { 'person.personType.id': ObjectId(personTypeId) })

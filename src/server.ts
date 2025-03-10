@@ -4,7 +4,6 @@ import express, { Application } from 'express'
 import { IncomingMessage, Server as HTTPServer, ServerResponse } from 'http'
 import morgan from 'morgan'
 
-import env from './config/env'
 import executeJobs from './jobs'
 import router from './routes/router'
 
@@ -14,9 +13,8 @@ export class Server {
 
   constructor (
     private _app: Application,
-    private port: number = env.port
-  ) {
-  }
+    private port: number = 8000
+  ) {}
 
   async init (): Promise<void> {
     executeJobs()
@@ -30,7 +28,9 @@ export class Server {
   }
 
   private setupApp (): void {
-    this._app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
+    this._app.use(
+      morgan(':method :url :status :res[content-length] - :response-time ms')
+    )
     this._app.use(cors({}))
     this._app.use(express.json())
   }
